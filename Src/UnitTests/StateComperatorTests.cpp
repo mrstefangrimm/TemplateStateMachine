@@ -22,7 +22,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace tsmlib;
 
-namespace unittests_tsm_cmp {
+namespace UnitTests {
 
 	template<typename T>
 	struct TestStateA : T {

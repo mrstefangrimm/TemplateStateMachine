@@ -25,7 +25,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace tsmlib;
 using namespace std;
 
-namespace unittests_tsm_guardaction {
+namespace UnitTests {
 
   typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 

@@ -22,7 +22,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace tsmlib;
 
-namespace unittests_tsm_create {
+namespace UnitTests {
 
 	struct TestObject { };
 	TestObject singleObject;
