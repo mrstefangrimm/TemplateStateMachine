@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="StateComperatorTests.cpp" />
+    <ClCompile Include="StateCreatorTest.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
+    <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="tsmlib\state.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="tsmlib\templatemeta.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="tsmlib\statemachine.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="tsmlib\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="tsmlib">
+      <UniqueIdentifier>{a7938580-3b40-40d6-8f03-72887e1f19a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
