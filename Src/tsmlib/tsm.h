@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(IAMARDINO)
+#if defined(IAMARDUINO)
 
 template<class T, class U>
 struct is_same {
