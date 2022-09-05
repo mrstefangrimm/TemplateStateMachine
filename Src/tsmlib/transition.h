@@ -30,6 +30,12 @@ namespace tsmlib {
 
   template<typename STATE>
   struct AnyState : STATE {
+    typedef AnyState CreatorType;
+    void entry() { }
+    void exit() { }
+    void doit() { }
+    static AnyState* Create() { return 0; }
+    static void Delete(AnyState*) { }
   };
 
   struct EmptyAction {
@@ -66,10 +72,12 @@ namespace tsmlib {
 
       // Final transition
       //if (is_same<EmptyState<STATE>, TO>().value && is_same<AnyState<STATE>, FROM>().value) {
-
-      //  current->Exit();
+      //  // TODO: "exit" of AnyState is called, not from the current object. Polymorphism is required.
+      //  static_cast<FROM*>(current)->exit();
       //  ACTION()();
-
+      //  // TODO: AnyState::Delete is called
+      //  FromFactory::Delete(static_cast<FROM*>(current));
+      //  FromFactory::Delete(fromState);
       //  return toState;
       //}
 

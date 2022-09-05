@@ -78,7 +78,7 @@ Typelist<Soff,
 
 struct GoFinalGuard {
   bool check() {
-    return false;
+    return true;
   }
 };
 

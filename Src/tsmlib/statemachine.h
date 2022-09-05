@@ -42,16 +42,12 @@ namespace tsmlib {
       
       // Final transition. Check guard and terminate.
       //if (!is_same<NullFinalTransition<STATE>, FINALTRANSITION>().value) {
-
       //  typename FINALTRANSITION::GuardType guard;
       //  if (guard.check()) {
-
-      //    typedef typename TypeAt<STATES, _activeStateIdx>::Result ActiveState;
-      //    ActiveState activeState;
-      //    activeState.exit();
-
-      //    _activeState = FINALTRANSITION().Trigger(_activeState);
-      //    
+      //    //typedef typename TypeAt<STATES, _activeStateIdx>::Result ActiveState;
+      //    //ActiveState activeState;
+      //    //activeState.exit();
+      //    _activeState = FINALTRANSITION().trigger(_activeState);
       //    if (_activeState == 0) return _activeState;
       //  }
       //}
