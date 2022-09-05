@@ -94,7 +94,7 @@ namespace tsmlib {
         if (!is_same<ACTION, EmptyAction>().value) {
           ACTION()();
         }
-        toState->doit();
+        static_cast<TO*>(current)->doit();
         ToFactory::Delete(toState);
         FromFactory::Delete(fromState);
         return current;
