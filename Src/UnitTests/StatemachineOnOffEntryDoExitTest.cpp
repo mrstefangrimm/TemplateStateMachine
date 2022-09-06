@@ -58,10 +58,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
+      template<uint8_t TRIGGER>
       void doit() { DoitCalls++; }
-      // TODO: cleanup Do(Int2Type<TRIGGER>())
-      //void Do(Int2Type<Triggers::On>) { DoOnCalls++; }
-      //void Do(Int2Type<Triggers::OnToOn>) { DoOnToOnCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -75,11 +73,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
+      template<uint8_t TRIGGER>
       void doit() { DoitCalls++; }
-      // TODO: cleanup Do(Int2Type<TRIGGER>())
-      //void Do(Int2Type<Triggers::Off>) { DoOffCalls++; }
-      //void Do(Int2Type<Triggers::OffToOff>) { DoOffToOffCalls++; }
-
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;

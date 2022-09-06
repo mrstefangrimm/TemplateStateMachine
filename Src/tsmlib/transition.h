@@ -23,6 +23,7 @@ struct EmptyState : STATE {
   typedef EmptyState CreatorType;
   void entry() { }
   void exit() { }
+  template<uint8_t TRIGGER>
   void doit() { }
   static EmptyState* Create() {
     return 0;
@@ -35,7 +36,8 @@ struct AnyState : STATE {
   typedef AnyState CreatorType;
   void entry() { }
   void exit() { }
-  void doit() { }
+  template<uint8_t TRIGGER>
+  void doit();
   static AnyState* Create() {
     return 0;
   }
@@ -56,7 +58,6 @@ struct EmptyGuard {
 
 template<uint8_t TRIGGER, typename STATE, typename TO, typename FROM, typename GUARD, typename ACTION>
 struct Transition {
-  //typedef TO ToType;
 
   STATE* trigger(STATE* activeState) {
     typedef typename TO::CreatorType ToFactory;
@@ -68,7 +69,7 @@ struct Transition {
     if (!is_same<EmptyState<STATE>, TO>().value && is_same<EmptyState<STATE>, FROM>().value) {
       ACTION().perform(static_cast<FROM*>(activeState));
       toState->entry();
-      toState->doit();
+      toState->doit<TRIGGER>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -111,7 +112,7 @@ struct Transition {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO*>(activeState)->doit();
+      static_cast<TO*>(activeState)->doit<TRIGGER>();
       ToFactory::Delete(toState);
       return activeState;
     }
@@ -122,8 +123,7 @@ struct Transition {
       ACTION().perform(static_cast<FROM*>(activeState));
     }
     toState->entry();
-    toState->doit();
-    // TODO: cleanup Do(Int2Type<TRIGGER>()) - toState->Do(Int2Type<TRIGGER>());
+    toState->doit<TRIGGER>();
     FromFactory::Delete(static_cast<FROM*>(activeState));
     return toState;
   }

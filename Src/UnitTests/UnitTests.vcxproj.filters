@@ -2,11 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="StateComperatorTests.cpp" />
-    <ClCompile Include="StateCreatorTest.cpp" />
+    <ClCompile Include="StateCreatorTests.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
+    <ClCompile Include="ChoiceTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tsmlib\state.h">
@@ -19,6 +20,9 @@
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="tsmlib\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tsmlib\choice.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
   </ItemGroup>

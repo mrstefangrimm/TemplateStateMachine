@@ -72,7 +72,7 @@ class Statemachine {
       return _activeState;
     }
   private:
-    STATE* _activeState;
+    STATE* _activeState = 0;
     //uint8_t _activeStateIdx;
     //static Statemachine<STATE, TRANSITIONS, INNERSM, INITIALSTATEFAC>* Instance;
 };

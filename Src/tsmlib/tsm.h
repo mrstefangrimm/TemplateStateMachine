@@ -30,3 +30,4 @@ using namespace std;
 #include "state.h"
 #include "statemachine.h"
 #include "transition.h"
+#include "choice.h"

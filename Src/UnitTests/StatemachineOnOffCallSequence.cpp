@@ -41,6 +41,7 @@ namespace UnitTests {
       static const char* Name;
       typedef FinalStateFake CreatorType;
       void entry() { }
+      template<uint8_t TRIGGER>
       void doit() { }
       static FinalStateFake* Create() { return 0; }
       static void Delete(FinalStateFake*) { }
@@ -78,6 +79,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
       void entry() { recorder.push_back("OnState::Entry"); }
       void exit() { recorder.push_back("OnState::Exit"); }
+      template<uint8_t TRIGGER>
       void doit() { recorder.push_back("OnState::Do"); }
     };
     const char* OnState::Name = "OnState";
@@ -87,6 +89,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
       void entry() { recorder.push_back("OffState::Entry"); }
       void exit() { recorder.push_back("OffState::Exit"); }
+      template<uint8_t TRIGGER>
       void doit() { recorder.push_back("OffState::Do"); }
     };
     const char* OffState::Name = "OffState";

@@ -164,14 +164,16 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="StateComperatorTests.cpp" />
-    <ClCompile Include="StateCreatorTest.cpp" />
+    <ClCompile Include="StateCreatorTests.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\tsmlib\choice.h" />
     <ClInclude Include="tsmlib\state.h" />
     <ClInclude Include="tsmlib\statemachine.h" />
     <ClInclude Include="tsmlib\templatemeta.h" />

@@ -24,9 +24,8 @@ using namespace tsmlib;
 namespace UnitTests {
 
 	struct TestObject { };
-	TestObject singleObject;
 
-	TEST_CLASS(StateCreatorTest)
+	TEST_CLASS(StateCreatorTests)
 	{
 	public:
 		
