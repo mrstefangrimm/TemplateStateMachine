@@ -119,7 +119,7 @@ namespace UnitTests {
 
         vector<string> expected;
 
-        SM sm;
+        SM sm(true);
         expected.push_back("OffState<-Initial");
         expected.push_back("OffState::Entry");
         expected.push_back("OffState::Do");

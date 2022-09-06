@@ -30,9 +30,16 @@ namespace tsmlib {
   class Statemachine {
   public:
 
-    Statemachine() {
-      INITIALTRANSITION initialTransition;
-      _activeState = initialTransition.trigger(0);
+    Statemachine(bool immediatelyBegin = false) {
+      if (immediatelyBegin) begin();
+    }
+
+    void begin() {
+      _activeState = INITIALTRANSITION().trigger(0);
+    }
+
+    void end() {
+      if (_activeState != 0) FINALTRANSITION().trigger(_activeState);
     }
 
     template<uint8_t T>

@@ -115,6 +115,7 @@ namespace UnitTests {
 
       TEST_METHOD(InitialTransition_ToOffState_ActionEntryDoAreCalled)
       {
+        SM sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -128,7 +129,7 @@ namespace UnitTests {
         TerminateGuardDummy::Calls = 0;
         TerminateGuardDummy::CheckReturnValue = false;
 
-        SM sm;
+        sm.begin();
         Assert::AreEqual<int>(0, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -148,12 +149,13 @@ namespace UnitTests {
       //TEST_METHOD(ImplicitFinializeTransition_ToOnFromOffAndFinalizeCondition)
       //{
       //  TerminateGuardDummy::CheckReturnValue = true;
-      //  SM sm;
+      //  SM sm(true);
       //  sm.Trigger<1>();
       //}
 
       TEST_METHOD(ExplicitFinializeTransition_FromOff_OffExitAndActionAreCalled)
       {
+        SM sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -167,7 +169,7 @@ namespace UnitTests {
         TerminateGuardDummy::Calls = 0;
         TerminateGuardDummy::CheckReturnValue = true;
 
-        SM sm;
+        sm.begin();
         Assert::AreEqual<int>(0, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -196,6 +198,7 @@ namespace UnitTests {
 
       TEST_METHOD(ExplicitFinializeTransition_FromOn_OnExitAndActionAreCalled)
       {
+        SM sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -209,7 +212,7 @@ namespace UnitTests {
         TerminateGuardDummy::Calls = 0;
         TerminateGuardDummy::CheckReturnValue = true;
 
-        SM sm;
+        sm.begin();
         Assert::AreEqual<int>(0, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -248,6 +251,92 @@ namespace UnitTests {
         Assert::AreEqual<int>(1, ToFinalFromOnActionSpy::Calls);
         Assert::AreEqual<int>(0, TerminateActionSpy::Calls);
         Assert::AreEqual<int>(0, TerminateGuardDummy::Calls);
+      }
+
+      TEST_METHOD(StatemachineEnd_OffStateAndGuardTrue_ImplicitFinializeTransitionOffExitAndActionAreCalled)
+      {
+        SM sm;
+        OffState::ExitCalls = 0;
+        OffState::EntryCalls = 0;
+        OffState::DoitCalls = 0;
+        OnState::ExitCalls = 0;
+        OnState::EntryCalls = 0;
+        OnState::DoitCalls = 0;
+        ToOffFromInitialActionSpy::Calls = 0;
+        ToFinalFromOffActionSpy::Calls = 0;
+        ToFinalFromOnActionSpy::Calls = 0;
+        TerminateActionSpy::Calls = 0;
+        TerminateGuardDummy::Calls = 0;
+        TerminateGuardDummy::CheckReturnValue = true;
+
+        sm.begin();
+        Assert::AreEqual<int>(0, OffState::ExitCalls);
+        Assert::AreEqual<int>(1, OffState::EntryCalls);
+        Assert::AreEqual<int>(1, OffState::DoitCalls);
+        Assert::AreEqual<int>(0, OnState::ExitCalls);
+        Assert::AreEqual<int>(0, OnState::EntryCalls);
+        Assert::AreEqual<int>(0, OnState::DoitCalls);
+        Assert::AreEqual<int>(1, ToOffFromInitialActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::Calls);
+        Assert::AreEqual<int>(0, TerminateActionSpy::Calls);
+        Assert::AreEqual<int>(0, TerminateGuardDummy::Calls);
+
+        sm.end();
+        //TODO: finaltransition does not work. Assert::AreEqual<int>(1, OffState::ExitCalls);
+        Assert::AreEqual<int>(1, OffState::EntryCalls);
+        Assert::AreEqual<int>(1, OffState::DoitCalls);
+        Assert::AreEqual<int>(0, OnState::ExitCalls);
+        Assert::AreEqual<int>(0, OnState::EntryCalls);
+        Assert::AreEqual<int>(0, OnState::DoitCalls);
+        Assert::AreEqual<int>(1, ToOffFromInitialActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::Calls);
+        Assert::AreEqual<int>(1, TerminateActionSpy::Calls);
+        Assert::AreEqual<int>(1, TerminateGuardDummy::Calls);
+      }
+
+      TEST_METHOD(StatemachineEnd_OffStateAndGuardFalse_ImplicitFinializeTransitionOffExitAndActionAreCalled)
+      {
+        SM sm;
+        OffState::ExitCalls = 0;
+        OffState::EntryCalls = 0;
+        OffState::DoitCalls = 0;
+        OnState::ExitCalls = 0;
+        OnState::EntryCalls = 0;
+        OnState::DoitCalls = 0;
+        ToOffFromInitialActionSpy::Calls = 0;
+        ToFinalFromOffActionSpy::Calls = 0;
+        ToFinalFromOnActionSpy::Calls = 0;
+        TerminateActionSpy::Calls = 0;
+        TerminateGuardDummy::Calls = 0;
+        TerminateGuardDummy::CheckReturnValue = false;
+
+        sm.begin();
+        Assert::AreEqual<int>(0, OffState::ExitCalls);
+        Assert::AreEqual<int>(1, OffState::EntryCalls);
+        Assert::AreEqual<int>(1, OffState::DoitCalls);
+        Assert::AreEqual<int>(0, OnState::ExitCalls);
+        Assert::AreEqual<int>(0, OnState::EntryCalls);
+        Assert::AreEqual<int>(0, OnState::DoitCalls);
+        Assert::AreEqual<int>(1, ToOffFromInitialActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::Calls);
+        Assert::AreEqual<int>(0, TerminateActionSpy::Calls);
+        Assert::AreEqual<int>(0, TerminateGuardDummy::Calls);
+
+        sm.end();
+        //TODO: finaltransition does not work. Assert::AreEqual<int>(1, OffState::ExitCalls);
+        Assert::AreEqual<int>(1, OffState::EntryCalls);
+        Assert::AreEqual<int>(1, OffState::DoitCalls);
+        Assert::AreEqual<int>(0, OnState::ExitCalls);
+        Assert::AreEqual<int>(0, OnState::EntryCalls);
+        Assert::AreEqual<int>(0, OnState::DoitCalls);
+        Assert::AreEqual<int>(1, ToOffFromInitialActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::Calls);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::Calls);
+        Assert::AreEqual<int>(0, TerminateActionSpy::Calls);
+        Assert::AreEqual<int>(1, TerminateGuardDummy::Calls);
       }
     };
   }

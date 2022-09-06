@@ -120,7 +120,7 @@ namespace UnitTests {
       Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOffActionSpy::Calls);
 
-      SM sm;
+      SM sm(true);
       // Off <- Off, internal transition
       StateType* state = sm.trigger<Triggers::OffToOff>();
       Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());

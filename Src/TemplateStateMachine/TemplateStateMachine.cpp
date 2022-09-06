@@ -1,4 +1,3 @@
-#define IAMWINDOWS
 /*
   Copyright 2022 Stefan Grimm
 
@@ -14,13 +13,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "tsmlib/tsm.h"
 #include <iostream>
 
 using namespace tsmlib;
 
 typedef State<VirtualGetTypeIdStateComperator, false> StateType;
-
 
 struct ToSonFromSoffAction {
   template<typename T>
@@ -88,7 +88,7 @@ typedef Statemachine<
   TransitionList,
   NullStatemachine<StateType>,
   InitTransition,
-  TerminateTransition /*NullFinalTransition<StateType>*/> Sm_t;
+  TerminateTransition /*NullFinalTransition<StateType>*/> SM;
 
 int main()
 {
@@ -96,7 +96,7 @@ int main()
 
   Son son;
   Soff soff;
-  Sm_t stateMachine;
+  SM stateMachine(true);
   StateType* st = stateMachine.trigger<Triggers::On>();
   st = stateMachine.trigger<Triggers::OnToOn>();
   st = stateMachine.trigger<Triggers::Off>();

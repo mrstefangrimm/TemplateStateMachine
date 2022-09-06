@@ -115,7 +115,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OffState::EntryCalls);
         Assert::AreEqual<int>(0, OffState::DoitCalls);
 
-        SM sm;
+        SM sm(true);
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(0, OnState::EntryCalls);
         Assert::AreEqual<int>(0, OnState::DoitCalls);

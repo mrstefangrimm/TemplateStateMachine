@@ -39,21 +39,20 @@ namespace tsmlib {
   };
 
   struct EmptyAction {
-    void operator()() {
-    }
+    template<typename T>
+    void perform(T*) { }
   };
 
   struct EmptyGuard {
-    bool check() {
-      return false;
-    }
+    template<typename T>
+    bool check(T*) { return false; }
   };
 
   template<uint8_t TRIGGER, typename STATE, typename TO, typename FROM, typename GUARD, typename ACTION>
   struct Transition {
     //typedef TO ToType;
 
-    STATE* trigger(STATE* current) {
+    STATE* trigger(STATE* activeState) {
       typedef typename TO::CreatorType ToFactory;
       typedef typename FROM::CreatorType FromFactory;
       TO* toState = ToFactory::Create();
@@ -61,63 +60,65 @@ namespace tsmlib {
 
       // Initial transition
       if (!is_same<EmptyState<STATE>, TO>().value && is_same<EmptyState<STATE>, FROM>().value) {
-        ACTION()();
+        ACTION().perform(static_cast<FROM*>(activeState));
         toState->entry();
         toState->doit();
 
-        // Delete not needed. "current" and "fromState" are null (the initial state)
+        // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
         return toState;
       }
 
       // Final transition
-      //if (is_same<EmptyState<STATE>, TO>().value && is_same<AnyState<STATE>, FROM>().value) {
-      //  // TODO: "exit" of AnyState is called, not from the current object. Polymorphism is required.
-      //  static_cast<FROM*>(current)->exit();
-      //  ACTION()();
-      //  // TODO: AnyState::Delete is called
-      //  FromFactory::Delete(static_cast<FROM*>(current));
-      //  FromFactory::Delete(fromState);
-      //  return toState;
-      //}
+      if (is_same<EmptyState<STATE>, TO>().value && is_same<AnyState<STATE>, FROM>().value) {
 
-      // The transition is valid if the "fromState" is also the current state from the state machine.
-      if (!fromState->equals(*current)) {
-        ToFactory::Delete(toState);
-        FromFactory::Delete(fromState);
-        return current;
+        // Delete toState and fromState not needed; both are "null".
+        
+        if (GUARD().check(static_cast<FROM*>(activeState))) {
+          // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
+          static_cast<FROM*>(activeState)->exit();
+            ACTION().perform(static_cast<FROM*>(activeState));
+            // TODO: AnyState::Delete is called
+            FromFactory::Delete(static_cast<FROM*>(activeState));
+            return toState;
+        }
+        return activeState;
       }
 
+      // The transition is valid if the "fromState" is also the activeState state from the state machine.
+      if (!fromState->equals(*activeState)) {
+        ToFactory::Delete(toState);
+        FromFactory::Delete(fromState);
+        return activeState;
+      }
+      FromFactory::Delete(fromState);
+
       if (!is_same<GUARD, EmptyGuard>().value) {
-        GUARD guard;
-        if (!guard.check()) {         
+        if (!GUARD().check<FROM>(static_cast<FROM*>(activeState))) {
           ToFactory::Delete(toState);
-          FromFactory::Delete(fromState);
-          return current;
+          return activeState;
         }
       }
       // Internal transition
       if (is_same<TO, FROM>().value) {
 
         if (!is_same<ACTION, EmptyAction>().value) {
-          ACTION()();
+          ACTION().perform(static_cast<FROM*>(activeState));
         }
-        static_cast<TO*>(current)->doit();
+        static_cast<TO*>(activeState)->doit();
         ToFactory::Delete(toState);
-        FromFactory::Delete(fromState);
-        return current;
+        return activeState;
       }
 
-      fromState->exit();
+      static_cast<FROM*>(activeState)->exit();
 
       if (!is_same<ACTION, EmptyAction>().value) {
-        ACTION()();
+        ACTION().perform(static_cast<FROM*>(activeState));
       }
       toState->entry();
       toState->doit();
       // TODO: cleanup Do(Int2Type<TRIGGER>()) - toState->Do(Int2Type<TRIGGER>());
-      FromFactory::Delete(static_cast<FROM*>(current));
-      FromFactory::Delete(fromState);
+      FromFactory::Delete(static_cast<FROM*>(activeState));
       return toState;
     }
   };
