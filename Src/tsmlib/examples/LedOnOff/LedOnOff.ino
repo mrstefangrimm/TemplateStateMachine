@@ -57,16 +57,16 @@ NullStatemachine<StateType>,
 InitTransition,
 NullFinalTransition<StateType >> SM;
 
-SM* statemachine;
+SM statemachine;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
-  statemachine = new SM();
+  statemachine.begin();
 }
 
 void loop() {
-  statemachine->trigger<Triggers::On>();
+  statemachine.trigger<Triggers::On>();
   delay(1000);
-  statemachine->trigger<Triggers::Off>();
+  statemachine.trigger<Triggers::Off>();
   delay(1000);
 }

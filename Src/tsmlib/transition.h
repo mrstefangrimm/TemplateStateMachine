@@ -18,127 +18,132 @@
 
 namespace tsmlib {
 
-  template<typename STATE>
-  struct EmptyState : STATE {
-    typedef EmptyState CreatorType;
-    void entry() { }
-    void exit() { }
-    void doit() { }
-    static EmptyState* Create() { return 0; }
-    static void Delete(EmptyState*) { }
-  };
+template<typename STATE>
+struct EmptyState : STATE {
+  typedef EmptyState CreatorType;
+  void entry() { }
+  void exit() { }
+  void doit() { }
+  static EmptyState* Create() {
+    return 0;
+  }
+  static void Delete(EmptyState*) { }
+};
 
-  template<typename STATE>
-  struct AnyState : STATE {
-    typedef AnyState CreatorType;
-    void entry() { }
-    void exit() { }
-    void doit() { }
-    static AnyState* Create() { return 0; }
-    static void Delete(AnyState*) { }
-  };
+template<typename STATE>
+struct AnyState : STATE {
+  typedef AnyState CreatorType;
+  void entry() { }
+  void exit() { }
+  void doit() { }
+  static AnyState* Create() {
+    return 0;
+  }
+  static void Delete(AnyState*) { }
+};
 
-  struct EmptyAction {
-    template<typename T>
-    void perform(T*) { }
-  };
+struct EmptyAction {
+  template<typename T>
+  void perform(T*) { }
+};
 
-  struct EmptyGuard {
-    template<typename T>
-    bool check(T*) { return false; }
-  };
+struct EmptyGuard {
+  template<typename T>
+  bool check(T*) {
+    return false;
+  }
+};
 
-  template<uint8_t TRIGGER, typename STATE, typename TO, typename FROM, typename GUARD, typename ACTION>
-  struct Transition {
-    //typedef TO ToType;
+template<uint8_t TRIGGER, typename STATE, typename TO, typename FROM, typename GUARD, typename ACTION>
+struct Transition {
+  //typedef TO ToType;
 
-    STATE* trigger(STATE* activeState) {
-      typedef typename TO::CreatorType ToFactory;
-      typedef typename FROM::CreatorType FromFactory;
-      TO* toState = ToFactory::Create();
-      FROM* fromState = FromFactory::Create();
+  STATE* trigger(STATE* activeState) {
+    typedef typename TO::CreatorType ToFactory;
+    typedef typename FROM::CreatorType FromFactory;
+    TO* toState = ToFactory::Create();
+    FROM* fromState = FromFactory::Create();
 
-      // Initial transition
-      if (!is_same<EmptyState<STATE>, TO>().value && is_same<EmptyState<STATE>, FROM>().value) {
+    // Initial transition
+    if (!is_same<EmptyState<STATE>, TO>().value && is_same<EmptyState<STATE>, FROM>().value) {
+      ACTION().perform(static_cast<FROM*>(activeState));
+      toState->entry();
+      toState->doit();
+
+      // Delete not needed. "activeState" and "fromState" are null (the initial state)
+
+      return toState;
+    }
+
+    // Final transition
+    if (is_same<EmptyState<STATE>, TO>().value && is_same<AnyState<STATE>, FROM>().value) {
+
+      // Delete toState and fromState not needed; both are "null".
+
+      if (GUARD().check(static_cast<FROM*>(activeState))) {
+        // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
+        static_cast<FROM*>(activeState)->exit();
         ACTION().perform(static_cast<FROM*>(activeState));
-        toState->entry();
-        toState->doit();
-
-        // Delete not needed. "activeState" and "fromState" are null (the initial state)
-
+        // TODO: AnyState::Delete is called
+        FromFactory::Delete(static_cast<FROM*>(activeState));
         return toState;
       }
+      return activeState;
+    }
 
-      // Final transition
-      if (is_same<EmptyState<STATE>, TO>().value && is_same<AnyState<STATE>, FROM>().value) {
-
-        // Delete toState and fromState not needed; both are "null".
-        
-        if (GUARD().check(static_cast<FROM*>(activeState))) {
-          // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-          static_cast<FROM*>(activeState)->exit();
-            ACTION().perform(static_cast<FROM*>(activeState));
-            // TODO: AnyState::Delete is called
-            FromFactory::Delete(static_cast<FROM*>(activeState));
-            return toState;
-        }
-        return activeState;
-      }
-
-      // The transition is valid if the "fromState" is also the activeState state from the state machine.
-      if (!fromState->equals(*activeState)) {
-        ToFactory::Delete(toState);
-        FromFactory::Delete(fromState);
-        return activeState;
-      }
+    // The transition is valid if the "fromState" is also the activeState state from the state machine.
+    if (!fromState->equals(*activeState)) {
+      ToFactory::Delete(toState);
       FromFactory::Delete(fromState);
+      return activeState;
+    }
+    FromFactory::Delete(fromState);
 
-      if (!is_same<GUARD, EmptyGuard>().value) {
-        if (!GUARD().check<FROM>(static_cast<FROM*>(activeState))) {
-          ToFactory::Delete(toState);
-          return activeState;
-        }
-      }
-      // Internal transition
-      if (is_same<TO, FROM>().value) {
-
-        if (!is_same<ACTION, EmptyAction>().value) {
-          ACTION().perform(static_cast<FROM*>(activeState));
-        }
-        static_cast<TO*>(activeState)->doit();
+    if (!is_same<GUARD, EmptyGuard>().value) {
+      if (!GUARD().check(static_cast<FROM*>(activeState))) {
         ToFactory::Delete(toState);
         return activeState;
       }
-
-      static_cast<FROM*>(activeState)->exit();
+    }
+    // Internal transition
+    if (is_same<TO, FROM>().value) {
 
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      toState->entry();
-      toState->doit();
-      // TODO: cleanup Do(Int2Type<TRIGGER>()) - toState->Do(Int2Type<TRIGGER>());
-      FromFactory::Delete(static_cast<FROM*>(activeState));
-      return toState;
+      static_cast<TO*>(activeState)->doit();
+      ToFactory::Delete(toState);
+      return activeState;
     }
-  };
 
-  template<typename STATE, typename TO, typename ACTION>
-  struct InitialTransition : Transition<0, STATE, TO, EmptyState<STATE>, EmptyGuard, ACTION> { };
+    static_cast<FROM*>(activeState)->exit();
 
-  template<typename STATE, typename GUARD, typename ACTION>
-  struct FinalTransition : Transition<0, STATE, EmptyState<STATE>, AnyState<STATE>, GUARD, ACTION> {
-    typedef GUARD GuardType;
-
-    FinalTransition() {
-      // Final transition without guard does not make sense; the state machine would immediately go to the final state.
-      CTAssert<!is_same<EmptyGuard, GUARD>().value>();
+    if (!is_same<ACTION, EmptyAction>().value) {
+      ACTION().perform(static_cast<FROM*>(activeState));
     }
-  };
+    toState->entry();
+    toState->doit();
+    // TODO: cleanup Do(Int2Type<TRIGGER>()) - toState->Do(Int2Type<TRIGGER>());
+    FromFactory::Delete(static_cast<FROM*>(activeState));
+    return toState;
+  }
+};
 
-  template<typename STATE>
-  struct NullFinalTransition : Transition<0, STATE, EmptyState<STATE>, AnyState<STATE>, EmptyGuard, EmptyAction> {
-    typedef EmptyGuard GuardType;
-  };
+template<typename STATE, typename TO, typename ACTION>
+struct InitialTransition : Transition<0, STATE, TO, EmptyState<STATE>, EmptyGuard, ACTION> { };
 
+template<typename STATE, typename GUARD, typename ACTION>
+struct FinalTransition : Transition<0, STATE, EmptyState<STATE>, AnyState<STATE>, GUARD, ACTION> {
+  typedef GUARD GuardType;
+
+  FinalTransition() {
+    // Final transition without guard does not make sense; the state machine would immediately go to the final state.
+    CTAssert < !is_same<EmptyGuard, GUARD>().value > ();
+  }
+};
+
+template<typename STATE>
+struct NullFinalTransition : Transition<0, STATE, EmptyState<STATE>, AnyState<STATE>, EmptyGuard, EmptyAction> {
+  typedef EmptyGuard GuardType;
+};
 }
