@@ -33,7 +33,8 @@ namespace UnitTests {
     template<typename TO, typename FROM>
     struct ActionSpy {
       static int Calls;
-      void operator()() { Calls++; }
+      template<typename T>
+      void perform(T*) { Calls++; }
     };
     template<typename TO, typename FROM> int ActionSpy<TO, FROM>::Calls = 0;
 
@@ -43,14 +44,16 @@ namespace UnitTests {
 
     struct TerminateActionSpy {
       static int Calls;
-      void operator()() { Calls++; }
+      template<typename T>
+      void perform(T*) { Calls++; }
     };
     int TerminateActionSpy::Calls = 0;
 
     struct TerminateGuardDummy {
       static int Calls;
       static bool CheckReturnValue;
-      bool check() { Calls++; return CheckReturnValue; }
+      template<typename T>
+      bool check(T*) { Calls++; return CheckReturnValue; }
     };
     int TerminateGuardDummy::Calls = 0;
     bool TerminateGuardDummy::CheckReturnValue = false;

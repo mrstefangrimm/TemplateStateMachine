@@ -49,7 +49,8 @@ namespace UnitTests {
 
     template<typename TO, typename FROM>
     struct ActionSpy {
-      void operator()() {
+      template<typename T>
+      void perform(T*) {
         ostringstream buf;
         buf << TO::Name << "<-" << FROM::Name;
         recorder.push_back(buf.str());

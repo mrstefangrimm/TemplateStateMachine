@@ -31,7 +31,13 @@ namespace UnitTests {
   template<typename TO, typename FROM>
   struct ActionSpy {
     static int Calls;
-    void operator()() { Calls++; }
+    template<typename T>
+    void perform(T* activeState) {
+      FROM* from = FROM::CreatorType::Create();
+      Assert::IsTrue(activeState->equals(*from));
+      FROM::CreatorType::Delete(from);
+      Calls++;
+    }
   };
   template<typename TO, typename FROM> int ActionSpy<TO, FROM>::Calls = 0;
 
@@ -39,7 +45,14 @@ namespace UnitTests {
   struct GuardDummy {
     static int Calls;
     static bool CheckReturnValue;
-    bool check() { Calls++; return CheckReturnValue; }
+    template<typename T>
+    bool check(T* activeState) {
+      FROM* from = FROM::CreatorType::Create();
+      Assert::IsTrue(activeState->equals(*from));
+      FROM::CreatorType::Delete(from);
+      Calls++;
+      return CheckReturnValue;
+    }
   };
   template<typename TO, typename FROM> int GuardDummy<TO, FROM>::Calls = 0;
   template<typename TO, typename FROM> bool GuardDummy<TO, FROM>::CheckReturnValue = true;

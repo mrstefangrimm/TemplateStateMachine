@@ -23,14 +23,14 @@ typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 
 
 struct ToSonFromSoffAction {
-  void operator()() {
+  template<typename T>
+  void perform(T*) {
   }
 };
 
 struct ToSonFromSoffGuard {
-  bool check() {
-    return true;
-  }
+  template<typename T>
+  bool check(T* activeState) {  return true; }
 };
 
 enum Triggers {
@@ -77,9 +77,8 @@ Typelist<Soff,
   NullType>> StateList;
 
 struct GoFinalGuard {
-  bool check() {
-    return true;
-  }
+ template<typename T>
+  bool check(T* activeState) { return true; }
 };
 
 typedef InitialTransition<StateType, Soff, EmptyAction> InitTransition;
