@@ -29,14 +29,16 @@ struct StateBase {
   //  const DERIVED* obj = static_cast<const DERIVED*>(this);
   //  obj->Entry();
   //}
-  //void doit() {
-  //  const DERIVED* obj = static_cast<const DERIVED*>(this);
-  //  obj->Do();
-  //}
+  //template<uint8_t TRIGGER>
+  //void doit();
 };
 
 template<typename COMPERATOR, bool MINIMAL>
-struct State { };
+struct State {
+// TODO: #ifndef SARCRIFYEXIT
+//  virtual void exit() = 0;
+//#endif
+};
 
 template<typename COMPERATOR>
 struct State<COMPERATOR, false> : StateBase<COMPERATOR, State<COMPERATOR, false>> {
@@ -45,18 +47,10 @@ struct State<COMPERATOR, false> : StateBase<COMPERATOR, State<COMPERATOR, false>
 
   // https://stackoverflow.com/questions/54189535/problems-with-implementing-type-id-without-rtti
   virtual uint8_t getTypeId() const = 0;
-
-  //bool Equals(const State& other) const {
-  //  return COMPERATOR::AreEqual(*this, other);
-  //}
 };
 
 template<typename COMPERATOR>
 struct State<COMPERATOR, true> : StateBase<COMPERATOR, State<COMPERATOR, true>> {
-
-  //bool Equals(const State& other) const {
-  //  return COMPERATOR::AreEqual(*this, other);
-  //}
 };
 
 template<typename COMPERATOR, bool MINIMAL>
@@ -66,12 +60,13 @@ inline bool operator==(const State<COMPERATOR, MINIMAL>& lhs, const State<COMPER
 
 template<typename T>
 struct SingletonCreator {
-    typedef SingletonCreator<T> CreatorType;
+  typedef SingletonCreator<T> CreatorType;
+  typedef typename T T;
 
-    static T* Create() {
-      return Instance;
-    }
-    static void Delete(T* state) { }
+  static T* Create() {
+    return Instance;
+  }
+  static void Delete(T* state) { }
 
   private:
     static T* Instance;
@@ -81,6 +76,7 @@ template<typename T> T* SingletonCreator<T>::Instance = new T;
 template<typename T>
 struct FactorCreator {
   typedef FactorCreator<T> CreatorType;
+  typedef typename T T;
 
   static T* Create() {
     return new T;

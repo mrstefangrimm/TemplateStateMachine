@@ -58,6 +58,8 @@ struct EmptyGuard {
 
 template<uint8_t TRIGGER, typename STATE, typename TO, typename FROM, typename GUARD, typename ACTION>
 struct Transition {
+  enum { Trigger = TRIGGER };
+  typedef FROM FromType;
 
   STATE* trigger(STATE* activeState) {
     typedef typename TO::CreatorType ToFactory;
@@ -67,7 +69,9 @@ struct Transition {
 
     // Initial transition
     if (!is_same<EmptyState<STATE>, TO>().value && is_same<EmptyState<STATE>, FROM>().value) {
-      ACTION().perform(static_cast<FROM*>(activeState));
+      if (!is_same<ACTION, EmptyAction>().value) {
+        ACTION().perform(static_cast<FROM*>(activeState));
+      }
       toState->entry();
       toState->doit<TRIGGER>();
 

@@ -26,7 +26,7 @@ using namespace std;
 
 namespace UnitTests {
 
-  namespace Transitions {
+  namespace TransitionInitFinal {
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 

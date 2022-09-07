@@ -19,17 +19,17 @@
 
 namespace tsmlib {
 
-template<typename STATE>
-struct NullStatemachine {
-  STATE* trigger() {
-    return 0;
-  }
-  static NullStatemachine<STATE>* Instance;
-};
-template<typename T> NullStatemachine<T>* NullStatemachine<T>::Instance = 0;
+  template<typename STATE>
+  struct NullStatemachine {
+    STATE* trigger() {
+      return 0;
+    }
+    static NullStatemachine<STATE>* Instance;
+  };
+  template<typename T> NullStatemachine<T>* NullStatemachine<T>::Instance = 0;
 
-template<typename STATE, typename TRANSITIONS, typename INNERSM, typename INITIALTRANSITION, typename FINALTRANSITION>
-class Statemachine {
+  template<typename STATE, typename TRANSITIONS, typename INNERSM, typename INITIALTRANSITION, typename FINALTRANSITION>
+  class Statemachine {
   public:
 
     Statemachine(bool immediatelyBegin = false) {
@@ -61,22 +61,64 @@ class Statemachine {
       //  }
       //}
 
-      //  //TINNERSM* innerStateMachine = TINNERSM::Instance;
-      //  //innerStateMachine->trigger();
+      const int size = Length<TRANSITIONS>::value;
+      STATE* state = TriggerExecutor<TRANSITIONS, size - 1, T, STATE>::execute(_activeState);
+      // Transition not found
+      if (state == 0) return _activeState;
 
-      typedef typename TypeAt<TRANSITIONS, T>::Result Transistion;
-
-      STATE* state = Transistion().trigger(_activeState);
-      //_activeStateIdx = IndexOf<STATES, typename Transistion::ToType>::Result;
       _activeState = state;
       return _activeState;
     }
   private:
     STATE* _activeState = 0;
-    //uint8_t _activeStateIdx;
-    //static Statemachine<STATE, TRANSITIONS, INNERSM, INITIALSTATEFAC>* Instance;
-};
-//template<typename TSTATE, typename TTRANSITIONS, typename TINNERSM, typename TINITSTATEFAC>
-//Statemachine<TSTATE, TTRANSITIONS, TINNERSM, TINITSTATEFAC>* Statemachine<TSTATE, TTRANSITIONS, TINNERSM, TINITSTATEFAC>::Instance = new Statemachine<TSTATE, TTRANSITIONS, TINNERSM, TINITSTATEFAC>;
 
+  public:
+    template<typename TL, int INDEX, uint8_t TRIGGER, typename FROM>
+    struct TriggerExecutor {
+
+      static STATE* execute(FROM* activeState) {
+
+        // Finds last element in the list that meets the conditions.
+        typedef typename TypeAt<TL, INDEX>::Result CurentElement;
+
+        typedef typename CurentElement::FromType::CreatorType FromFactory;
+        typedef typename CurentElement::FromType::T FromFactoryType;
+        FROM* fromState = FromFactory::Create();
+        bool hasSameFromState = activeState->equals(*fromState);
+        FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
+
+        bool conditionMet = CurentElement::Trigger == TRIGGER && hasSameFromState;
+        if (conditionMet) {
+          return CurentElement().trigger(activeState);
+        }
+        // Recursion
+        STATE* resState = TriggerExecutor<TL, INDEX - 1, TRIGGER, FROM>::execute(activeState);
+        if (resState != 0) {
+          return resState;
+        }
+        return 0;
+      }
+    };
+
+    template<typename TL, uint8_t TRIGGER, typename FROM>
+    struct TriggerExecutor<TL, 0, TRIGGER, FROM> {
+      static STATE* execute(FROM* activeState) {
+
+        // Finds last element in the list that meets the conditions.
+        typedef typename TypeAt<TL, 0>::Result FirstElement;
+
+        typedef typename FirstElement::FromType::CreatorType FromFactory;
+        typedef typename FirstElement::FromType::T FromFactoryType;
+        FROM* fromState = FromFactory::Create();
+        bool hasSameFromState = activeState->equals(*fromState);
+        FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
+
+        bool conditionMet = FirstElement::Trigger == TRIGGER && hasSameFromState;
+        if (conditionMet) {
+          return FirstElement().trigger(activeState);
+        }
+        return 0;
+      }
+    };
+  };
 }

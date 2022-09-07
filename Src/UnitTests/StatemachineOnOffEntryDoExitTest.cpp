@@ -39,6 +39,9 @@ namespace UnitTests {
 
     template<typename T>
     struct FactorCreatorFake {
+      typedef FactorCreatorFake<T> CreatorType;
+      typedef typename T T;
+
       static int CreateCalls;
       static int DeleteCalls;
 

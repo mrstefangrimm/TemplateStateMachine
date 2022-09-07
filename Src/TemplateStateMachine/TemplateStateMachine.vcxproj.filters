@@ -24,5 +24,8 @@
     <ClInclude Include="tsmlib\statemachine.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="tsmlib\choice.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
