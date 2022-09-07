@@ -15,36 +15,39 @@
 */
 #include "CppUnitTest.h"
 
-#define IAMARDUINO 1
-#include "tsmlib\tsm.h"
-
-using namespace tsmlib;
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+#include "tsmlib\state.h"
+#include "tsmlib\choice.h"
 
 namespace UnitTests {
+
+  using namespace tsmlib;
+  using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
   struct TestObject { };
   typedef State<MemoryAddressStateComperator<true>, true> StateType;
 
-  struct Init : StateType, SingletonCreator<Init> {
-    void entry() { }
-    void exit() { }
+  class Init : public SimpleState<Init, StateType>, public SingletonCreator<Init> {
+    friend class SimpleState<Init, StateType>;
+    void entry_() { }
+    void exit_() { }
     template<uint8_t N>
-    void doit() { }
+    void doit_() { }
   };
 
-  struct ChoiceTrue : StateType, SingletonCreator<ChoiceTrue> {
-    void entry() { }
-    void exit() { }
+  class ChoiceTrue : public SimpleState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
+    friend class SimpleState<ChoiceTrue, StateType>;
+    void entry_() { }
+    void exit_() { }
     template<uint8_t N>
-    void doit() { }
+    void doit_() { }
   };
 
-  struct ChoiceFalse : StateType, SingletonCreator<ChoiceFalse> {
-    void entry() { }
-    void exit() { }
+  class ChoiceFalse : public SimpleState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
+    friend class SimpleState<ChoiceFalse, StateType>;
+    void entry_() { }
+    void exit_() { }
     template<uint8_t N>
-    void doit() { }
+    void doit_() { }
   };
 
   struct GuardDummy {

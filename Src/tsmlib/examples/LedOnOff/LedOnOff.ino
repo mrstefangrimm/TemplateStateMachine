@@ -25,22 +25,24 @@ enum Triggers {
   Off,
 };
 
-struct LedOn : StateType, SingletonCreator<LedOn> {
-  void entry() {
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
+class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
+    friend class SimpleState<LedOn, StateType>;
+    void entry_() {
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
+    void exit_() { }
+    template<uint8_t N>
+    void doit_() { }
 };
 
-struct LedOff : StateType, SingletonCreator<LedOff> {
-  void entry() {
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
+class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<LedOff> {
+    friend class SimpleState<LedOff, StateType>;
+    void entry_() {
+      digitalWrite(LED_BUILTIN, LOW);
+    }
+    void exit_() { }
+    template<uint8_t N>
+    void doit_() { }
 };
 
 typedef Transition<Triggers::On, StateType, LedOn, LedOff, EmptyGuard, EmptyAction> ToOnFromOff_t;

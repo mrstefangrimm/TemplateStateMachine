@@ -18,10 +18,11 @@
 #include "tsmlib/state.h"
 #include "tsmlib/templatemeta.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace tsmlib;
-
 namespace UnitTests {
+
+  using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+  using namespace tsmlib;
+  using namespace Loki;
 
   template<typename T>
   struct TestStateA : T {

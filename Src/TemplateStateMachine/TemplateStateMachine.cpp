@@ -19,16 +19,17 @@
 #include <iostream>
 
 using namespace tsmlib;
+using namespace Loki;
 
 typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 
-struct ToSonFromSoffAction {
+struct ToSimFromCalibAction {
   template<typename T>
   void perform(T*) {
   }
 };
 
-struct ToSonFromSoffGuard {
+struct ToSimFromCalibGuard {
   template<typename T>
   bool check(T* activeState) { return true; }
 };
@@ -98,7 +99,6 @@ Typelist<
   Typelist<ToManualFromRemote,
   NullType>>>> SimulationTransitionList;
 
-
 typedef InitialTransition<StateType, SimulationInit, EmptyAction> SimulationNestedInitTransition;
 typedef Statemachine<
   StateType,
@@ -106,41 +106,40 @@ typedef Statemachine<
   SimulationNestedInitTransition,
   NullFinalTransition<StateType>> SimulationNestedSM;
 
-struct Simulation : StateType, SingletonCreator<Simulation> {
+struct Simulation : StatemachineHolderState<Simulation, StateType, SimulationNestedSM>, SingletonCreator<Simulation> {
   uint8_t getTypeId() const override { return 1; }
-  void entry() {
-    _nestedSM.begin();
+
+private:
+  friend class StatemachineHolderState<Simulation, StateType, SimulationNestedSM>;
+
+  void entry_() {
   }
-  void exit() {
-    _nestedSM.end();
+  void exit_() {
   }
   template<uint8_t N>
-  void doit() {
-
-    // Check if nested consumes the trigger
-    if (_nestedSM.trigger<N>().consumed) return;
-
+  void doit_() {
     if (N == Triggers::Positionstream) {
       _isPositionStreamActive = !_isPositionStreamActive;
     }
   }
 
 private:
-  SimulationNestedSM _nestedSM;
   bool _isPositionStreamActive = false;
 };
 
-struct Calibration : StateType, FactorCreator<Calibration> {
+struct Calibration : SimpleState<Calibration, StateType>, FactorCreator<Calibration> {
   uint8_t getTypeId() const override { return 2; }
-  void entry() { }
-  void exit() { }
+
+private:
+  friend class SimpleState<Calibration, StateType>;
+  void entry_() { }
+  void exit_() { }
   template<uint8_t N>
-  void doit() {
+  void doit_() {
   }
 };
 
-
-typedef Transition<Triggers::On, StateType, Simulation, Calibration, ToSonFromSoffGuard, ToSonFromSoffAction> ToSimFromCalib;
+typedef Transition<Triggers::On, StateType, Simulation, Calibration, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
 typedef Transition<Triggers::Calibrate, StateType, Calibration, Simulation, EmptyGuard, EmptyAction> ToCalibToSim;
 typedef Transition<Triggers::Positionstream, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimPositionStream;
 typedef Transition<Triggers::Positionstream, StateType, Calibration, Calibration, EmptyGuard, EmptyAction> ToCalibFromCalibPositionStream;

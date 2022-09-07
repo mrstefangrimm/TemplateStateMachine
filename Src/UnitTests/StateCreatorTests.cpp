@@ -18,12 +18,12 @@
 #include "tsmlib/state.h"
 #include "tsmlib/templatemeta.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace tsmlib;
-
 namespace UnitTests {
 
   namespace StateCreation {
+
+    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+    using namespace tsmlib;
 
     struct TestObject { };
 

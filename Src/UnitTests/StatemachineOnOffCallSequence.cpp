@@ -22,13 +22,13 @@
 
 #include <vector>
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace tsmlib;
-using namespace std;
-
 namespace UnitTests {
 
   namespace Recording {
+
+    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+    using namespace tsmlib;
+    using namespace std;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 
@@ -37,15 +37,17 @@ namespace UnitTests {
     };
     const char* InitialStateFake::Name = "Initial";
 
-    struct FinalStateFake : StateType {
+    struct FinalStateFake : SimpleState<FinalStateFake, StateType> {
       static const char* Name;
       typedef FinalStateFake CreatorType;
       static FinalStateFake* Create() { return 0; }
       static void Delete(FinalStateFake*) { }
 
-      void entry() { }
+    private:
+      friend class SimpleState<FinalStateFake, StateType>;
+      void entry_() { }
       template<uint8_t N>
-      void doit() { }
+      void doit_() { }
     };
     const char* FinalStateFake::Name = "Final";
 
@@ -75,23 +77,29 @@ namespace UnitTests {
 
     vector<string> recorder;
 
-    struct OnState : StateType, FactorCreator<OnState> {
+    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
       static const char* Name;
       uint8_t getTypeId() const override { return 1; }
-      void entry() { recorder.push_back("OnState::Entry"); }
-      void exit() { recorder.push_back("OnState::Exit"); }
+
+    private:
+      friend class SimpleState<OnState, StateType>;
+      void entry_() { recorder.push_back("OnState::Entry"); }
+      void exit_() { recorder.push_back("OnState::Exit"); }
       template<uint8_t N>
-      void doit() { recorder.push_back("OnState::Do"); }
+      void doit_() { recorder.push_back("OnState::Do"); }
     };
     const char* OnState::Name = "OnState";
 
-    struct OffState : StateType, FactorCreator<OffState> {
+    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
       static const char* Name;
       uint8_t getTypeId() const override { return 2; }
-      void entry() { recorder.push_back("OffState::Entry"); }
-      void exit() { recorder.push_back("OffState::Exit"); }
+
+    private:
+      friend class SimpleState<OffState, StateType>;
+      void entry_() { recorder.push_back("OffState::Entry"); }
+      void exit_() { recorder.push_back("OffState::Exit"); }
       template<uint8_t N>
-      void doit() { recorder.push_back("OffState::Do"); }
+      void doit_() { recorder.push_back("OffState::Do"); }
     };
     const char* OffState::Name = "OffState";
 

@@ -61,7 +61,7 @@ class Statemachine {
       return TriggerResult<STATE>(true, _activeState);;
     }
 
-private:
+  private:
     STATE* _activeState = 0;
 
   public:

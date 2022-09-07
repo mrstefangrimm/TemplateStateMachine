@@ -15,18 +15,22 @@
    limitations under the License.
 */
 #include "state.h"
+#include "templatemeta.h"
 
 namespace tsmlib {
 
-  template<typename STATE>
-  struct TriggerResult {
-    TriggerResult(bool changed, STATE* state) {
-      consumed = changed;
-      activeState = state;
-    }
-    bool consumed;
-    STATE* activeState;
-  };
+using namespace Loki;
+using namespace std;
+
+template<typename STATE>
+struct TriggerResult {
+  TriggerResult(bool changed, STATE* state) {
+    consumed = changed;
+    activeState = state;
+  }
+  bool consumed;
+  STATE* activeState;
+};
 
 template<typename STATE>
 struct EmptyState : STATE {
@@ -46,12 +50,13 @@ struct EmptyState : STATE {
 template<typename STATE>
 struct AnyState : STATE {
   typedef AnyState CreatorType;
-  void entry() { }
-  void exit() { }
   static AnyState* Create() {
     return 0;
   }
   static void Delete(AnyState*) { }
+
+  void entry() { }
+  void exit() { }
 };
 
 struct EmptyAction {

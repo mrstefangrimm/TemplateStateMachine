@@ -20,11 +20,11 @@
 #include "tsmlib/statemachine.h"
 #include "tsmlib/transition.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace tsmlib;
-using namespace std;
-
 namespace UnitTests {
+
+  using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+  using namespace tsmlib;
+  using namespace std;
 
   typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 
@@ -74,20 +74,26 @@ namespace UnitTests {
     OffToOff
   };
 
-  struct OnState : StateType, FactorCreator<OnState> {
+  struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
     uint8_t getTypeId() const override { return 1; }
-    void entry() { }
-    void exit() { }
+
+  private:
+    friend class SimpleState<OnState, StateType>;
+    void entry_() { }
+    void exit_() { }
     template<uint8_t N>
-    void doit() { }
+    void doit_() { }
   };
 
-  struct OffState : StateType, FactorCreator<OffState> {
+  struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
     uint8_t getTypeId() const override { return 2; }
-    void entry() { }
-    void exit() { }
+
+  private:
+    friend class SimpleState<OffState, StateType>;
+    void entry_() { }
+    void exit_() { }
     template<uint8_t N>
-    void doit() { }
+    void doit_() { }
   };
 
   typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;

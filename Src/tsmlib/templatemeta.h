@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tsmlib {
+namespace Loki {
 
 // From Modern C++
 template<bool> struct CTAssert;

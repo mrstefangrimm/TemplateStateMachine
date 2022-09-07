@@ -17,45 +17,74 @@
 
 namespace tsmlib {
 
-template<typename COMPERATOR, typename DERIVED>
+template<typename Derived, typename Comperator>
 struct StateBase {
-  bool equals(const DERIVED& other) const {
-    return COMPERATOR::AreEqual(*static_cast<const DERIVED*>(this), other);
+  bool equals(const Derived& other) const {
+    return Comperator::AreEqual(*static_cast<const Derived*>(this), other);
   }
-  //void exit() {
-  //  static_cast<DERIVED*>(this)->Exi();
-  //}
-  //void entry() {
-  //  const DERIVED* obj = static_cast<const DERIVED*>(this);
-  //  obj->Entry();
-  //}
-  //template<uint8_t T>
-  //void doit(Int2Type<T>&) {
-  //}
 };
 
-template<typename COMPERATOR, bool MINIMAL>
+template<typename Comperator, bool Singleton>
 struct State {
   // TODO: #ifndef SARCRIFYEXIT
   //  virtual void exit() = 0;
   //#endif
+
+  bool equals(const State& other) const {
+    return Comperator::AreEqual(*this, other);
+  }
 };
 
-template<typename COMPERATOR>
-struct State<COMPERATOR, false> : StateBase<COMPERATOR, State<COMPERATOR, false>> {
+template<typename Comperator>
+struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator> {
   //Microsoft typeid requires:
   virtual void vvfunc() {}
 
-  // https://stackoverflow.com/questions/54189535/problems-with-implementing-type-id-without-rtti
   virtual uint8_t getTypeId() const = 0;
 };
 
-template<typename COMPERATOR>
-struct State<COMPERATOR, true> : StateBase<COMPERATOR, State<COMPERATOR, true>> {
+template<typename Derived, typename Basetype>
+struct SimpleState : Basetype {
+
+  void entry() {
+    static_cast<Derived*>(this)->entry_();
+  }
+  void exit() {
+    static_cast<Derived*>(this)->exit_();
+  }
+
+  template<uint8_t N>
+  void doit() {
+    static_cast<Derived*>(this)->template doit_<N>();
+  }
+};
+
+template<typename Derived, typename Basetype, typename Statemachine>
+struct StatemachineHolderState : Basetype {
+
+  void entry() {
+    static_cast<Derived*>(this)->entry_();
+    _nestedSM.begin();
+  }
+  void exit() {
+    _nestedSM.end();
+    static_cast<Derived*>(this)->exit_();
+  }
+
+  template<uint8_t N>
+  void doit() {
+
+    // Check if nested consumes the trigger
+    if (_nestedSM.template trigger<N>().consumed) return;
+
+    static_cast<Derived*>(this)->template doit_<N>();
+  }
+
+  Statemachine _nestedSM;
 };
 
 template<typename COMPERATOR, bool MINIMAL>
-inline bool operator==(const State<COMPERATOR, MINIMAL>& lhs, const State<COMPERATOR, MINIMAL>& rhs) {
+bool operator==(const State<COMPERATOR, MINIMAL>& lhs, const State<COMPERATOR, MINIMAL>& rhs) {
   return lhs.equals(rhs);
 }
 
@@ -97,13 +126,14 @@ struct TypeidStateComperator {
     return ret;
   }
 };
-#endif
 
 struct VirtualGetTypeIdStateComperator {
   static bool AreEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
     return lhs.getTypeId() == rhs.getTypeId();
   }
 };
+
+#endif
 
 template<bool MINIMAL>
 struct MemoryAddressStateComperator {

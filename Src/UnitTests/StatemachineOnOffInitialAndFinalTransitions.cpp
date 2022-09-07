@@ -20,13 +20,13 @@
 #include "tsmlib/statemachine.h"
 #include "tsmlib/transition.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace tsmlib;
-using namespace std;
-
 namespace UnitTests {
 
   namespace TransitionInitFinal {
+
+    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+    using namespace tsmlib;
+    using namespace std;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
 
@@ -65,31 +65,37 @@ namespace UnitTests {
       GoodbyeOn
     };
 
-    struct OnState : StateType, FactorCreator<OnState> {
+    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
 
       uint8_t getTypeId() const override { return 1; }
-      void entry() { EntryCalls++; }
-      void exit() { ExitCalls++; }
+
+    private:
+      friend class SimpleState<OnState, StateType>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
       template<uint8_t N>
-      void doit() { DoitCalls++; }
+      void doit_() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
     int OnState::DoitCalls = 0;
 
-    struct OffState : StateType, FactorCreator<OffState> {
+    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
 
       uint8_t getTypeId() const override { return 2; }
-      void entry() { EntryCalls++; }
-      void exit() { ExitCalls++; }
+
+    private:
+      friend class SimpleState<OffState, StateType>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
       template<uint8_t N>
-      void doit() { DoitCalls++; }
+      void doit_() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;
