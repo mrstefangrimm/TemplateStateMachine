@@ -83,7 +83,7 @@ struct Transition {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
       toState->entry();
-      toState->doit<TRIGGER>();
+      toState->template doit<TRIGGER>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -126,7 +126,7 @@ struct Transition {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO*>(activeState)->doit<TRIGGER>();
+      static_cast<TO*>(activeState)->template doit<TRIGGER>();
       ToFactory::Delete(toState);
       return TriggerResult<STATE>(true, activeState);
     }
@@ -137,7 +137,7 @@ struct Transition {
       ACTION().perform(static_cast<FROM*>(activeState));
     }
     toState->entry();
-    toState->doit<TRIGGER>();
+    toState->template doit<TRIGGER>();
     FromFactory::Delete(static_cast<FROM*>(activeState));
     return TriggerResult<STATE>(true, toState);
   }

@@ -47,7 +47,7 @@ struct Choice {
         if (!is_same<ACTION, EmptyAction>().value) {
           ACTION().perform(static_cast<FROM*>(activeState));
         }
-        static_cast<TO_TRUE*>(activeState)->doit<TRIGGER>();
+        static_cast<TO_TRUE*>(activeState)->template doit<TRIGGER>();
         return activeState;
       }
 
@@ -58,7 +58,7 @@ struct Choice {
       }
       TO_TRUE* toState = ToTrueFactory::Create();
       toState->entry();
-      toState->doit<TRIGGER>();
+      toState->template doit<TRIGGER>();
       FromFactory::Delete(static_cast<FROM*>(activeState));
       return toState;
     }
@@ -68,7 +68,7 @@ struct Choice {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO_FALSE*>(activeState)->doit<TRIGGER>();
+      static_cast<TO_FALSE*>(activeState)->template doit<TRIGGER>();
       return activeState;
     }
 
@@ -79,7 +79,7 @@ struct Choice {
     }
     TO_FALSE* toState = ToFalseFactory::Create();
     toState->entry();
-    toState->doit<TRIGGER>();
+    toState->template doit<TRIGGER>();
     FromFactory::Delete(static_cast<FROM*>(activeState));
     return toState;
   }

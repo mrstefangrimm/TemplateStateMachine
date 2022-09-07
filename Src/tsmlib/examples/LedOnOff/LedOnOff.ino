@@ -55,7 +55,6 @@ typedef InitialTransition<StateType, LedOff, EmptyAction> InitTransition;
 typedef Statemachine <
 StateType,
 TransitionList,
-NullStatemachine<StateType>,
 InitTransition,
 NullFinalTransition<StateType >> SM;
 
