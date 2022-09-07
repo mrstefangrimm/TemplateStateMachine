@@ -73,7 +73,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      void doit(uint8_t trigger) { DoitCalls++; }
+      template<uint8_t N>
+      void doit() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -87,7 +88,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      void doit(uint8_t trigger) { DoitCalls++; }
+      template<uint8_t N>
+      void doit() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;
@@ -107,7 +109,7 @@ namespace UnitTests {
 
     typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
     typedef FinalTransition<StateType, TerminateGuardDummy, TerminateActionSpy> TerminateTransition;
-    typedef Statemachine<StateType, TransitionList, NullStatemachine<StateType>, InitTransition, TerminateTransition> SM;
+    typedef Statemachine<StateType, TransitionList, InitTransition, TerminateTransition> SM;
 
     TEST_CLASS(StatemachineOnOffInitialAndFinalTransitions)
     {

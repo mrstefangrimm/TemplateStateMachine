@@ -61,7 +61,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      void doit(uint8_t trigger) { DoitCalls++; }
+      template<uint8_t N>
+      void doit() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -75,7 +76,8 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      void doit(uint8_t trigger) { DoitCalls++; }
+      template<uint8_t N>
+      void doit() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;
@@ -94,7 +96,7 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-    typedef Statemachine<StateType, TransitionList, NullStatemachine<StateType>, InitTransition, NullFinalTransition<StateType>> SM;
+    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> SM;
 
     TEST_CLASS(StatemachineOnOffEntryDoExitTest)
     {
@@ -120,8 +122,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(1, OffState::DoitCalls);
 
         // Off <- Off, internal transition
-        StateType* state = sm.trigger<Triggers::OffToOff>();
-        Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+        auto result = sm.trigger<Triggers::OffToOff>();
+        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(0, OnState::EntryCalls);
         Assert::AreEqual<int>(0, OnState::DoitCalls);
@@ -130,8 +132,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
         // Off <- Off, unhandled trigger
-        state = sm.trigger<Triggers::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+        result = sm.trigger<Triggers::Off>();
+        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(0, OnState::EntryCalls);
         Assert::AreEqual<int>(0, OnState::DoitCalls);
@@ -140,8 +142,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
         // On <- Off
-        state = sm.trigger<Triggers::On>();
-        Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+        result = sm.trigger<Triggers::On>();
+        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(1, OnState::EntryCalls);
         Assert::AreEqual<int>(1, OnState::DoitCalls);
@@ -150,8 +152,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
         // On <- On, internal transition
-        state = sm.trigger<Triggers::OnToOn>();
-        Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+        result = sm.trigger<Triggers::OnToOn>();
+        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(1, OnState::EntryCalls);
         Assert::AreEqual<int>(2, OnState::DoitCalls);
@@ -160,8 +162,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
         // On <- On, unhandled trigger
-        state = sm.trigger<Triggers::On>();
-        Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+        result = sm.trigger<Triggers::On>();
+        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(1, OnState::EntryCalls);
         Assert::AreEqual<int>(2, OnState::DoitCalls);
@@ -170,8 +172,8 @@ namespace UnitTests {
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
         // Off <- On, unhandled trigger
-        state = sm.trigger<Triggers::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+        result = sm.trigger<Triggers::Off>();
+        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(1, OnState::ExitCalls);
         Assert::AreEqual<int>(1, OnState::EntryCalls);
         Assert::AreEqual<int>(2, OnState::DoitCalls);

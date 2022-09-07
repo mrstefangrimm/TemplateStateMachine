@@ -29,19 +29,22 @@ namespace UnitTests {
   struct Init : StateType, SingletonCreator<Init> {
     void entry() { }
     void exit() { }
-    void doit(uint8_t trigger) { }
+    template<uint8_t N>
+    void doit() { }
   };
 
   struct ChoiceTrue : StateType, SingletonCreator<ChoiceTrue> {
     void entry() { }
     void exit() { }
-    void doit(uint8_t trigger) { }
+    template<uint8_t N>
+    void doit() { }
   };
 
   struct ChoiceFalse : StateType, SingletonCreator<ChoiceFalse> {
     void entry() { }
     void exit() { }
-    void doit(uint8_t trigger) { }
+    template<uint8_t N>
+    void doit() { }
   };
 
   struct GuardDummy {

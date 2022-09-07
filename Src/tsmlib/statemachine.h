@@ -19,16 +19,7 @@
 
 namespace tsmlib {
 
-template<typename STATE>
-struct NullStatemachine {
-  STATE* trigger() {
-    return 0;
-  }
-  static NullStatemachine<STATE>* Instance;
-};
-template<typename T> NullStatemachine<T>* NullStatemachine<T>::Instance = 0;
-
-template<typename STATE, typename TRANSITIONS, typename INNERSM, typename INITIALTRANSITION, typename FINALTRANSITION>
+template<typename STATE, typename TRANSITIONS, typename INITIALTRANSITION, typename FINALTRANSITION>
 class Statemachine {
   public:
 
@@ -37,7 +28,7 @@ class Statemachine {
     }
 
     void begin() {
-      _activeState = INITIALTRANSITION().trigger(0);
+      _activeState = INITIALTRANSITION().trigger(0).activeState;
     }
 
     void end() {
@@ -45,9 +36,9 @@ class Statemachine {
     }
 
     template<uint8_t T>
-    STATE* trigger() {
+    TriggerResult<STATE> trigger() {
 
-      if (_activeState == 0) return _activeState;
+      if (_activeState == 0) return TriggerResult<STATE>(false, _activeState);
 
       // Final transition. Check guard and terminate.
       //if (!is_same<NullFinalTransition<STATE>, FINALTRANSITION>().value) {
@@ -64,12 +55,13 @@ class Statemachine {
       const int size = Length<TRANSITIONS>::value;
       STATE* state = TriggerExecutor < TRANSITIONS, size - 1, T, STATE >::execute(_activeState);
       // Transition not found
-      if (state == 0) return _activeState;
+      if (state == 0) return TriggerResult<STATE>(false, _activeState);;
 
       _activeState = state;
-      return _activeState;
+      return TriggerResult<STATE>(true, _activeState);;
     }
-  private:
+
+private:
     STATE* _activeState = 0;
 
   public:
@@ -79,17 +71,18 @@ class Statemachine {
       static STATE* execute(FROM* activeState) {
 
         // Finds last element in the list that meets the conditions.
-        typedef typename TypeAt<TL, INDEX>::Result CurentElement;
-
-        typedef typename CurentElement::FromType::CreatorType FromFactory;
-        typedef typename CurentElement::FromType::ObjectType FromFactoryType;
+        typedef typename TypeAt<TL, INDEX>::Result CurentTransition;
+        typedef typename CurentTransition::FromType::CreatorType FromFactory;
+        typedef typename CurentTransition::FromType::ObjectType FromFactoryType;
         FROM* fromState = FromFactory::Create();
         bool hasSameFromState = activeState->equals(*fromState);
         FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
 
-        bool conditionMet = CurentElement::Trigger == TRIGGER && hasSameFromState;
+        bool conditionMet = CurentTransition::Trigger == TRIGGER && hasSameFromState;
         if (conditionMet) {
-          return CurentElement().trigger(activeState);
+          TriggerResult<STATE> result = CurentTransition().trigger(activeState);
+          // If the state has not changed, continue to see if any other transition does.
+          if (result.consumed) return result.activeState;
         }
         // Recursion
         STATE* resState = TriggerExecutor < TL, INDEX - 1, TRIGGER, FROM >::execute(activeState);
@@ -105,17 +98,16 @@ class Statemachine {
       static STATE* execute(FROM* activeState) {
 
         // Finds last element in the list that meets the conditions.
-        typedef typename TypeAt<TL, 0>::Result FirstElement;
-
-        typedef typename FirstElement::FromType::CreatorType FromFactory;
-        typedef typename FirstElement::FromType::ObjectType FromFactoryType;
+        typedef typename TypeAt<TL, 0>::Result FirstTransition;
+        typedef typename FirstTransition::FromType::CreatorType FromFactory;
+        typedef typename FirstTransition::FromType::ObjectType FromFactoryType;
         FROM* fromState = FromFactory::Create();
         bool hasSameFromState = activeState->equals(*fromState);
         FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
 
-        bool conditionMet = FirstElement::Trigger == TRIGGER && hasSameFromState;
+        bool conditionMet = FirstTransition::Trigger == TRIGGER && hasSameFromState;
         if (conditionMet) {
-          return FirstElement().trigger(activeState);
+          return FirstTransition().trigger(activeState).activeState;
         }
         return 0;
       }

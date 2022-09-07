@@ -18,6 +18,16 @@
 
 namespace tsmlib {
 
+  template<typename STATE>
+  struct TriggerResult {
+    TriggerResult(bool changed, STATE* state) {
+      consumed = changed;
+      activeState = state;
+    }
+    bool consumed;
+    STATE* activeState;
+  };
+
 template<typename STATE>
 struct EmptyState : STATE {
   typedef EmptyState CreatorType;
@@ -29,7 +39,8 @@ struct EmptyState : STATE {
 
   void entry() { }
   void exit() { }
-  void doit(uint8_t trigger) { }
+  template<uint8_t N>
+  void doit() { }
 };
 
 template<typename STATE>
@@ -60,7 +71,7 @@ struct Transition {
   enum { Trigger = TRIGGER };
   typedef FROM FromType;
 
-  STATE* trigger(STATE* activeState) {
+  TriggerResult<STATE> trigger(STATE* activeState) {
     typedef typename TO::CreatorType ToFactory;
     typedef typename FROM::CreatorType FromFactory;
     TO* toState = ToFactory::Create();
@@ -72,11 +83,11 @@ struct Transition {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
       toState->entry();
-      toState->doit(TRIGGER);
+      toState->doit<TRIGGER>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
-      return toState;
+      return TriggerResult<STATE>(true, toState);
     }
 
     // Final transition
@@ -90,23 +101,23 @@ struct Transition {
         ACTION().perform(static_cast<FROM*>(activeState));
         // TODO: AnyState::Delete is called
         FromFactory::Delete(static_cast<FROM*>(activeState));
-        return toState;
+        return TriggerResult<STATE>(true, toState);
       }
-      return activeState;
+      return TriggerResult<STATE>(false, activeState);
     }
 
     // The transition is valid if the "fromState" is also the activeState state from the state machine.
     if (!fromState->equals(*activeState)) {
       ToFactory::Delete(toState);
       FromFactory::Delete(fromState);
-      return activeState;
+      return TriggerResult<STATE>(false, activeState);
     }
     FromFactory::Delete(fromState);
 
     if (!is_same<GUARD, EmptyGuard>().value) {
       if (!GUARD().check(static_cast<FROM*>(activeState))) {
         ToFactory::Delete(toState);
-        return activeState;
+        return TriggerResult<STATE>(false, activeState);
       }
     }
     // Internal transition
@@ -115,9 +126,9 @@ struct Transition {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO*>(activeState)->doit(TRIGGER);
+      static_cast<TO*>(activeState)->doit<TRIGGER>();
       ToFactory::Delete(toState);
-      return activeState;
+      return TriggerResult<STATE>(true, activeState);
     }
 
     static_cast<FROM*>(activeState)->exit();
@@ -126,9 +137,9 @@ struct Transition {
       ACTION().perform(static_cast<FROM*>(activeState));
     }
     toState->entry();
-    toState->doit(TRIGGER);
+    toState->doit<TRIGGER>();
     FromFactory::Delete(static_cast<FROM*>(activeState));
-    return toState;
+    return TriggerResult<STATE>(true, toState);
   }
 };
 

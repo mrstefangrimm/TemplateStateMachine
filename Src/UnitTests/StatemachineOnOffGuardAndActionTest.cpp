@@ -78,14 +78,16 @@ namespace UnitTests {
     uint8_t getTypeId() const override { return 1; }
     void entry() { }
     void exit() { }
-    void doit(uint8_t trigger) { }
+    template<uint8_t N>
+    void doit() { }
   };
 
   struct OffState : StateType, FactorCreator<OffState> {
     uint8_t getTypeId() const override { return 2; }
     void entry() { }
     void exit() { }
-    void doit(uint8_t trigger) { }
+    template<uint8_t N>
+    void doit() { }
   };
 
   typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
@@ -101,7 +103,7 @@ namespace UnitTests {
     NullType>>>> TransitionList;
 
   typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-  typedef Statemachine<StateType, TransitionList, NullStatemachine<StateType>, InitTransition, NullFinalTransition<StateType>> SM;
+  typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> SM;
 
   TEST_CLASS(StatemachineOnOffGuardAndActionTest)
   {
@@ -122,8 +124,8 @@ namespace UnitTests {
 
       SM sm(true);
       // Off <- Off, internal transition
-      StateType* state = sm.trigger<Triggers::OffToOff>();
-      Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+      auto result = sm.trigger<Triggers::OffToOff>();
+      Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -134,8 +136,8 @@ namespace UnitTests {
       Assert::AreEqual<int>(1, ToOffFromOffActionSpy::Calls);
 
       // Off <- Off, unhandled trigger
-      state = sm.trigger<Triggers::Off>();
-      Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::Off>();
+      Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -147,8 +149,8 @@ namespace UnitTests {
 
       // Off <- Off, guard = false
       ToOnFromOffGuardDummy::CheckReturnValue = false;
-      state = sm.trigger<Triggers::On>();
-      Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::On>();
+      Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -160,8 +162,8 @@ namespace UnitTests {
 
       // On <- Off
       ToOnFromOffGuardDummy::CheckReturnValue = true;
-      state = sm.trigger<Triggers::On>();
-      Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::On>();
+      Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -172,8 +174,8 @@ namespace UnitTests {
       Assert::AreEqual<int>(1, ToOffFromOffActionSpy::Calls);
 
       // On <- On, internal transition
-      state = sm.trigger<Triggers::OnToOn>();
-      Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::OnToOn>();
+      Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -184,8 +186,8 @@ namespace UnitTests {
       Assert::AreEqual<int>(1, ToOffFromOffActionSpy::Calls);
 
       // On <- On, unhandled trigger
-      state = sm.trigger<Triggers::On>();
-      Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::On>();
+      Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
@@ -196,8 +198,8 @@ namespace UnitTests {
       Assert::AreEqual<int>(1, ToOffFromOffActionSpy::Calls);
 
       // Off <- On, unhandled trigger
-      state = sm.trigger<Triggers::Off>();
-      Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
+      result = sm.trigger<Triggers::Off>();
+      Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(1, ToOffFromOnGuardDummy::Calls);

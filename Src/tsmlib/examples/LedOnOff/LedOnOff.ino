@@ -30,7 +30,8 @@ struct LedOn : StateType, SingletonCreator<LedOn> {
     digitalWrite(LED_BUILTIN, HIGH);
   }
   void exit() { }
-  void doit(uint8_t trigger) { }
+  template<uint8_t N>
+  void doit() { }
 };
 
 struct LedOff : StateType, SingletonCreator<LedOff> {
@@ -38,7 +39,8 @@ struct LedOff : StateType, SingletonCreator<LedOff> {
     digitalWrite(LED_BUILTIN, LOW);
   }
   void exit() { }
-  void doit(uint8_t trigger) { }
+  template<uint8_t N>
+  void doit() { }
 };
 
 typedef Transition<Triggers::On, StateType, LedOn, LedOff, EmptyGuard, EmptyAction> ToOnFromOff_t;

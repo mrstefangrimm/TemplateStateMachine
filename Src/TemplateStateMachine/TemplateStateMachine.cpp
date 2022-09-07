@@ -30,92 +30,171 @@ struct ToSonFromSoffAction {
 
 struct ToSonFromSoffGuard {
   template<typename T>
-  bool check(T* activeState) {  return true; }
+  bool check(T* activeState) { return true; }
 };
 
 enum Triggers {
   On,
-  Off,
-  OnToOn
+  Calibrate,
+  Positionstream,
+  Timeout,
+  Remote,
+  Manual
 };
 
-
-struct Son : StateType, SingletonCreator<Son> {
-  uint8_t getTypeId() const override { return 1; }
+struct SimulationInit : StateType, FactorCreator<SimulationInit> {
+  uint8_t getTypeId() const override { return 10; }
   void entry() { }
   void exit() { }
-  void doit() { }
-  // TODO: cleanup Do(Int2Type<TRIGGER>())
-  //void Do(Int2Type<Triggers::On>) { }
-  //void Do(Int2Type<Triggers::OnToOn>) { }
+  template<uint8_t N>
+  void doit() {
+  }
 };
 
-struct Soff : StateType, SingletonCreator<Soff> {
+struct SimulationManual : StateType, FactorCreator<SimulationManual> {
+  uint8_t getTypeId() const override { return 11; }
+  void entry() { }
+  void exit() { }
+  template<uint8_t N>
+  void doit() {
+  }
+};
 
+struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
+  uint8_t getTypeId() const override { return 12; }
+  void entry() { }
+  void exit() { }
+  template<uint8_t N>
+  void doit() {
+  }
+};
+
+struct ChoiceGuardRemoteDummy {
+  template<typename T>
+  bool check(T*) {
+    // true => SimulationRemote
+    return true;
+  }
+};
+struct ChoiceGuardManualDummy {
+  template<typename T>
+  bool check(T*) {
+    // true => SimulationManual
+    return true;
+  }
+};
+typedef Choice<Triggers::Timeout, StateType, SimulationManual, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, EmptyAction> InitChoice;
+
+typedef Transition<Triggers::Timeout, StateType, SimulationManual, SimulationInit, ChoiceGuardManualDummy, EmptyAction> ToManualFromInit;
+typedef Transition<Triggers::Timeout, StateType, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, EmptyAction> ToRemoteFromInit;
+typedef Transition<Triggers::Remote, StateType, SimulationRemote, SimulationManual, EmptyGuard, EmptyAction> ToRemoteFromManual;
+typedef Transition<Triggers::Manual, StateType, SimulationManual, SimulationRemote, EmptyGuard, EmptyAction> ToManualFromRemote;
+
+typedef
+Typelist<
+  ToManualFromInit,
+  Typelist<ToRemoteFromInit,
+  Typelist<ToRemoteFromManual,
+  Typelist<ToManualFromRemote,
+  NullType>>>> SimulationTransitionList;
+
+
+typedef InitialTransition<StateType, SimulationInit, EmptyAction> SimulationNestedInitTransition;
+typedef Statemachine<
+  StateType,
+  SimulationTransitionList,
+  SimulationNestedInitTransition,
+  NullFinalTransition<StateType>> SimulationNestedSM;
+
+struct Simulation : StateType, SingletonCreator<Simulation> {
+  uint8_t getTypeId() const override { return 1; }
+  void entry() {
+    _nestedSM.begin();
+  }
+  void exit() {
+    _nestedSM.end();
+  }
+  template<uint8_t N>
+  void doit() {
+
+    // Check if nested consumes the trigger
+    if (_nestedSM.trigger<N>().consumed) return;
+
+    if (N == Triggers::Positionstream) {
+      _isPositionStreamActive = !_isPositionStreamActive;
+    }
+  }
+
+private:
+  SimulationNestedSM _nestedSM;
+  bool _isPositionStreamActive = false;
+};
+
+struct Calibration : StateType, FactorCreator<Calibration> {
   uint8_t getTypeId() const override { return 2; }
   void entry() { }
   void exit() { }
-  void doit() { }
-  // TODO: cleanup Do(Int2Type<TRIGGER>())
-  //void Do(Int2Type<Triggers::Off>) { }
+  template<uint8_t N>
+  void doit() {
+  }
 };
 
 
-typedef Transition<Triggers::On, StateType, Son, Soff, ToSonFromSoffGuard, ToSonFromSoffAction> ToSonFromSoff_t;
-typedef Transition<Triggers::Off, StateType, Soff, Son, EmptyGuard, EmptyAction> ToSoffFromSon_t;
-typedef Transition<Triggers::OnToOn, StateType, Son, Son, EmptyGuard, EmptyAction> ToSonFromSon_t;
+typedef Transition<Triggers::On, StateType, Simulation, Calibration, ToSonFromSoffGuard, ToSonFromSoffAction> ToSimFromCalib;
+typedef Transition<Triggers::Calibrate, StateType, Calibration, Simulation, EmptyGuard, EmptyAction> ToCalibToSim;
+typedef Transition<Triggers::Positionstream, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimPositionStream;
+typedef Transition<Triggers::Positionstream, StateType, Calibration, Calibration, EmptyGuard, EmptyAction> ToCalibFromCalibPositionStream;
+typedef Transition<Triggers::Timeout, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimTimeout;
+typedef Transition<Triggers::Remote, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimRemote;
+typedef Transition<Triggers::Manual, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimManual;
 
 typedef
-Typelist<ToSonFromSoff_t,
-  Typelist<ToSoffFromSon_t,
-  Typelist<ToSonFromSon_t,
-  NullType>>> TransitionList;
+Typelist<ToSimFromCalib,
+  Typelist<ToCalibToSim,
+  Typelist<ToSimFromSimPositionStream,
+  Typelist<ToCalibFromCalibPositionStream,
+  Typelist<ToSimFromSimTimeout,
+  Typelist<ToSimFromSimRemote,
+  Typelist<ToSimFromSimManual,
+  NullType>>>>>>> TransitionList;
 
-typedef
-Typelist<Soff,
-  Typelist<Son,
-  NullType>> StateList;
 
-struct GoFinalGuard {
- template<typename T>
-  bool check(T* activeState) { return true; }
-};
-
-typedef InitialTransition<StateType, Soff, EmptyAction> InitTransition;
-typedef FinalTransition<StateType, GoFinalGuard, EmptyAction> TerminateTransition;
+typedef InitialTransition<StateType, Simulation, EmptyAction> InitTransition;
 typedef Statemachine<
   StateType,
   TransitionList,
-  NullStatemachine<StateType>,
   InitTransition,
-  TerminateTransition /*NullFinalTransition<StateType>*/> SM;
+  NullFinalTransition<StateType>> SM;
+
 
 int main()
 {
-  void* ptr = Son::Create();
 
-  Son son;
-  Soff soff;
+  //typedef typename TypeAt<TriggerList, 2>::Result SomeType;
+
+  //if (SomeType::type == 1) {
+  //  SomeType().trigger(0);
+  //}
+  //else {
+  //  typedef typename TypeAt2<SomeType, 0>::Result SomeType2;
+  //  SomeType2().trigger(0);
+  //}
+
+  Simulation simulation;
+  Calibration calibration;
+
   SM stateMachine(true);
-  StateType* st = stateMachine.trigger<Triggers::On>();
-  st = stateMachine.trigger<Triggers::OnToOn>();
-  st = stateMachine.trigger<Triggers::Off>();
-  st = stateMachine.trigger<Triggers::Off>();
+  // Active state: Simulation/Init, Position stream inactive
 
-  //
-  //st = stateMachine.Trigge<Triggers::OnToOn>();
+  auto result = stateMachine.trigger<Triggers::Positionstream>();
+  // Active state: Simulation/Init, Position stream active
 
-  //Transition<Triggers::Off, Son, SonFac_t, Soff, SoffFac_t, ToSonFromSoffGuard, ToSonFromSoffAction> toSonFromSoff;
-  //toSonFromSoff.transition();
+  result = stateMachine.trigger<Triggers::Timeout>();
+  // Active state: Simulation/Remote, ChoiceGuardRemoteDummy returned true
 
-  //Transition<Triggers::On, Son, SonFac_t, Son, SonFac_t, EmptyGuard, EmptyAction> toSonFromSon;
-  //toSonFromSon.transition();
+  result = stateMachine.trigger<Triggers::Manual>();
+  // Active state: Simulation/Manual
 
-  //Transition<Triggers::On, Soff, SoffFac_t, Son, SonFac_t, EmptyGuard, EmptyAction> toSoffFromSon;
-  //toSoffFromSon.transition();
-
-  //SOn son;
-  //son.action();
-  
-  std::cout << "Hello World!\n";
+  result = stateMachine.trigger<Triggers::Calibrate>();
+  // Active state: Calibration
 }
