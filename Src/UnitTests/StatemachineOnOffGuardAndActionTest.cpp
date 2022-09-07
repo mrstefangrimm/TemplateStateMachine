@@ -78,16 +78,14 @@ namespace UnitTests {
     uint8_t getTypeId() const override { return 1; }
     void entry() { }
     void exit() { }
-    template<uint8_t TRIGGER>
-    void doit() { }
+    void doit(uint8_t trigger) { }
   };
 
   struct OffState : StateType, FactorCreator<OffState> {
     uint8_t getTypeId() const override { return 2; }
     void entry() { }
     void exit() { }
-    template<uint8_t TRIGGER>
-    void doit() { }
+    void doit(uint8_t trigger) { }
   };
 
   typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;

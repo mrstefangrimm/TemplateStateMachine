@@ -44,8 +44,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      template<uint8_t TRIGGER>
-      void doit() { DoitCalls++; }
+      void doit(uint8_t trigger) { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -59,8 +58,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
-      template<uint8_t TRIGGER>
-      void doit() { DoitCalls++; }
+      void doit(uint8_t trigger) { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;

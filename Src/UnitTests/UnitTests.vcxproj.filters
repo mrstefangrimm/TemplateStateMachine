@@ -26,6 +26,9 @@
     <ClInclude Include="..\tsmlib\choice.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="tsmlib\choice.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">

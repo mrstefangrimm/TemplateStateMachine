@@ -24,7 +24,7 @@ struct Choice {
 
   Choice() {
     // Choice without guard does not make sense; the state machine would immediately go to the final state.
-    CTAssert < !is_same<EmptyGuard, GUARD>().value >();
+    CTAssert < !is_same<EmptyGuard, GUARD>().value > ();
   }
 
   STATE* trigger(STATE* activeState) {
@@ -41,13 +41,13 @@ struct Choice {
     FromFactory::Delete(fromState);
 
     if (GUARD().check(static_cast<FROM*>(activeState))) {
-    
+
       // Internal transition
       if (is_same<TO_TRUE, FROM>().value) {
         if (!is_same<ACTION, EmptyAction>().value) {
           ACTION().perform(static_cast<FROM*>(activeState));
         }
-        static_cast<TO_TRUE*>(activeState)->doit<TRIGGER>();
+        static_cast<TO_TRUE*>(activeState)->doit(TRIGGER);
         return activeState;
       }
 
@@ -58,7 +58,7 @@ struct Choice {
       }
       TO_TRUE* toState = ToTrueFactory::Create();
       toState->entry();
-      toState->doit<TRIGGER>();
+      toState->doit(TRIGGER);
       FromFactory::Delete(static_cast<FROM*>(activeState));
       return toState;
     }
@@ -68,7 +68,7 @@ struct Choice {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO_FALSE*>(activeState)->doit<TRIGGER>();
+      static_cast<TO_FALSE*>(activeState)->doit(TRIGGER);
       return activeState;
     }
 
@@ -79,7 +79,7 @@ struct Choice {
     }
     TO_FALSE* toState = ToFalseFactory::Create();
     toState->entry();
-    toState->doit<TRIGGER>();
+    toState->doit(TRIGGER);
     FromFactory::Delete(static_cast<FROM*>(activeState));
     return toState;
   }

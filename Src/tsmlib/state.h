@@ -29,15 +29,16 @@ struct StateBase {
   //  const DERIVED* obj = static_cast<const DERIVED*>(this);
   //  obj->Entry();
   //}
-  //template<uint8_t TRIGGER>
-  //void doit();
+  //template<uint8_t T>
+  //void doit(Int2Type<T>&) {
+  //}
 };
 
 template<typename COMPERATOR, bool MINIMAL>
 struct State {
-// TODO: #ifndef SARCRIFYEXIT
-//  virtual void exit() = 0;
-//#endif
+  // TODO: #ifndef SARCRIFYEXIT
+  //  virtual void exit() = 0;
+  //#endif
 };
 
 template<typename COMPERATOR>
@@ -60,13 +61,13 @@ inline bool operator==(const State<COMPERATOR, MINIMAL>& lhs, const State<COMPER
 
 template<typename T>
 struct SingletonCreator {
-  typedef SingletonCreator<T> CreatorType;
-  typedef typename T T;
+    typedef SingletonCreator<T> CreatorType;
+    typedef T ObjectType;
 
-  static T* Create() {
-    return Instance;
-  }
-  static void Delete(T* state) { }
+    static T* Create() {
+      return Instance;
+    }
+    static void Delete(T* state) { }
 
   private:
     static T* Instance;
@@ -76,7 +77,7 @@ template<typename T> T* SingletonCreator<T>::Instance = new T;
 template<typename T>
 struct FactorCreator {
   typedef FactorCreator<T> CreatorType;
-  typedef typename T T;
+  typedef T ObjectType;
 
   static T* Create() {
     return new T;

@@ -21,14 +21,15 @@ namespace tsmlib {
 template<typename STATE>
 struct EmptyState : STATE {
   typedef EmptyState CreatorType;
-  void entry() { }
-  void exit() { }
-  template<uint8_t TRIGGER>
-  void doit() { }
+
   static EmptyState* Create() {
     return 0;
   }
   static void Delete(EmptyState*) { }
+
+  void entry() { }
+  void exit() { }
+  void doit(uint8_t trigger) { }
 };
 
 template<typename STATE>
@@ -36,8 +37,6 @@ struct AnyState : STATE {
   typedef AnyState CreatorType;
   void entry() { }
   void exit() { }
-  template<uint8_t TRIGGER>
-  void doit();
   static AnyState* Create() {
     return 0;
   }
@@ -73,7 +72,7 @@ struct Transition {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
       toState->entry();
-      toState->doit<TRIGGER>();
+      toState->doit(TRIGGER);
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -116,7 +115,7 @@ struct Transition {
       if (!is_same<ACTION, EmptyAction>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
       }
-      static_cast<TO*>(activeState)->doit<TRIGGER>();
+      static_cast<TO*>(activeState)->doit(TRIGGER);
       ToFactory::Delete(toState);
       return activeState;
     }
@@ -127,7 +126,7 @@ struct Transition {
       ACTION().perform(static_cast<FROM*>(activeState));
     }
     toState->entry();
-    toState->doit<TRIGGER>();
+    toState->doit(TRIGGER);
     FromFactory::Delete(static_cast<FROM*>(activeState));
     return toState;
   }

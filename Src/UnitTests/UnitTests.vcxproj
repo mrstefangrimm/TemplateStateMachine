@@ -175,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tsmlib\choice.h" />
+    <ClInclude Include="tsmlib\choice.h" />
     <ClInclude Include="tsmlib\state.h" />
     <ClInclude Include="tsmlib\statemachine.h" />
     <ClInclude Include="tsmlib\templatemeta.h" />
