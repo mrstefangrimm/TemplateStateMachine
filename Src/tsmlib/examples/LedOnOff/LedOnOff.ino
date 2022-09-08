@@ -58,7 +58,8 @@ typedef Statemachine <
 StateType,
 TransitionList,
 InitTransition,
-NullFinalTransition<StateType >> SM;
+NullFinalTransition<StateType >,
+EmptyState<StateType >> SM;
 
 SM statemachine;
 
@@ -68,8 +69,8 @@ void setup() {
 }
 
 void loop() {
-  statemachine.trigger<Triggers::On>();
+  statemachine.dispatch<Triggers::On>();
   delay(1000);
-  statemachine.trigger<Triggers::Off>();
+  statemachine.dispatch<Triggers::Off>();
   delay(1000);
 }

@@ -21,19 +21,22 @@ template<typename Derived, typename Comperator>
 struct StateBase {
 
   bool equals(const Derived& other) const {
-    return Comperator::AreEqual(*static_cast<const Derived*>(this), other);
+    return Comperator::areEqual(*static_cast<const Derived*>(this), other);
   }
 };
 
 template<typename Comperator, bool Singleton>
 struct State {
+  // TODO: INCOMPLETEEXIT not used
 #ifndef INCOMPLETEEXIT
   virtual void exit() {};
 #endif
 
   bool equals(const State& other) const {
-    return Comperator::AreEqual(*this, other);
+    return Comperator::areEqual(*this, other);
   }
+  // TODO: parent not used
+  State* parent = 0;
 };
 
 template<typename Comperator>
@@ -42,6 +45,8 @@ struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator
   virtual void vvfunc() {}
 
   virtual uint8_t getTypeId() const = 0;
+
+  State* parent = 0;
 };
 
 template<typename State>
@@ -49,10 +54,10 @@ struct AnyState : State {
   typedef AnyState CreatorType;
   typedef AnyState ObjectType;
 
-  static AnyState* Create() {
+  static AnyState* create() {
     return 0;
   }
-  static void Delete(AnyState*) { }
+  static void destroy(AnyState*) { }
 
   void entry() { }
   virtual void exit() { }
@@ -90,7 +95,7 @@ class SubstatesHolderState : public Basetype {
     void doit() {
 
       // Return if substates consumed the trigger
-      if (_subStatemachine.template trigger<N>().consumed) return;
+      if (_subStatemachine.template dispatch<N>().consumed) return;
 
       static_cast<Derived*>(this)->template doit_<N>();
     }
@@ -98,8 +103,8 @@ class SubstatesHolderState : public Basetype {
     Statemachine _subStatemachine;
 };
 
-template<typename COMPERATOR, bool MINIMAL>
-bool operator==(const State<COMPERATOR, MINIMAL>& lhs, const State<COMPERATOR, MINIMAL>& rhs) {
+template<typename Comperator, bool Minimal>
+bool operator==(const State<Comperator, Minimal>& lhs, const State<Comperator, Minimal>& rhs) {
   return lhs.equals(rhs);
 }
 
@@ -108,10 +113,10 @@ struct SingletonCreator {
     typedef SingletonCreator<T> CreatorType;
     typedef T ObjectType;
 
-    static T* Create() {
+    static T* create() {
       return Instance;
     }
-    static void Delete(T* state) { }
+    static void destroy(T* state) { }
 
   private:
     static T* Instance;
@@ -123,17 +128,17 @@ struct FactorCreator {
   typedef FactorCreator<T> CreatorType;
   typedef T ObjectType;
 
-  static T* Create() {
+  static T* create() {
     return new T;
   }
-  static void Delete(T* state) {
+  static void destroy(T* state) {
     delete state;
   }
 };
 
 #ifndef IAMARDUINO
 struct TypeidStateComperator {
-  static bool AreEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
+  static bool areEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
     // TODO: doesn't work with base and derived class
     const type_info& l = typeid(lhs);
     const type_info& r = typeid(rhs);
@@ -143,16 +148,15 @@ struct TypeidStateComperator {
 };
 
 struct VirtualGetTypeIdStateComperator {
-  static bool AreEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
+  static bool areEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
     return lhs.getTypeId() == rhs.getTypeId();
   }
 };
-
 #endif
 
-template<bool MINIMAL>
+template<bool Minimal>
 struct MemoryAddressStateComperator {
-  static bool AreEqual(const State<MemoryAddressStateComperator, MINIMAL>& lhs, const State<MemoryAddressStateComperator, MINIMAL>& rhs) {
+  static bool areEqual(const State<MemoryAddressStateComperator, Minimal>& lhs, const State<MemoryAddressStateComperator, Minimal>& rhs) {
     return &lhs == &rhs;
   }
 };

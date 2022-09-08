@@ -40,8 +40,8 @@ namespace UnitTests {
     struct FinalStateFake : SimpleState<FinalStateFake, StateType> {
       static const char* Name;
       typedef FinalStateFake CreatorType;
-      static FinalStateFake* Create() { return 0; }
-      static void Delete(FinalStateFake*) { }
+      static FinalStateFake* create() { return 0; }
+      static void destroy(FinalStateFake*) { }
 
     private:
       friend class SimpleState<FinalStateFake, StateType>;
@@ -61,12 +61,6 @@ namespace UnitTests {
         recorder.push_back(buf.str());
       }
     };
-    typedef ActionSpy<struct OffState, struct InitialStateFake> ToOffFromInitialActionSpy;
-    typedef ActionSpy<struct OnState, struct OffState> ToOnFromOffActionSpy;
-    typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
-    typedef ActionSpy<struct OnState, struct OnState> ToOnFromOnActionSpy;
-    typedef ActionSpy<struct OffState, struct OffState> ToOffFromOffActionSpy;
-    typedef ActionSpy<struct FinalStateFake, struct OffState> ToFinalFromOffActionSpy;
 
     enum Triggers {
       On,
@@ -104,6 +98,12 @@ namespace UnitTests {
     };
     const char* OffState::Name = "OffState";
 
+    typedef ActionSpy<struct OnState, struct OffState> ToOnFromOffActionSpy;
+    typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
+    typedef ActionSpy<struct OnState, struct OnState> ToOnFromOnActionSpy;
+    typedef ActionSpy<struct OffState, struct OffState> ToOffFromOffActionSpy;
+    typedef ActionSpy<struct FinalStateFake, struct OffState> ToFinalFromOffActionSpy;
+
     typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
     typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
     typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, OkGuard, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
@@ -118,12 +118,14 @@ namespace UnitTests {
       Typelist<ToFinalFromOffTransition,
       NullType>>>>> TransitionList;
 
+    typedef ActionSpy<struct OffState, struct InitialStateFake> ToOffFromInitialActionSpy;
     typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
     typedef Statemachine<
       StateType,
       TransitionList,
       InitTransition,
-      NullFinalTransition<StateType>> SM;
+      NullFinalTransition<StateType>,
+    EmptyState<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffCallSequence)
     {
@@ -136,22 +138,23 @@ namespace UnitTests {
 
         vector<string> expected;
 
-        SM sm(true);
+        Sm sm;
+        sm.begin();
         expected.push_back("OffState<-Initial");
         expected.push_back("OffState::Entry");
         expected.push_back("OffState::Do");
 
         // Off <- Off, self transition
-        auto result = sm.trigger<Triggers::OffToOff>();
+        auto result = sm.dispatch<Triggers::OffToOff>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OffState<-OffState");
         expected.push_back("OffState::Do");
 
         // Off <- Off, unhandled trigger
-        result = sm.trigger<Triggers::Off>();
+        result = sm.dispatch<Triggers::Off>();
 
         // On <- Off
-        result = sm.trigger<Triggers::On>();
+        result = sm.dispatch<Triggers::On>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OffState::Exit");
         expected.push_back("OnState<-OffState");
@@ -159,24 +162,24 @@ namespace UnitTests {
         expected.push_back("OnState::Do");
 
         // On <- On, self transition
-        result = sm.trigger<Triggers::OnToOn>();
+        result = sm.dispatch<Triggers::OnToOn>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OnState<-OnState");
         expected.push_back("OnState::Do");
 
         // On <- On, unhandled trigger
-        result = sm.trigger<Triggers::On>();
+        result = sm.dispatch<Triggers::On>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
 
         // Off <- On, unhandled trigger
-        result = sm.trigger<Triggers::Off>();
+        result = sm.dispatch<Triggers::Off>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OnState::Exit");
         expected.push_back("OffState<-OnState");
         expected.push_back("OffState::Entry");
         expected.push_back("OffState::Do");
 
-        result = sm.trigger<Triggers::OffToFinal>();
+        result = sm.dispatch<Triggers::OffToFinal>();
         expected.push_back("OffState::Exit");
         expected.push_back("Final<-OffState");
 

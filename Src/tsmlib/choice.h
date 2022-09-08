@@ -27,18 +27,18 @@ struct Choice {
     CompileTimeError < !is_same<GUARD, OkGuard>().value > ();
   }
 
-  STATE* trigger(STATE* activeState) {
+  STATE* dispatch(STATE* activeState) {
     typedef typename TO_TRUE::CreatorType ToTrueFactory;
     typedef typename TO_FALSE::CreatorType ToFalseFactory;
     typedef typename FROM::CreatorType FromFactory;
-    FROM* fromState = FromFactory::Create();
+    FROM* fromState = FromFactory::create();
 
     // The transition is valid if the "fromState" is also the activeState state from the state machine.
     if (!fromState->equals(*activeState)) {
-      FromFactory::Delete(fromState);
+      FromFactory::destroy(fromState);
       return activeState;
     }
-    FromFactory::Delete(fromState);
+    FromFactory::destroy(fromState);
 
     if (GUARD().check(static_cast<FROM*>(activeState))) {
 
@@ -52,10 +52,10 @@ struct Choice {
       static_cast<FROM*>(activeState)->exit();
 
       ACTION().perform(static_cast<FROM*>(activeState));
-      TO_TRUE* toState = ToTrueFactory::Create();
+      TO_TRUE* toState = ToTrueFactory::create();
       toState->entry();
       toState->template doit<TRIGGER>();
-      FromFactory::Delete(static_cast<FROM*>(activeState));
+      FromFactory::destroy(static_cast<FROM*>(activeState));
       return toState;
     }
 
@@ -69,10 +69,10 @@ struct Choice {
     static_cast<FROM*>(activeState)->exit();
 
     ACTION().perform(static_cast<FROM*>(activeState));
-    TO_FALSE* toState = ToFalseFactory::Create();
+    TO_FALSE* toState = ToFalseFactory::create();
     toState->entry();
     toState->template doit<TRIGGER>();
-    FromFactory::Delete(static_cast<FROM*>(activeState));
+    FromFactory::destroy(static_cast<FROM*>(activeState));
     return toState;
   }
 };

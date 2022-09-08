@@ -33,24 +33,24 @@ namespace UnitTests {
 
       TEST_METHOD(Create_SingletonCreator_PointsToSameObject)
       {
-        TestObject* obj1 = SingletonCreator<TestObject>::Create();
-        TestObject* obj2 = SingletonCreator<TestObject>::Create();
+        TestObject* obj1 = SingletonCreator<TestObject>::create();
+        TestObject* obj2 = SingletonCreator<TestObject>::create();
 
         Assert::IsTrue(obj1 == obj2);
 
-        SingletonCreator<TestObject>::Delete(obj1);
-        SingletonCreator<TestObject>::Delete(obj2);
+        SingletonCreator<TestObject>::destroy(obj1);
+        SingletonCreator<TestObject>::destroy(obj2);
       }
 
       TEST_METHOD(Create_FactoryCreator_PointsToDifferentObjects)
       {
-        TestObject* obj1 = FactorCreator<TestObject>::Create();
-        TestObject* obj2 = FactorCreator<TestObject>::Create();
+        TestObject* obj1 = FactorCreator<TestObject>::create();
+        TestObject* obj2 = FactorCreator<TestObject>::create();
 
         Assert::IsFalse(obj1 == obj2);
 
-        FactorCreator<TestObject>::Delete(obj1);
-        FactorCreator<TestObject>::Delete(obj2);
+        FactorCreator<TestObject>::destroy(obj1);
+        FactorCreator<TestObject>::destroy(obj2);
       }
     };
   }

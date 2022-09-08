@@ -171,13 +171,13 @@
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tsmlib\choice.h" />
     <ClInclude Include="..\tsmlib\tsm.h" />
-    <ClInclude Include="tsmlib\choice.h" />
     <ClInclude Include="tsmlib\state.h" />
     <ClInclude Include="tsmlib\statemachine.h" />
     <ClInclude Include="tsmlib\templatemeta.h" />

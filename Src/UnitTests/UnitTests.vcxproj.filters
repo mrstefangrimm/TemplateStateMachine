@@ -10,6 +10,7 @@
     <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tsmlib\state.h">
@@ -25,9 +26,6 @@
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\tsmlib\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="tsmlib\choice.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\tsmlib\tsm.h">

@@ -125,7 +125,7 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
-    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> SM;
+    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>, EmptyState<StateType>> SM;
 
     TEST_CLASS(StatemachineOnOffInitialAndFinalTransitions)
     {
@@ -198,7 +198,7 @@ namespace UnitTests {
 
         FinalFromOffGuardDummy::CheckReturnValue = true;
 
-        sm.trigger<Triggers::Goodbye>();
+        sm.dispatch<Triggers::Goodbye>();
         Assert::AreEqual<int>(1, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -245,7 +245,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, FinalFromOffGuardDummy::Calls);
         Assert::AreEqual<int>(0, FinalFromOnGuardDummy::Calls);
 
-        sm.trigger<Triggers::Goodbye>();
+        sm.dispatch<Triggers::Goodbye>();
         Assert::AreEqual<int>(0, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -293,7 +293,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, FinalFromOnGuardDummy::Calls);
 
         // On <- Off
-        sm.trigger<Triggers::On>();
+        sm.dispatch<Triggers::On>();
         Assert::AreEqual<int>(1, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -309,7 +309,7 @@ namespace UnitTests {
 
         FinalFromOnGuardDummy::CheckReturnValue = true;
 
-        sm.trigger<Triggers::Goodbye>();
+        sm.dispatch<Triggers::Goodbye>();
         Assert::AreEqual<int>(1, OffState::ExitCalls);
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);

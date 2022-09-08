@@ -69,14 +69,14 @@ namespace UnitTests {
     {
       // Note: SingletonCreator requires to use the factories.
       typedef typename ChoiceTrue::CreatorType TrueFactory;
-      ChoiceTrue* trueState = TrueFactory::Create();
+      ChoiceTrue* trueState = TrueFactory::create();
       typedef typename Init::CreatorType InitFactory;
-      Init* init = InitFactory::Create();
+      Init* init = InitFactory::create();
 
       GuardDummy::CheckReturnValue = true;
 
       InitChoice choice;
-      StateType* state = choice.trigger(init);
+      StateType* state = choice.dispatch(init);
 
       Assert::IsTrue(*trueState == *state);
     }
@@ -85,14 +85,14 @@ namespace UnitTests {
     {
       // Note: SingletonCreator requires to use the factories.
       typedef typename ChoiceFalse::CreatorType FalseFactory;
-      ChoiceFalse* falseState = FalseFactory::Create();
+      ChoiceFalse* falseState = FalseFactory::create();
       typedef typename Init::CreatorType InitFactory;
-      Init* init = InitFactory::Create();
+      Init* init = InitFactory::create();
 
       GuardDummy::CheckReturnValue = false;
 
       InitChoice choice;
-      StateType* state = choice.trigger(init);
+      StateType* state = choice.dispatch(init);
 
       Assert::IsTrue(*falseState == *state);
     }

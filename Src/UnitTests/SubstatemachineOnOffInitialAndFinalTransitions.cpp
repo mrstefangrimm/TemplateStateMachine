@@ -48,9 +48,9 @@ namespace UnitTests {
       template<typename T>
       bool check(T* activeState) {
         if (!is_same < FROM, AnyState<StateType>>().value) {
-          FROM* from = FROM::CreatorType::Create();
+          FROM* from = FROM::CreatorType::create();
           Assert::IsTrue(activeState->equals(*from));
-          FROM::CreatorType::Delete(from);
+          FROM::CreatorType::destroy(from);
         }
         Calls++;
         return CheckReturnValue;
@@ -150,7 +150,8 @@ namespace UnitTests {
       StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullFinalTransition<StateType>> ActivestateStatemachine;
+      NullFinalTransition<StateType>,
+      EmptyState<StateType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static int EntryCalls;
@@ -200,7 +201,8 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      ActivestateFinalTransition> SM;
+      ActivestateFinalTransition,
+      EmptyState<StateType>> SM;
 
     TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
     {
@@ -219,11 +221,11 @@ namespace UnitTests {
 
         sm.begin();
 
-        sm.trigger<Triggers::Hello>();
+        sm.dispatch<Triggers::Hello>();
 
-        sm.trigger<Triggers::On>();
+        sm.dispatch<Triggers::On>();
 
-        sm.trigger<Triggers::Goodbye>();
+        sm.dispatch<Triggers::Goodbye>();
 
         Assert::AreEqual<int>(1, ToFinalSubstatesGuardDummy::Calls);
         Assert::AreEqual<int>(1, ToFinalSubstatesActionSpy::Calls);
@@ -246,11 +248,11 @@ namespace UnitTests {
 
         sm.begin();
 
-        sm.trigger<Triggers::Hello>();
+        sm.dispatch<Triggers::Hello>();
 
-        sm.trigger<Triggers::On>();
+        sm.dispatch<Triggers::On>();
 
-        sm.trigger<Triggers::GoodbyeSub>();
+        sm.dispatch<Triggers::GoodbyeSub>();
 
         //Assert::AreEqual<int>(1, ToFinalSubstatesGuardDummy::Calls);
         //Assert::AreEqual<int>(1, ToFinalSubstatesActionSpy::Calls);
