@@ -32,25 +32,13 @@ class Statemachine {
     }
 
     void end() {
-      if (_activeState != 0) FINALTRANSITION().trigger(_activeState);
+      FINALTRANSITION().trigger(_activeState);
     }
 
     template<uint8_t T>
     TriggerResult<STATE> trigger() {
 
       if (_activeState == 0) return TriggerResult<STATE>(false, _activeState);
-
-      // Final transition. Check guard and terminate.
-      //if (!is_same<NullFinalTransition<STATE>, FINALTRANSITION>().value) {
-      //  typename FINALTRANSITION::GuardType guard;
-      //  if (guard.check()) {
-      //    //typedef typename TypeAt<STATES, _activeStateIdx>::Result ActiveState;
-      //    //ActiveState activeState;
-      //    //activeState.exit();
-      //    _activeState = FINALTRANSITION().trigger(_activeState);
-      //    if (_activeState == 0) return _activeState;
-      //  }
-      //}
 
       const int size = Length<TRANSITIONS>::value;
       STATE* state = TriggerExecutor < TRANSITIONS, size - 1, T, STATE >::execute(_activeState);
@@ -75,14 +63,20 @@ class Statemachine {
         typedef typename CurentTransition::FromType::CreatorType FromFactory;
         typedef typename CurentTransition::FromType::ObjectType FromFactoryType;
         FROM* fromState = FromFactory::Create();
-        bool hasSameFromState = activeState->equals(*fromState);
+        // fromState is 0 for AnyState
+        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) :true;
         FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
 
         bool conditionMet = CurentTransition::Trigger == TRIGGER && hasSameFromState;
         if (conditionMet) {
-          TriggerResult<STATE> result = CurentTransition().trigger(activeState);
+          if (CurentTransition::ExitingTransition) {
+            return FINALTRANSITION().trigger(activeState).activeState;
+          }
+          auto result = CurentTransition().trigger(activeState);
           // If the state has not changed, continue to see if any other transition does.
-          if (result.consumed) return result.activeState;
+          if (result.consumed) {
+            return result.activeState;
+          }
         }
         // Recursion
         STATE* resState = TriggerExecutor < TL, INDEX - 1, TRIGGER, FROM >::execute(activeState);
@@ -102,11 +96,15 @@ class Statemachine {
         typedef typename FirstTransition::FromType::CreatorType FromFactory;
         typedef typename FirstTransition::FromType::ObjectType FromFactoryType;
         FROM* fromState = FromFactory::Create();
-        bool hasSameFromState = activeState->equals(*fromState);
+        // fromState is 0 for AnyState
+        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) : true;
         FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
 
         bool conditionMet = FirstTransition::Trigger == TRIGGER && hasSameFromState;
         if (conditionMet) {
+          if (FirstTransition::ExitingTransition) {
+            return FINALTRANSITION().trigger(activeState).activeState;
+          }
           return FirstTransition().trigger(activeState).activeState;
         }
         return 0;

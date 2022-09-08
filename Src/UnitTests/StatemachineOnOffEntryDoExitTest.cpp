@@ -89,10 +89,10 @@ namespace UnitTests {
     int OffState::ExitCalls = 0;
     int OffState::DoitCalls = 0;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, EmptyGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, EmptyGuard, EmptyAction> ToOffFromOnTransition;
-    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, EmptyGuard, EmptyAction> ToOnFromOnTransition;
-    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, EmptyGuard, EmptyAction> ToOffFromOffTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
+    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, OkGuard, EmptyAction, false> ToOnFromOnTransition;
+    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, OkGuard, EmptyAction, false> ToOffFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -127,7 +127,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(1, OffState::DoitCalls);
 
-        // Off <- Off, internal transition
+        // Off <- Off, self transition
         auto result = sm.trigger<Triggers::OffToOff>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);
@@ -157,7 +157,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(1, OffState::EntryCalls);
         Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // On <- On, internal transition
+        // On <- On, self transition
         result = sm.trigger<Triggers::OnToOn>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::ExitCalls);

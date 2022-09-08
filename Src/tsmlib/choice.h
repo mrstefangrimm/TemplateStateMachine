@@ -24,7 +24,7 @@ struct Choice {
 
   Choice() {
     // Choice without guard does not make sense; the state machine would immediately go to the final state.
-    CTAssert < !is_same<EmptyGuard, GUARD>().value > ();
+    CompileTimeError<!is_same<GUARD, OkGuard>().value > ();
   }
 
   STATE* trigger(STATE* activeState) {
@@ -42,20 +42,16 @@ struct Choice {
 
     if (GUARD().check(static_cast<FROM*>(activeState))) {
 
-      // Internal transition
+      // Self transition
       if (is_same<TO_TRUE, FROM>().value) {
-        if (!is_same<ACTION, EmptyAction>().value) {
-          ACTION().perform(static_cast<FROM*>(activeState));
-        }
+        ACTION().perform(static_cast<FROM*>(activeState));
         static_cast<TO_TRUE*>(activeState)->template doit<TRIGGER>();
         return activeState;
       }
 
       static_cast<FROM*>(activeState)->exit();
 
-      if (!is_same<ACTION, EmptyAction>().value) {
-        ACTION().perform(static_cast<FROM*>(activeState));
-      }
+      ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::Create();
       toState->entry();
       toState->template doit<TRIGGER>();
@@ -63,20 +59,16 @@ struct Choice {
       return toState;
     }
 
-    // Internal transition
+    // Self transition
     if (is_same<TO_FALSE, FROM>().value) {
-      if (!is_same<ACTION, EmptyAction>().value) {
-        ACTION().perform(static_cast<FROM*>(activeState));
-      }
+      ACTION().perform(static_cast<FROM*>(activeState));
       static_cast<TO_FALSE*>(activeState)->template doit<TRIGGER>();
       return activeState;
     }
 
     static_cast<FROM*>(activeState)->exit();
 
-    if (!is_same<ACTION, EmptyAction>().value) {
-      ACTION().perform(static_cast<FROM*>(activeState));
-    }
+    ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::Create();
     toState->entry();
     toState->template doit<TRIGGER>();

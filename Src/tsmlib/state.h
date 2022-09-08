@@ -19,6 +19,7 @@ namespace tsmlib {
 
 template<typename Derived, typename Comperator>
 struct StateBase {
+
   bool equals(const Derived& other) const {
     return Comperator::AreEqual(*static_cast<const Derived*>(this), other);
   }
@@ -26,9 +27,9 @@ struct StateBase {
 
 template<typename Comperator, bool Singleton>
 struct State {
-  // TODO: #ifndef SARCRIFYEXIT
-  //  virtual void exit() = 0;
-  //#endif
+  #ifndef INCOMPLETEEXIT
+  virtual void exit() {};
+  #endif
 
   bool equals(const State& other) const {
     return Comperator::AreEqual(*this, other);
@@ -43,13 +44,27 @@ struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator
   virtual uint8_t getTypeId() const = 0;
 };
 
-template<typename Derived, typename Basetype>
-struct SimpleState : Basetype {
+template<typename State>
+struct AnyState : State {
+  typedef AnyState CreatorType;
+  typedef AnyState ObjectType;
 
+  static AnyState* Create() {
+    return 0;
+  }
+  static void Delete(AnyState*) { }
+
+  void entry() { }
+  virtual void exit() { }
+};
+
+template<typename Derived, typename Basetype>
+class SimpleState : public Basetype {
+public:
   void entry() {
     static_cast<Derived*>(this)->entry_();
   }
-  void exit() {
+  virtual void exit() {
     static_cast<Derived*>(this)->exit_();
   }
 
@@ -60,27 +75,27 @@ struct SimpleState : Basetype {
 };
 
 template<typename Derived, typename Basetype, typename Statemachine>
-struct StatemachineHolderState : Basetype {
-
+class SubstatesHolderState : public Basetype {
+public:
   void entry() {
     static_cast<Derived*>(this)->entry_();
-    _nestedSM.begin();
+    _subStatemachine.begin();
   }
-  void exit() {
-    _nestedSM.end();
+  virtual void exit() {
+    _subStatemachine.end();
     static_cast<Derived*>(this)->exit_();
   }
 
   template<uint8_t N>
   void doit() {
 
-    // Check if nested consumes the trigger
-    if (_nestedSM.template trigger<N>().consumed) return;
+    // Return if substates consumed the trigger
+    if (_subStatemachine.template trigger<N>().consumed) return;
 
     static_cast<Derived*>(this)->template doit_<N>();
   }
 
-  Statemachine _nestedSM;
+  Statemachine _subStatemachine;
 };
 
 template<typename COMPERATOR, bool MINIMAL>

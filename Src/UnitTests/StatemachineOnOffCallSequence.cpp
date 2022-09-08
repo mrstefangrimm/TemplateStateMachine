@@ -46,6 +46,7 @@ namespace UnitTests {
     private:
       friend class SimpleState<FinalStateFake, StateType>;
       void entry_() { }
+      void exit_() { }
       template<uint8_t N>
       void doit_() { }
     };
@@ -103,11 +104,11 @@ namespace UnitTests {
     };
     const char* OffState::Name = "OffState";
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, EmptyGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, EmptyGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
-    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, EmptyGuard, ToOnFromOnActionSpy> ToOnFromOnTransition;
-    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, EmptyGuard, ToOffFromOffActionSpy> ToOffFromOffTransition;
-    typedef Transition<Triggers::OffToFinal, StateType, FinalStateFake, OffState, EmptyGuard, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
+    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, OkGuard, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
+    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, OkGuard, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
+    typedef Transition<Triggers::OffToFinal, StateType, FinalStateFake, OffState, OkGuard, ToFinalFromOffActionSpy, false> ToFinalFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -118,7 +119,11 @@ namespace UnitTests {
       NullType>>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
-    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> SM;
+    typedef Statemachine<
+      StateType,
+      TransitionList,
+      InitTransition,
+      NullFinalTransition<StateType>> SM;
 
     TEST_CLASS(StatemachineOnOffCallSequence)
     {
@@ -136,7 +141,7 @@ namespace UnitTests {
         expected.push_back("OffState::Entry");
         expected.push_back("OffState::Do");
 
-        // Off <- Off, internal transition
+        // Off <- Off, self transition
         auto result = sm.trigger<Triggers::OffToOff>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OffState<-OffState");
@@ -153,7 +158,7 @@ namespace UnitTests {
         expected.push_back("OnState::Entry");
         expected.push_back("OnState::Do");
 
-        // On <- On, internal transition
+        // On <- On, self transition
         result = sm.trigger<Triggers::OnToOn>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         expected.push_back("OnState<-OnState");

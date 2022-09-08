@@ -27,7 +27,7 @@ namespace UnitTests {
 
     struct TestObject { };
 
-    TEST_CLASS(StateCreatorTests)
+    TEST_CLASS(CreatorTests)
     {
     public:
 

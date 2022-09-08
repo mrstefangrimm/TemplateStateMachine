@@ -96,10 +96,10 @@ namespace UnitTests {
     void doit_() { }
   };
 
-  typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
-  typedef Transition<Triggers::Off, StateType, OffState, OnState, ToOffFromOnGuardDummy, ToOffFromOnActionSpy> ToOffFromOnTransition;
-  typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, ToOnFromOnGuardDummy, ToOnFromOnActionSpy> ToOnFromOnTransition;
-  typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, ToOffFromOffGuardDummy, ToOffFromOffActionSpy> ToOffFromOffTransition;
+  typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
+  typedef Transition<Triggers::Off, StateType, OffState, OnState, ToOffFromOnGuardDummy, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
+  typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, ToOnFromOnGuardDummy, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
+  typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, ToOffFromOffGuardDummy, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
 
   typedef
     Typelist<ToOnFromOffTransition,
@@ -129,7 +129,7 @@ namespace UnitTests {
       Assert::AreEqual<int>(0, ToOffFromOffActionSpy::Calls);
 
       SM sm(true);
-      // Off <- Off, internal transition
+      // Off <- Off, self transition
       auto result = sm.trigger<Triggers::OffToOff>();
       Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::Calls);
@@ -179,7 +179,7 @@ namespace UnitTests {
       Assert::AreEqual<int>(1, ToOffFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOffFromOffActionSpy::Calls);
 
-      // On <- On, internal transition
+      // On <- On, self transition
       result = sm.trigger<Triggers::OnToOn>();
       Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);

@@ -77,10 +77,10 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 3; }
     };
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, EmptyGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, EmptyGuard, EmptyAction> ToOffFromOnTransition;
-    typedef Transition<Triggers::Timeout, StateType, OnState, OnState, EmptyGuard, EmptyAction> ToOnFromOnTransition;
-    typedef Transition<Triggers::Timeout, StateType, OffState, OffState, EmptyGuard, EmptyAction> ToOffFromOffTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
+    typedef Transition<Triggers::Timeout, StateType, OnState, OnState, OkGuard, EmptyAction, false> ToOnFromOnTransition;
+    typedef Transition<Triggers::Timeout, StateType, OffState, OffState, OkGuard, EmptyAction, false> ToOffFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,

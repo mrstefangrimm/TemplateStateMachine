@@ -3,8 +3,8 @@
 namespace Loki {
 
 // From Modern C++
-template<bool> struct CTAssert;
-template<> struct CTAssert<true> {};
+template<bool> struct CompileTimeError;
+template<> struct CompileTimeError<true> {};
 
 // From Modern C++
 template<uint8_t V>

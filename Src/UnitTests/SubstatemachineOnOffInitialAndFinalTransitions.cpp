@@ -1,0 +1,265 @@
+/*
+  Copyright 2022 Stefan Grimm
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+#include "CppUnitTest.h"
+
+#include "tsmlib/state.h"
+#include "tsmlib/templatemeta.h"
+#include "tsmlib/statemachine.h"
+#include "tsmlib/transition.h"
+
+#define CAT(A, B) A##B
+#define WSTRING(A) CAT(L, #A)
+
+namespace UnitTests {
+
+  namespace SubstatesTransitionInitFinal {
+
+    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+    using namespace tsmlib;
+    using namespace std;
+
+    typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+
+    template<typename TO, typename FROM>
+    struct ActionSpy {
+      static int Calls;
+      template<typename T>
+      void perform(T*) { Calls++; }
+    };
+    template<typename TO, typename FROM> int ActionSpy<TO, FROM>::Calls = 0;
+
+    template<typename TO, typename FROM>
+    struct GuardDummy {
+      static int Calls;
+      static bool CheckReturnValue;
+      template<typename T>
+      bool check(T* activeState) {
+        if (!is_same < FROM, AnyState<StateType>>().value) {
+          FROM* from = FROM::CreatorType::Create();
+          Assert::IsTrue(activeState->equals(*from));
+          FROM::CreatorType::Delete(from);
+        }
+        Calls++;
+        return CheckReturnValue;
+      }
+    };
+    template<typename TO, typename FROM> int GuardDummy<TO, FROM>::Calls = 0;
+    template<typename TO, typename FROM> bool GuardDummy<TO, FROM>::CheckReturnValue = true;
+
+    typedef ActionSpy<struct OffState, struct EmptyState<StateType>> ToOffFromInitialActionSpy;
+    typedef ActionSpy<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
+    typedef ActionSpy<EmptyState<StateType>, struct OnState> ToFinalFromOnActionSpy;
+
+    struct TerminateActionSpy {
+      static int Calls;
+      template<typename T>
+      void perform(T*) { Calls++; }
+    };
+    int TerminateActionSpy::Calls = 0;
+
+    enum Triggers {
+      On,
+      Off,
+      Goodbye,
+      GoodbyeSub,
+      Hello,
+    };
+
+    struct IdleState : SimpleState<IdleState, StateType>, FactorCreator<IdleState> {
+      static int EntryCalls;
+      static int ExitCalls;
+      static int DoitCalls;
+
+      uint8_t getTypeId() const override { return 1; }
+
+    private:
+      friend class SimpleState<IdleState, StateType>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
+      template<uint8_t N>
+      void doit_() { DoitCalls++; }
+    };
+    int IdleState::EntryCalls = 0;
+    int IdleState::ExitCalls = 0;
+    int IdleState::DoitCalls = 0;
+
+    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+      static int EntryCalls;
+      static int ExitCalls;
+      static int DoitCalls;
+
+      uint8_t getTypeId() const override { return 1; }
+
+    private:
+      friend class SimpleState<OnState, StateType>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
+      template<uint8_t N>
+      void doit_() { DoitCalls++; }
+    };
+    int OnState::EntryCalls = 0;
+    int OnState::ExitCalls = 0;
+    int OnState::DoitCalls = 0;
+
+    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+      static int EntryCalls;
+      static int ExitCalls;
+      static int DoitCalls;
+
+      uint8_t getTypeId() const override { return 2; }
+
+    private:
+      friend class SimpleState<OffState, StateType>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
+      template<uint8_t N>
+      void doit_() { DoitCalls++; }
+    };
+    int OffState::EntryCalls = 0;
+    int OffState::ExitCalls = 0;
+    int OffState::DoitCalls = 0;
+
+    typedef GuardDummy<AnyState<StateType>, AnyState<StateType>> ToFinalSubOnGuardDummy;
+    typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubOnActionSpy;
+
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
+    typedef Transition<Triggers::GoodbyeSub, StateType, IdleState, OnState, ToFinalSubOnGuardDummy, ToFinalSubOnActionSpy, true> ToIdleFromOnTransition;
+
+    typedef
+      Typelist<ToOnFromOffTransition,
+      Typelist<ToOffFromOnTransition,
+      Typelist<ToIdleFromOnTransition,
+      NullType>>> ActivestateTransitionList;
+
+    typedef InitialTransition<StateType, OffState, EmptyAction> ActivestateInitTransition;
+    typedef Statemachine<
+      StateType,
+      ActivestateTransitionList,
+      ActivestateInitTransition,
+      NullFinalTransition<StateType>> ActivestateStatemachine;
+
+    struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
+      static int EntryCalls;
+      static int ExitCalls;
+      static int DoitCalls;
+
+      uint8_t getTypeId() const override { return 3; }
+
+    private:
+      friend class SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>;
+      void entry_() { EntryCalls++; }
+      void exit_() { ExitCalls++; }
+      template<uint8_t N>
+      void doit_() { DoitCalls++; }
+    };
+    int ActiveState::EntryCalls = 0;
+    int ActiveState::ExitCalls = 0;
+    int ActiveState::DoitCalls = 0;
+
+    typedef GuardDummy<AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesGuardDummy;
+    typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesActionSpy;
+
+    // sub-states transitions are self transitions
+    typedef Transition<Triggers::On, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOnFromOffSubTransition;
+    typedef Transition<Triggers::Off, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOffFromOnSubTransition;
+    typedef Transition<Triggers::GoodbyeSub, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, true> ToIdleFromOffSubTransition;
+
+    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, EmptyAction, false> ToActiveFromIdleTransition;
+    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy, false> ToIdleFromActiveTransition;
+
+    typedef
+      Typelist<ToOnFromOffSubTransition,
+      Typelist<ToOffFromOnSubTransition,
+      Typelist<ToIdleFromOffSubTransition,
+      Typelist<ToActiveFromIdleTransition,
+      Typelist<ToIdleFromActiveTransition,
+      NullType>>>>> TransitionList;
+
+    struct ActiveStateFinalizeGuard {
+      template<typename T>
+      bool check(T*) { return true; }
+    };
+
+    typedef InitialTransition<StateType, IdleState, EmptyAction> InitTransition;
+    typedef FinalTransition<StateType, ActiveStateFinalizeGuard, EmptyAction> ActivestateFinalTransition;
+    typedef Statemachine<
+      StateType,
+      TransitionList,
+      InitTransition,
+      ActivestateFinalTransition> SM;
+
+    TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
+    {
+    public:
+
+      TEST_METHOD(ExitfromActiveExitsSubstate)
+      {
+        ToFinalSubstatesGuardDummy::Calls = 0;
+        ToFinalSubstatesActionSpy::Calls = 0;
+        ToFinalSubOnGuardDummy::Calls = 0;
+        ToFinalSubOnActionSpy::Calls = 0;
+        OnState::ExitCalls = 0;
+        ActiveState::ExitCalls = 0;
+
+        SM sm;
+
+        sm.begin();
+
+        sm.trigger<Triggers::Hello>();
+
+        sm.trigger<Triggers::On>();
+
+        sm.trigger<Triggers::Goodbye>();
+
+        Assert::AreEqual<int>(1, ToFinalSubstatesGuardDummy::Calls);
+        Assert::AreEqual<int>(1, ToFinalSubstatesActionSpy::Calls);
+        Assert::AreEqual<int>(1, ToFinalSubOnGuardDummy::Calls);
+        Assert::AreEqual<int>(1, ToFinalSubOnActionSpy::Calls);
+        Assert::AreEqual<int>(1, OnState::ExitCalls);
+        Assert::AreEqual<int>(1, ActiveState::ExitCalls);
+      }
+
+      TEST_METHOD(transitionfromsubstateout_subandsupperstateexitiscalled)
+      {
+        ToFinalSubstatesGuardDummy::Calls = 0;
+        ToFinalSubstatesActionSpy::Calls = 0;
+        ToFinalSubOnGuardDummy::Calls = 0;
+        ToFinalSubOnActionSpy::Calls = 0;
+        OnState::ExitCalls = 0;
+        ActiveState::ExitCalls = 0;
+
+        SM sm;
+
+        sm.begin();
+
+        sm.trigger<Triggers::Hello>();
+
+        sm.trigger<Triggers::On>();
+
+        sm.trigger<Triggers::GoodbyeSub>();
+
+        //Assert::AreEqual<int>(1, ToFinalSubstatesGuardDummy::Calls);
+        //Assert::AreEqual<int>(1, ToFinalSubstatesActionSpy::Calls);
+        //Assert::AreEqual<int>(1, ToFinalSubOnGuardDummy::Calls);
+        //Assert::AreEqual<int>(1, ToFinalSubOnActionSpy::Calls);
+        Assert::AreEqual<int>(1, OnState::ExitCalls);
+        Assert::AreEqual<int>(1, ActiveState::ExitCalls);
+      }
+
+    };
+  }
+}
