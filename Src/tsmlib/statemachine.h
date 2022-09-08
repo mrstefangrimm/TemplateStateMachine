@@ -64,7 +64,7 @@ class Statemachine {
         typedef typename CurentTransition::FromType::ObjectType FromFactoryType;
         FROM* fromState = FromFactory::Create();
         // fromState is 0 for AnyState
-        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) :true;
+        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) : true;
         FromFactory::Delete(static_cast<FromFactoryType*>(fromState));
 
         bool conditionMet = CurentTransition::Trigger == TRIGGER && hasSameFromState;

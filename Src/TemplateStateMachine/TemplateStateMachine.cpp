@@ -84,12 +84,12 @@ struct ChoiceGuardManualDummy {
     return true;
   }
 };
-typedef Choice<Triggers::Timeout, StateType, SimulationManual, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, EmptyAction> InitChoice;
+typedef Choice<Triggers::Timeout, StateType, SimulationManual, SimulationRemote, SimulationInit, EmptyAction, ChoiceGuardRemoteDummy> InitChoice;
 
-typedef Transition<Triggers::Timeout, StateType, SimulationManual, SimulationInit, ChoiceGuardManualDummy, EmptyAction> ToManualFromInit;
-typedef Transition<Triggers::Timeout, StateType, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, EmptyAction> ToRemoteFromInit;
-typedef Transition<Triggers::Remote, StateType, SimulationRemote, SimulationManual, EmptyGuard, EmptyAction> ToRemoteFromManual;
-typedef Transition<Triggers::Manual, StateType, SimulationManual, SimulationRemote, EmptyGuard, EmptyAction> ToManualFromRemote;
+typedef Transition<Triggers::Timeout, StateType, SimulationManual, SimulationInit, ChoiceGuardManualDummy, EmptyAction, false> ToManualFromInit;
+typedef Transition<Triggers::Timeout, StateType, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, EmptyAction, false> ToRemoteFromInit;
+typedef Transition<Triggers::Remote, StateType, SimulationRemote, SimulationManual, OkGuard, EmptyAction, false> ToRemoteFromManual;
+typedef Transition<Triggers::Manual, StateType, SimulationManual, SimulationRemote, OkGuard, EmptyAction, false> ToManualFromRemote;
 
 typedef
 Typelist<
@@ -99,18 +99,18 @@ Typelist<
   Typelist<ToManualFromRemote,
   NullType>>>> SimulationTransitionList;
 
-typedef InitialTransition<StateType, SimulationInit, EmptyAction> SimulationNestedInitTransition;
+typedef InitialTransition<StateType, SimulationInit, EmptyAction> SimulationSubstatesInitTransition;
 typedef Statemachine<
   StateType,
   SimulationTransitionList,
-  SimulationNestedInitTransition,
-  NullFinalTransition<StateType>> SimulationNestedSM;
+  SimulationSubstatesInitTransition,
+  NullFinalTransition<StateType>> SimulationSubstatemachine;
 
-struct Simulation : StatemachineHolderState<Simulation, StateType, SimulationNestedSM>, SingletonCreator<Simulation> {
+struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>, SingletonCreator<Simulation> {
   uint8_t getTypeId() const override { return 1; }
 
 private:
-  friend class StatemachineHolderState<Simulation, StateType, SimulationNestedSM>;
+  friend class SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>;
 
   void entry_() {
   }
@@ -139,13 +139,13 @@ private:
   }
 };
 
-typedef Transition<Triggers::On, StateType, Simulation, Calibration, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
-typedef Transition<Triggers::Calibrate, StateType, Calibration, Simulation, EmptyGuard, EmptyAction> ToCalibToSim;
-typedef Transition<Triggers::Positionstream, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimPositionStream;
-typedef Transition<Triggers::Positionstream, StateType, Calibration, Calibration, EmptyGuard, EmptyAction> ToCalibFromCalibPositionStream;
-typedef Transition<Triggers::Timeout, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimTimeout;
-typedef Transition<Triggers::Remote, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimRemote;
-typedef Transition<Triggers::Manual, StateType, Simulation, Simulation, EmptyGuard, EmptyAction> ToSimFromSimManual;
+typedef Transition<Triggers::On, StateType, Simulation, Calibration, ToSimFromCalibGuard, ToSimFromCalibAction, false> ToSimFromCalib;
+typedef Transition<Triggers::Calibrate, StateType, Calibration, Simulation, OkGuard, EmptyAction, false> ToCalibToSim;
+typedef Transition<Triggers::Positionstream, StateType, Simulation, Simulation, OkGuard, EmptyAction, false> ToSimFromSimPositionStream;
+typedef Transition<Triggers::Positionstream, StateType, Calibration, Calibration, OkGuard, EmptyAction, false> ToCalibFromCalibPositionStream;
+typedef Transition<Triggers::Timeout, StateType, Simulation, Simulation, OkGuard, EmptyAction, false> ToSimFromSimTimeout;
+typedef Transition<Triggers::Remote, StateType, Simulation, Simulation, OkGuard, EmptyAction, false> ToSimFromSimRemote;
+typedef Transition<Triggers::Manual, StateType, Simulation, Simulation, OkGuard, EmptyAction, false> ToSimFromSimManual;
 
 typedef
 Typelist<ToSimFromCalib,
@@ -165,20 +165,8 @@ typedef Statemachine<
   InitTransition,
   NullFinalTransition<StateType>> SM;
 
-
 int main()
 {
-
-  //typedef typename TypeAt<TriggerList, 2>::Result SomeType;
-
-  //if (SomeType::type == 1) {
-  //  SomeType().trigger(0);
-  //}
-  //else {
-  //  typedef typename TypeAt2<SomeType, 0>::Result SomeType2;
-  //  SomeType2().trigger(0);
-  //}
-
   Simulation simulation;
   Calibration calibration;
 
@@ -193,6 +181,8 @@ int main()
 
   result = stateMachine.trigger<Triggers::Manual>();
   // Active state: Simulation/Manual
+
+  stateMachine.end();
 
   result = stateMachine.trigger<Triggers::Calibrate>();
   // Active state: Calibration

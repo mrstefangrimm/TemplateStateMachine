@@ -27,9 +27,9 @@ struct StateBase {
 
 template<typename Comperator, bool Singleton>
 struct State {
-  #ifndef INCOMPLETEEXIT
+#ifndef INCOMPLETEEXIT
   virtual void exit() {};
-  #endif
+#endif
 
   bool equals(const State& other) const {
     return Comperator::AreEqual(*this, other);
@@ -60,42 +60,42 @@ struct AnyState : State {
 
 template<typename Derived, typename Basetype>
 class SimpleState : public Basetype {
-public:
-  void entry() {
-    static_cast<Derived*>(this)->entry_();
-  }
-  virtual void exit() {
-    static_cast<Derived*>(this)->exit_();
-  }
+  public:
+    void entry() {
+      static_cast<Derived*>(this)->entry_();
+    }
+    virtual void exit() {
+      static_cast<Derived*>(this)->exit_();
+    }
 
-  template<uint8_t N>
-  void doit() {
-    static_cast<Derived*>(this)->template doit_<N>();
-  }
+    template<uint8_t N>
+    void doit() {
+      static_cast<Derived*>(this)->template doit_<N>();
+    }
 };
 
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
-public:
-  void entry() {
-    static_cast<Derived*>(this)->entry_();
-    _subStatemachine.begin();
-  }
-  virtual void exit() {
-    _subStatemachine.end();
-    static_cast<Derived*>(this)->exit_();
-  }
+  public:
+    void entry() {
+      static_cast<Derived*>(this)->entry_();
+      _subStatemachine.begin();
+    }
+    virtual void exit() {
+      _subStatemachine.end();
+      static_cast<Derived*>(this)->exit_();
+    }
 
-  template<uint8_t N>
-  void doit() {
+    template<uint8_t N>
+    void doit() {
 
-    // Return if substates consumed the trigger
-    if (_subStatemachine.template trigger<N>().consumed) return;
+      // Return if substates consumed the trigger
+      if (_subStatemachine.template trigger<N>().consumed) return;
 
-    static_cast<Derived*>(this)->template doit_<N>();
-  }
+      static_cast<Derived*>(this)->template doit_<N>();
+    }
 
-  Statemachine _subStatemachine;
+    Statemachine _subStatemachine;
 };
 
 template<typename COMPERATOR, bool MINIMAL>

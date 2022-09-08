@@ -45,8 +45,8 @@ class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<Le
     void doit_() { }
 };
 
-typedef Transition<Triggers::On, StateType, LedOn, LedOff, EmptyGuard, EmptyAction> ToOnFromOff_t;
-typedef Transition<Triggers::Off, StateType, LedOff, LedOn, EmptyGuard, EmptyAction> ToOffFromOn_t;
+typedef Transition<Triggers::On, StateType, LedOn, LedOff, OkGuard, EmptyAction, false> ToOnFromOff_t;
+typedef Transition<Triggers::Off, StateType, LedOff, LedOn, OkGuard, EmptyAction, false> ToOffFromOn_t;
 
 typedef
 Typelist<ToOnFromOff_t,

@@ -24,7 +24,7 @@ struct Choice {
 
   Choice() {
     // Choice without guard does not make sense; the state machine would immediately go to the final state.
-    CompileTimeError<!is_same<GUARD, OkGuard>().value > ();
+    CompileTimeError < !is_same<GUARD, OkGuard>().value > ();
   }
 
   STATE* trigger(STATE* activeState) {
