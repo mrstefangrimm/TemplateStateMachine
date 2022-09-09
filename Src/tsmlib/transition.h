@@ -22,18 +22,18 @@ namespace tsmlib {
 using namespace Loki;
 using namespace std;
 
-template<typename State>
+template<typename T>
 struct DispatchResult {
-  DispatchResult(bool consumed, State* state) {
+  DispatchResult(bool consumed, T* activeState) {
     this->consumed = consumed;
-    activeState = state;
+    this->activeState = activeState;
   }
   bool consumed;
-  State* activeState;
+  T* activeState;
 };
 
-template<typename State>
-struct EmptyState : State {
+template<typename T>
+struct EmptyState : T {
   typedef EmptyState CreatorType;
 
   static EmptyState* create() {
@@ -61,88 +61,102 @@ struct OkGuard {
   }
 };
 
-template<uint8_t Trigger, typename State, typename To, typename From, typename Guard, typename Action, bool IsExitingTransition>
-struct Transition {
-  enum { N = Trigger };
-  enum { E = IsExitingTransition };
-  typedef From FromType;
+namespace impl {
+  template<uint8_t Trigger, typename StateType, typename To, typename From, typename Guard, typename Action, bool IsExitingTransition>
+  struct TransitionBase {
+    enum { N = Trigger };
+    enum { E = IsExitingTransition };
+    typedef From FromType;
 
-  DispatchResult<State> dispatch(State* activeState) {
-    typedef typename To::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
-    To* toState = ToFactory::create();
-    From* fromState = FromFactory::create();
+    DispatchResult<StateType> dispatch(StateType* activeState) {
+      typedef typename To::CreatorType ToFactory;
+      typedef typename From::CreatorType FromFactory;
+      To* toState = ToFactory::create();
+      From* fromState = FromFactory::create();
 
-    // Initial transition
-    if (!is_same<EmptyState<State>, To>().value && is_same<EmptyState<State>, From>().value) {
+      // Initial transition
+      if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
+        Action().perform(static_cast<From*>(activeState));
+        toState->entry();
+        toState->template doit<Trigger>();
+
+        // Delete not needed. "activeState" and "fromState" are null (the initial state)
+
+        return DispatchResult<StateType>(true, toState);
+      }
+
+      // Final transition Any <- Any
+      if (is_same<AnyState<StateType>, From>().value) {
+
+        // Delete toState and fromState not needed; both are "null".
+
+        if (Guard().check(static_cast<From*>(activeState))) {
+          // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
+          static_cast<From*>(activeState)->exit();
+          Action().perform(static_cast<From*>(activeState));
+          // TODO: AnyState::Delete is called
+          FromFactory::destroy(static_cast<From*>(activeState));
+          return DispatchResult<StateType>(true, toState);
+        }
+        return DispatchResult<StateType>(false, activeState);
+      }
+
+      // The transition is valid if the "fromState" is also the activeState state from the state machine.
+      if (!fromState->equals(*activeState)) {
+        ToFactory::destroy(toState);
+        FromFactory::destroy(fromState);
+        return DispatchResult<StateType>(false, activeState);
+      }
+      FromFactory::destroy(fromState);
+
+      if (!Guard().check(static_cast<From*>(activeState))) {
+        ToFactory::destroy(toState);
+        return DispatchResult<StateType>(false, activeState);
+      }
+      // Self transition
+      if (is_same<To, From>().value) {
+        Action().perform(static_cast<From*>(activeState));
+        static_cast<To*>(activeState)->template doit<Trigger>();
+        ToFactory::destroy(toState);
+        return DispatchResult<StateType>(true, activeState);
+      }
+
+      static_cast<From*>(activeState)->exit();
+
       Action().perform(static_cast<From*>(activeState));
       toState->entry();
       toState->template doit<Trigger>();
-
-      // Delete not needed. "activeState" and "fromState" are null (the initial state)
-
-      return DispatchResult<State>(true, toState);
+      FromFactory::destroy(static_cast<From*>(activeState));
+      return DispatchResult<StateType>(true, toState);
     }
+  };
+}
 
-    // Final transition Any <- Any
-    if (is_same<AnyState<State>, From>().value) {
-
-      // Delete toState and fromState not needed; both are "null".
-
-      if (Guard().check(static_cast<From*>(activeState))) {
-        // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-        static_cast<From*>(activeState)->exit();
-        Action().perform(static_cast<From*>(activeState));
-        // TODO: AnyState::Delete is called
-        FromFactory::destroy(static_cast<From*>(activeState));
-        return DispatchResult<State>(true, toState);
-      }
-      return DispatchResult<State>(false, activeState);
-    }
-
-    // The transition is valid if the "fromState" is also the activeState state from the state machine.
-    if (!fromState->equals(*activeState)) {
-      ToFactory::destroy(toState);
-      FromFactory::destroy(fromState);
-      return DispatchResult<State>(false, activeState);
-    }
-    FromFactory::destroy(fromState);
-
-    if (!Guard().check(static_cast<From*>(activeState))) {
-      ToFactory::destroy(toState);
-      return DispatchResult<State>(false, activeState);
-    }
-    // Self transition
-    if (is_same<To, From>().value) {
-      Action().perform(static_cast<From*>(activeState));
-      static_cast<To*>(activeState)->template doit<Trigger>();
-      ToFactory::destroy(toState);
-      return DispatchResult<State>(true, activeState);
-    }
-
-    static_cast<From*>(activeState)->exit();
-
-    Action().perform(static_cast<From*>(activeState));
-    toState->entry();
-    toState->template doit<Trigger>();
-    FromFactory::destroy(static_cast<From*>(activeState));
-    return DispatchResult<State>(true, toState);
-  }
+template<typename StateType, typename To, typename Action>
+struct InitialTransition : impl::TransitionBase<0, StateType, To, EmptyState<StateType>, OkGuard, Action, false> {
 };
 
-template<typename State, typename To, typename Action>
-struct InitialTransition : Transition<0, State, To, EmptyState<State>, OkGuard, Action, false> {
-};
-
-template<typename STATE, typename Guard, typename ACTION>
-struct FinalTransition : Transition<0, STATE, EmptyState<STATE>, AnyState<STATE>, Guard, ACTION, false> {
+template<typename StateType, typename Guard, typename Action>
+struct FinalTransition : impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, Guard, Action, false> {
   FinalTransition() {
     // Final transition without guard does not make sense; the state machine would immediately go to the final state.
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
   }
 };
 
-template<typename State>
-using  NullFinalTransition = Transition<0, State, EmptyState<State>, AnyState<State>, OkGuard, EmptyAction, false>;
+template<typename StateType>
+using NullFinalTransition = impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, OkGuard, EmptyAction, false>;
+
+template<uint8_t Trigger, typename StateType, typename Me, typename Guard, typename Action>
+using SelfTransition = impl::TransitionBase<Trigger, StateType, Me, Me, Guard, Action, false>;
+
+template<uint8_t Trigger, typename StateType, typename Me>
+using Declaration = impl::TransitionBase<Trigger, StateType, Me, Me, OkGuard, EmptyAction, false>;
+
+template<uint8_t Trigger, typename StateType, typename To, typename From, typename Guard, typename Action>
+using ExitTransition = impl::TransitionBase<Trigger, StateType, To, From, Guard, Action, true>;
+
+template<uint8_t Trigger, typename StateType, typename To, typename From, typename Guard, typename Action>
+using Transition = impl::TransitionBase<Trigger, StateType, To, From, Guard, Action, false>;
 
 }

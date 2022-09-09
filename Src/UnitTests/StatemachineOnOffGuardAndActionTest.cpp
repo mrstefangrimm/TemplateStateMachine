@@ -96,10 +96,10 @@ namespace UnitTests {
     void doit_() { }
   };
 
-  typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
-  typedef Transition<Triggers::Off, StateType, OffState, OnState, ToOffFromOnGuardDummy, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
-  typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, ToOnFromOnGuardDummy, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
-  typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, ToOffFromOffGuardDummy, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
+  typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
+  typedef Transition<Triggers::Off, StateType, OffState, OnState, ToOffFromOnGuardDummy, ToOffFromOnActionSpy> ToOffFromOnTransition;
+  typedef SelfTransition<Triggers::OnToOn, StateType, OnState, ToOnFromOnGuardDummy, ToOnFromOnActionSpy> ToOnFromOnTransition;
+  typedef SelfTransition<Triggers::OffToOff, StateType, OffState, ToOffFromOffGuardDummy, ToOffFromOffActionSpy> ToOffFromOffTransition;
 
   typedef
     Typelist<ToOnFromOffTransition,
@@ -109,7 +109,7 @@ namespace UnitTests {
     NullType>>>> TransitionList;
 
   typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-  typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>, EmptyState<StateType>> SM;
+  typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
 
   TEST_CLASS(StatemachineOnOffGuardAndActionTest)
   {
@@ -128,7 +128,7 @@ namespace UnitTests {
       Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOffActionSpy::Calls);
 
-      SM sm;
+      Sm sm;
       sm.begin();
       // Off <- Off, self transition
       auto result = sm.dispatch<Triggers::OffToOff>();

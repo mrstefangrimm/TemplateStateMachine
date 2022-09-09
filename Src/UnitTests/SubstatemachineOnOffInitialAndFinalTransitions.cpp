@@ -135,9 +135,9 @@ namespace UnitTests {
     typedef GuardDummy<AnyState<StateType>, AnyState<StateType>> ToFinalSubOnGuardDummy;
     typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubOnActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
-    typedef Transition<Triggers::GoodbyeSub, StateType, IdleState, OnState, ToFinalSubOnGuardDummy, ToFinalSubOnActionSpy, true> ToIdleFromOnTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef ExitTransition<Triggers::GoodbyeSub, StateType, IdleState, OnState, ToFinalSubOnGuardDummy, ToFinalSubOnActionSpy> ToIdleFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -150,8 +150,7 @@ namespace UnitTests {
       StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullFinalTransition<StateType>,
-      EmptyState<StateType>> ActivestateStatemachine;
+      NullFinalTransition<StateType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static int EntryCalls;
@@ -175,12 +174,13 @@ namespace UnitTests {
     typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesActionSpy;
 
     // sub-states transitions are self transitions
-    typedef Transition<Triggers::On, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOnFromOffSubTransition;
-    typedef Transition<Triggers::Off, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOffFromOnSubTransition;
-    typedef Transition<Triggers::GoodbyeSub, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, true> ToIdleFromOffSubTransition;
+    typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
+    typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
+    typedef Declaration<Triggers::GoodbyeSub, StateType, ActiveState> ToIdleFromOffSubTransition;
+    //typedef ExitTransition<Triggers::GoodbyeSub, StateType, ActiveState, ActiveState, OkGuard, EmptyAction> ToIdleFromOffSubTransition;
 
-    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, EmptyAction, false> ToActiveFromIdleTransition;
-    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy, false> ToIdleFromActiveTransition;
+    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, EmptyAction> ToActiveFromIdleTransition;
+    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy> ToIdleFromActiveTransition;
 
     typedef
       Typelist<ToOnFromOffSubTransition,
@@ -201,8 +201,7 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      ActivestateFinalTransition,
-      EmptyState<StateType>> SM;
+      ActivestateFinalTransition> Sm;
 
     TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
     {
@@ -217,7 +216,7 @@ namespace UnitTests {
         OnState::ExitCalls = 0;
         ActiveState::ExitCalls = 0;
 
-        SM sm;
+        Sm sm;
 
         sm.begin();
 
@@ -244,7 +243,7 @@ namespace UnitTests {
         OnState::ExitCalls = 0;
         ActiveState::ExitCalls = 0;
 
-        SM sm;
+        Sm sm;
 
         sm.begin();
 

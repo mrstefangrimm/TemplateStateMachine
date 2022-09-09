@@ -112,10 +112,10 @@ namespace UnitTests {
     int OffState::ExitCalls = 0;
     int OffState::DoitCalls = 0;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
-    typedef Transition<Triggers::Goodbye, StateType, EmptyState<StateType>, OffState, FinalFromOffGuardDummy, ToFinalFromOffActionSpy, false> ToFinalFromOffTransition;
-    typedef Transition<Triggers::Goodbye, StateType, EmptyState<StateType>, OnState, FinalFromOnGuardDummy, ToFinalFromOnActionSpy, false> ToFinalffFromOnTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef Transition<Triggers::Goodbye, StateType, EmptyState<StateType>, OffState, FinalFromOffGuardDummy, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
+    typedef Transition<Triggers::Goodbye, StateType, EmptyState<StateType>, OnState, FinalFromOnGuardDummy, ToFinalFromOnActionSpy> ToFinalffFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -125,7 +125,7 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
-    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>, EmptyState<StateType>> SM;
+    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffInitialAndFinalTransitions)
     {
@@ -133,7 +133,7 @@ namespace UnitTests {
 
       TEST_METHOD(InitialTransition_ToOffState_ActionEntryDoAreCalledAndFinalizeIsIgnored)
       {
-        SM sm;
+        Sm sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -166,7 +166,7 @@ namespace UnitTests {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOff_ExitAndActionAreCalled)
       {
-        SM sm;
+        Sm sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -215,7 +215,7 @@ namespace UnitTests {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOffButGuardBlocks_ExitAndActionAreNotCalled)
       {
-        SM sm;
+        Sm sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;
@@ -262,7 +262,7 @@ namespace UnitTests {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOn_ExitAndActionAreCalled)
       {
-        SM sm;
+        Sm sm;
         OffState::ExitCalls = 0;
         OffState::EntryCalls = 0;
         OffState::DoitCalls = 0;

@@ -104,11 +104,11 @@ namespace UnitTests {
     typedef ActionSpy<struct OffState, struct OffState> ToOffFromOffActionSpy;
     typedef ActionSpy<struct FinalStateFake, struct OffState> ToFinalFromOffActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
-    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, OkGuard, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
-    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, OkGuard, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
-    typedef Transition<Triggers::OffToFinal, StateType, FinalStateFake, OffState, OkGuard, ToFinalFromOffActionSpy, false> ToFinalFromOffTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
+    typedef SelfTransition<Triggers::OnToOn, StateType, OnState, OkGuard, ToOnFromOnActionSpy> ToOnFromOnTransition;
+    typedef SelfTransition<Triggers::OffToOff, StateType, OffState, OkGuard, ToOffFromOffActionSpy> ToOffFromOffTransition;
+    typedef Transition<Triggers::OffToFinal, StateType, FinalStateFake, OffState, OkGuard, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -124,8 +124,7 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      NullFinalTransition<StateType>,
-    EmptyState<StateType>> Sm;
+      NullFinalTransition<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffCallSequence)
     {

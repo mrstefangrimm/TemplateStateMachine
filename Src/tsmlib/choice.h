@@ -19,7 +19,7 @@
 
 namespace tsmlib {
 
-template<uint8_t TRIGGER, typename STATE, typename TO_TRUE, typename TO_FALSE, typename FROM, typename GUARD, typename ACTION>
+template<uint8_t Trigger, typename StateType, typename TO_TRUE, typename TO_FALSE, typename FROM, typename GUARD, typename ACTION>
 struct Choice {
 
   Choice() {
@@ -27,7 +27,7 @@ struct Choice {
     CompileTimeError < !is_same<GUARD, OkGuard>().value > ();
   }
 
-  STATE* dispatch(STATE* activeState) {
+  StateType* dispatch(StateType* activeState) {
     typedef typename TO_TRUE::CreatorType ToTrueFactory;
     typedef typename TO_FALSE::CreatorType ToFalseFactory;
     typedef typename FROM::CreatorType FromFactory;
@@ -45,7 +45,7 @@ struct Choice {
       // Self transition
       if (is_same<TO_TRUE, FROM>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
-        static_cast<TO_TRUE*>(activeState)->template doit<TRIGGER>();
+        static_cast<TO_TRUE*>(activeState)->template doit<Trigger>();
         return activeState;
       }
 
@@ -54,7 +54,7 @@ struct Choice {
       ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::create();
       toState->entry();
-      toState->template doit<TRIGGER>();
+      toState->template doit<Trigger>();
       FromFactory::destroy(static_cast<FROM*>(activeState));
       return toState;
     }
@@ -62,7 +62,7 @@ struct Choice {
     // Self transition
     if (is_same<TO_FALSE, FROM>().value) {
       ACTION().perform(static_cast<FROM*>(activeState));
-      static_cast<TO_FALSE*>(activeState)->template doit<TRIGGER>();
+      static_cast<TO_FALSE*>(activeState)->template doit<Trigger>();
       return activeState;
     }
 
@@ -71,7 +71,7 @@ struct Choice {
     ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::create();
     toState->entry();
-    toState->template doit<TRIGGER>();
+    toState->template doit<Trigger>();
     FromFactory::destroy(static_cast<FROM*>(activeState));
     return toState;
   }

@@ -118,9 +118,9 @@ namespace UnitTests {
     typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
     typedef ActionSpy<struct IdleState, struct OnState> ToIdleFromOnActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy, false> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy, false> ToOffFromOnTransition;
-    typedef Transition<Triggers::GoodbyeSub, StateType, IdleState, OnState, OkGuard, ToIdleFromOnActionSpy, true> ToIdleFromOnTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
+    typedef ExitTransition<Triggers::GoodbyeSub, StateType, IdleState, OnState, OkGuard, ToIdleFromOnActionSpy> ToIdleFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -134,8 +134,7 @@ namespace UnitTests {
       StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullFinalTransition<StateType>,
-      EmptyState<StateType>> ActivestateStatemachine;
+      NullFinalTransition<StateType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static const char* Name;
@@ -152,15 +151,15 @@ namespace UnitTests {
     const char* ActiveState::Name = "ActiveState";
 
     // sub-states transitions are self transitions
-    typedef Transition<Triggers::On, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOnFromOffSubTransition;
-    typedef Transition<Triggers::Off, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, false> ToOffFromOnSubTransition;
-    typedef Transition<Triggers::GoodbyeSub, StateType, ActiveState, ActiveState, OkGuard, EmptyAction, true> ToIdleFromOffSubTransition;
+    typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
+    typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
+    typedef Declaration<Triggers::GoodbyeSub, StateType, ActiveState> ToIdleFromOffSubTransition;
 
     typedef ActionSpy<struct ActiveState, struct IdleState> ToActiveFromIdleActionSpy;
     typedef ActionSpy<struct IdleState, struct AnyStateFake> ToIdleFromAnyActionSpy;
 
-    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, ToActiveFromIdleActionSpy, false> ToActiveFromIdleTransition;
-    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy, false> ToIdleFromActiveTransition;
+    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, ToActiveFromIdleActionSpy> ToActiveFromIdleTransition;
+    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy> ToIdleFromActiveTransition;
 
     typedef
       Typelist<ToOnFromOffSubTransition,
@@ -182,9 +181,7 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      NullFinalTransition<StateType>,
-      //ActivestateFinalTransition,
-      EmptyState<StateType>> SM;
+      NullFinalTransition<StateType>> Sm;
 
     TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
     {
@@ -212,7 +209,7 @@ namespace UnitTests {
         //  + [16]	"IdleState<-AnyStateFake"	std::string
         //  TODO: idle::enter idle::do are missing
 
-        SM sm;
+        Sm sm;
 
         sm.begin();
 
@@ -244,7 +241,7 @@ namespace UnitTests {
         //  + [15]	"ActiveState::Exit"	std::string
         //  TODO: Exit okay so far, but transition to idle and idle::enter idle::do are missing
 
-        SM sm;
+        Sm sm;
 
         sm.begin();
 

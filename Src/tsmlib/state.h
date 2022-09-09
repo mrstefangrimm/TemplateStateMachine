@@ -35,8 +35,6 @@ struct State {
   bool equals(const State& other) const {
     return Comperator::areEqual(*this, other);
   }
-  // TODO: parent not used
-  State* parent = 0;
 };
 
 template<typename Comperator>
@@ -45,8 +43,6 @@ struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator
   virtual void vvfunc() {}
 
   virtual uint8_t getTypeId() const = 0;
-
-  State* parent = 0;
 };
 
 template<typename State>

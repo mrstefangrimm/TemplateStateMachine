@@ -89,10 +89,10 @@ namespace UnitTests {
     int OffState::ExitCalls = 0;
     int OffState::DoitCalls = 0;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction, false> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction, false> ToOffFromOnTransition;
-    typedef Transition<Triggers::OnToOn, StateType, OnState, OnState, OkGuard, EmptyAction, false> ToOnFromOnTransition;
-    typedef Transition<Triggers::OffToOff, StateType, OffState, OffState, OkGuard, EmptyAction, false> ToOffFromOffTransition;
+    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef SelfTransition<Triggers::OnToOn, StateType, OnState, OkGuard, EmptyAction> ToOnFromOnTransition;
+    typedef SelfTransition<Triggers::OffToOff, StateType, OffState, OkGuard, EmptyAction> ToOffFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -102,7 +102,7 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>, EmptyState<StateType>> SM;
+    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffEntryDoExitTest)
     {
@@ -119,7 +119,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OffState::EntryCalls);
         Assert::AreEqual<int>(0, OffState::DoitCalls);
 
-        SM sm;
+        Sm sm;
         sm.begin();
         Assert::AreEqual<int>(0, OnState::ExitCalls);
         Assert::AreEqual<int>(0, OnState::EntryCalls);

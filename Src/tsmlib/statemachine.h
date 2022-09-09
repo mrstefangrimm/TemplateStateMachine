@@ -20,15 +20,13 @@
 namespace tsmlib {
 
 // TODO: Superstate not used
-template<typename State, typename Transitions, typename Initialtransition, typename Finaltransition, typename Superstate>
+template<typename StateType, typename Transitions, typename Initialtransition, typename Finaltransition, typename Superstate>
 class Statemachine {
   public:
 
-    DispatchResult<State> begin() {
+    DispatchResult<StateType> begin() {
       auto result = Initialtransition().dispatch(0);
-      if (result.consumed && result.activeState->parent == 0) {
-        typedef typename Superstate::CreatorType Creator;
-        result.activeState->parent = Creator::create();
+      if (result.consumed) {
         _activeState = result.activeState;
       }
       return result;
@@ -39,27 +37,27 @@ class Statemachine {
     }
 
     template<uint8_t T>
-    DispatchResult<State> dispatch() {
+    DispatchResult<StateType> dispatch() {
 
-      if (_activeState == 0) return DispatchResult<State>(false, _activeState);
+      if (_activeState == 0) return DispatchResult<StateType>(false, _activeState);
 
       const int size = Length<Transitions>::value;
-      State* state = TriggerExecutor < Transitions, size - 1, T, State >::execute(_activeState);
+      StateType* state = TriggerExecutor < Transitions, size - 1, T, StateType >::execute(_activeState);
       // Transition not found
-      if (state == 0) return DispatchResult<State>(false, _activeState);
+      if (state == 0) return DispatchResult<StateType>(false, _activeState);
 
       _activeState = state;
-      return DispatchResult<State>(true, _activeState);
+      return DispatchResult<StateType>(true, _activeState);
     }
 
   private:
-    State* _activeState = 0;
+    StateType* _activeState = 0;
 
   public:
     template<typename Typelist, int Index, uint8_t N, typename O>
     struct TriggerExecutor {
 
-      static State* execute(O* activeState) {
+      static StateType* execute(O* activeState) {
 
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Typelist, Index>::Result CurentTransition;
@@ -82,7 +80,7 @@ class Statemachine {
           }
         }
         // Recursion
-        State* resState = TriggerExecutor < Typelist, Index - 1, N, O >::execute(activeState);
+        StateType* resState = TriggerExecutor < Typelist, Index - 1, N, O >::execute(activeState);
         if (resState != 0) {
           return resState;
         }
@@ -92,7 +90,7 @@ class Statemachine {
 
     template<typename Typelist, uint8_t N, typename O>
     struct TriggerExecutor<Typelist, 0, N, O> {
-      static State* execute(O* activeState) {
+      static StateType* execute(O* activeState) {
 
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
