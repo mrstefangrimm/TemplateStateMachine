@@ -96,7 +96,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_ActiveStateOnTriggerTimeout_TriggersOnStateDoit)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -114,7 +114,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_ActiveStateOnTriggerOn_UnhandledTransformation)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -132,7 +132,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_WrongActiveStateTriggerTimeout_UnhandledTransformation)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -150,7 +150,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_ActiveStateOnTriggerWrong_UnhandledTransformation)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -168,7 +168,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_ActiveStateOffTriggerTimeout_TriggersOffStateDoit)
       {
         typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -186,7 +186,7 @@ namespace UnitTests {
       TEST_METHOD(Execute_ActiveStateOffTriggerOff_UnhandledTransformation)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -204,7 +204,7 @@ namespace UnitTests {
       TEST_METHOD(StatemachineTrigger_OnStateTimeout_TriggersOnStateDoit)
       {
         typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OnState::ExitCalls = 0;
         OnState::EntryCalls = 0;
@@ -243,7 +243,7 @@ namespace UnitTests {
       TEST_METHOD(StatemachineTrigger_OffStateTimeout_TriggersOffStateDoit)
       {
         typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
         OnState::ExitCalls = 0;
         OnState::EntryCalls = 0;

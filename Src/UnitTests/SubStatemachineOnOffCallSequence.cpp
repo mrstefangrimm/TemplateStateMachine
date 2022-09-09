@@ -134,7 +134,7 @@ namespace UnitTests {
       StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullFinalTransition<StateType>> ActivestateStatemachine;
+      NullEndTransition<StateType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static const char* Name;
@@ -181,7 +181,7 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      NullFinalTransition<StateType>> Sm;
+      NullEndTransition<StateType>> Sm;
 
     TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
     {

@@ -96,7 +96,7 @@ typedef Statemachine<
   StateType,
   TransitionList,
   InitTransition,
-  NullFinalTransition<StateType>> Sm;
+  NullEndTransition<StateType>> Sm;
 
 struct ChoiceGuardRemoteDummy {
   template<typename T>
@@ -139,7 +139,7 @@ typedef Statemachine<
   StateType,
   SimulationTransitionList,
   SimulationSubstatesInitTransition,
-  NullFinalTransition<StateType>> SimulationSubstatemachine;
+  NullEndTransition<StateType>> SimulationSubstatemachine;
 
 struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>, SingletonCreator<Simulation> {
   uint8_t getTypeId() const override { return 1; }

@@ -19,53 +19,26 @@
 #include "tsmlib/templatemeta.h"
 #include "tsmlib/statemachine.h"
 #include "tsmlib/transition.h"
+#include "TestHelpers.h"
 
 namespace UnitTests {
 
   using namespace Microsoft::VisualStudio::CppUnitTestFramework;
   using namespace tsmlib;
   using namespace std;
+  using namespace Helpers;
 
   typedef State<VirtualGetTypeIdStateComperator, false> StateType;
-
-  template<typename TO, typename FROM>
-  struct ActionSpy {
-    static int Calls;
-    template<typename T>
-    void perform(T* activeState) {
-      FROM* from = FROM::CreatorType::create();
-      Assert::IsTrue(activeState->equals(*from));
-      FROM::CreatorType::destroy(from);
-      Calls++;
-    }
-  };
-  template<typename TO, typename FROM> int ActionSpy<TO, FROM>::Calls = 0;
-
-  template<typename TO, typename FROM>
-  struct GuardDummy {
-    static int Calls;
-    static bool CheckReturnValue;
-    template<typename T>
-    bool check(T* activeState) {
-      FROM* from = FROM::CreatorType::create();
-      Assert::IsTrue(activeState->equals(*from));
-      FROM::CreatorType::destroy(from);
-      Calls++;
-      return CheckReturnValue;
-    }
-  };
-  template<typename TO, typename FROM> int GuardDummy<TO, FROM>::Calls = 0;
-  template<typename TO, typename FROM> bool GuardDummy<TO, FROM>::CheckReturnValue = true;
 
   typedef ActionSpy<struct OnState, struct OffState> ToOnFromOffActionSpy;
   typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
   typedef ActionSpy<struct OnState, struct OnState> ToOnFromOnActionSpy;
   typedef ActionSpy<struct OffState, struct OffState> ToOffFromOffActionSpy;
 
-  typedef GuardDummy<struct OnState, struct OffState> ToOnFromOffGuardDummy;
-  typedef GuardDummy<struct OffState, struct OnState> ToOffFromOnGuardDummy;
-  typedef GuardDummy<struct OnState, struct OnState> ToOnFromOnGuardDummy;
-  typedef GuardDummy<struct OffState, struct OffState> ToOffFromOffGuardDummy;
+  typedef GuardDummy<StateType, struct OnState, struct OffState> ToOnFromOffGuardDummy;
+  typedef GuardDummy<StateType, struct OffState, struct OnState> ToOffFromOnGuardDummy;
+  typedef GuardDummy<StateType, struct OnState, struct OnState> ToOnFromOnGuardDummy;
+  typedef GuardDummy<StateType, struct OffState, struct OffState> ToOffFromOffGuardDummy;
 
   enum Triggers {
     On,
@@ -109,7 +82,7 @@ namespace UnitTests {
     NullType>>>> TransitionList;
 
   typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-  typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+  typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
   TEST_CLASS(StatemachineOnOffGuardAndActionTest)
   {

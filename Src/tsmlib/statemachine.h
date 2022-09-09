@@ -20,7 +20,7 @@
 namespace tsmlib {
 
 // TODO: Superstate not used
-template<typename StateType, typename Transitions, typename Initialtransition, typename Finaltransition, typename Superstate>
+template<typename StateType, typename Transitions, typename Initialtransition, typename Endtransition>
 class Statemachine {
   public:
 
@@ -32,8 +32,12 @@ class Statemachine {
       return result;
     }
 
-    void end() {
-      Finaltransition().dispatch(_activeState);
+    DispatchResult<StateType> end() {
+      auto result = Endtransition().dispatch(_activeState);
+      if (result.consumed) {
+        _activeState = 0;
+      }
+      return result;
     }
 
     template<uint8_t T>
@@ -71,7 +75,7 @@ class Statemachine {
         bool conditionMet = CurentTransition::N == N && hasSameFromState;
         if (conditionMet) {
           if (CurentTransition::E) {
-            return Finaltransition().dispatch(activeState).activeState;
+            return Endtransition().dispatch(activeState).activeState;
           }
           auto result = CurentTransition().dispatch(activeState);
           // If the state has not changed, continue to see if any other transition does.
@@ -104,7 +108,7 @@ class Statemachine {
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
           if (FirstTransition::E) {
-            return Finaltransition().dispatch(activeState).activeState;
+            return Endtransition().dispatch(activeState).activeState;
           }
           return FirstTransition().dispatch(activeState).activeState;
         }

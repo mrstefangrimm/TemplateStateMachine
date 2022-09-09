@@ -102,7 +102,7 @@ namespace impl {
       }
 
       // The transition is valid if the "fromState" is also the activeState state from the state machine.
-      if (!fromState->equals(*activeState)) {
+      if (activeState == 0 || !fromState->equals(*activeState)) {
         ToFactory::destroy(toState);
         FromFactory::destroy(fromState);
         return DispatchResult<StateType>(false, activeState);
@@ -136,16 +136,24 @@ template<typename StateType, typename To, typename Action>
 struct InitialTransition : impl::TransitionBase<0, StateType, To, EmptyState<StateType>, OkGuard, Action, false> {
 };
 
-template<typename StateType, typename Guard, typename Action>
-struct FinalTransition : impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, Guard, Action, false> {
+template<uint8_t Trigger, typename StateType, typename From, typename Guard, typename Action>
+struct FinalTransition : impl::TransitionBase<Trigger, StateType, EmptyState<StateType>, From, Guard, Action, false> {
   FinalTransition() {
-    // Final transition without guard does not make sense; the state machine would immediately go to the final state.
+    // Make sure the user defines a guard for the final transition. This is not UML compliant.
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
   }
 };
 
+template<typename StateType, typename Guard, typename Action>
+struct EndTransition : impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, Guard, Action, false> {
+  EndTransition() {
+    // Final transition without guard does not make sense; the state machine would immediately go to the final state.
+    CompileTimeError < !is_same<Guard, OkGuard>().value >();
+  }
+};
+
 template<typename StateType>
-using NullFinalTransition = impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, OkGuard, EmptyAction, false>;
+using NullEndTransition = impl::TransitionBase<0, StateType, EmptyState<StateType>, AnyState<StateType>, OkGuard, EmptyAction, false>;
 
 template<uint8_t Trigger, typename StateType, typename Me, typename Guard, typename Action>
 using SelfTransition = impl::TransitionBase<Trigger, StateType, Me, Me, Guard, Action, false>;

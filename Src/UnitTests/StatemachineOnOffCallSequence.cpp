@@ -124,7 +124,7 @@ namespace UnitTests {
       StateType,
       TransitionList,
       InitTransition,
-      NullFinalTransition<StateType>> Sm;
+      NullEndTransition<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffCallSequence)
     {

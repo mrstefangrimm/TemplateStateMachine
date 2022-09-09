@@ -102,7 +102,7 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-    typedef Statemachine<StateType, TransitionList, InitTransition, NullFinalTransition<StateType>> Sm;
+    typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
 
     TEST_CLASS(StatemachineOnOffEntryDoExitTest)
     {

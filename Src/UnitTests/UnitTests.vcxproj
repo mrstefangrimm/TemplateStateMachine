@@ -178,6 +178,7 @@
   <ItemGroup>
     <ClInclude Include="..\tsmlib\choice.h" />
     <ClInclude Include="..\tsmlib\tsm.h" />
+    <ClInclude Include="TestHelpers.h" />
     <ClInclude Include="tsmlib\state.h" />
     <ClInclude Include="tsmlib\statemachine.h" />
     <ClInclude Include="tsmlib\templatemeta.h" />
