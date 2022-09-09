@@ -13,11 +13,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define DISABLENESTEDSTATES
+//#define IAMWINDOWS 1
+
 #define IAMARDUINO 1
-#include "tsm.h"
+// Defines unint8_t which does not require an include on Arduino.
+#include <stdint.h>
+
+#define DISABLENESTEDSTATES
+
+#include "tsmlib\tsm.h"
+
+#include <iostream>
 
 using namespace tsmlib;
+using namespace std;
 
 typedef State<MemoryAddressStateComperator<true>, true> StateType;
 
@@ -27,23 +36,23 @@ enum Triggers {
 };
 
 class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
-    friend class SimpleState<LedOn, StateType>;
-    void entry_() {
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-    void exit_() { }
-    template<uint8_t N>
-    void doit_() { }
+  friend class SimpleState<LedOn, StateType>;
+  void entry_() {
+    cout << "digitalWrite(LED_BUILTIN, HIGH);" << endl;
+  }
+  void exit_() { }
+  template<uint8_t N>
+  void doit_() { }
 };
 
 class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<LedOff> {
-    friend class SimpleState<LedOff, StateType>;
-    void entry_() {
-      digitalWrite(LED_BUILTIN, LOW);
-    }
-    void exit_() { }
-    template<uint8_t N>
-    void doit_() { }
+  friend class SimpleState<LedOff, StateType>;
+  void entry_() {
+    cout << "digitalWrite(LED_BUILTIN, LOW)" << endl;
+  }
+  void exit_() { }
+  template<uint8_t N>
+  void doit_() { }
 };
 
 typedef Transition<Triggers::On, StateType, LedOn, LedOff, OkGuard, EmptyAction> ToOnFromOff;
@@ -51,26 +60,32 @@ typedef Transition<Triggers::Off, StateType, LedOff, LedOn, OkGuard, EmptyAction
 
 typedef
 Typelist<ToOnFromOff,
-         Typelist<ToOffFromOn,
-         NullType>> TransitionList;
+  Typelist<ToOffFromOn,
+  NullType>> TransitionList;
 
 typedef InitialTransition<StateType, LedOff, EmptyAction> InitTransition;
 typedef Statemachine <
-StateType,
-TransitionList,
-InitTransition,
-NullEndTransition<StateType>> SM;
+  StateType,
+  TransitionList,
+  InitTransition,
+  NullEndTransition<StateType>> SM;
 
 SM statemachine;
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
+  cout << "pinMode(LED_BUILTIN, OUTPUT);" << endl;
   statemachine.begin();
 }
 
 void loop() {
   statemachine.dispatch<Triggers::On>();
-  delay(1000);
+  //delay(1000);
   statemachine.dispatch<Triggers::Off>();
-  delay(1000);
+  //delay(1000);
+}
+
+int main()
+{
+  setup();
+  loop();
 }

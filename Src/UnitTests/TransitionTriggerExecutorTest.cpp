@@ -75,6 +75,7 @@ namespace UnitTests {
 
     struct WrongState : StateType, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 3; }
+      virtual void exit() { }
     };
 
     typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
@@ -104,7 +105,7 @@ namespace UnitTests {
         OnState on;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::Timeout, StateType>().execute(&on);
+        StateType* state = Sm::TriggerExecutor<Triggers::Timeout, size - 1>().execute(&on);
         Assert::AreEqual<int>(on.getTypeId(), state->getTypeId());
 
         Assert::AreEqual<int>(1, OnState::DoitCalls);
@@ -122,7 +123,7 @@ namespace UnitTests {
         OnState on;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::On, StateType>().execute(&on);
+        StateType* state = Sm::TriggerExecutor<Triggers::On, size - 1>().execute(&on);
         Assert::IsTrue(0 == state);
 
         Assert::AreEqual<int>(0, OffState::DoitCalls);
@@ -140,7 +141,7 @@ namespace UnitTests {
         WrongState wrongState;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::Timeout, StateType>().execute(&wrongState);
+        StateType* state = Sm::TriggerExecutor<Triggers::Timeout, size - 1>().execute(&wrongState);
         Assert::IsTrue(0 == state);
 
         Assert::AreEqual<int>(0, OffState::DoitCalls);
@@ -158,7 +159,7 @@ namespace UnitTests {
         OnState on;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::Wrong, StateType>().execute(&on);
+        StateType* state = Sm::TriggerExecutor<Triggers::Wrong, size - 1>().execute(&on);
         Assert::IsTrue(0 == state);
 
         Assert::AreEqual<int>(0, OffState::DoitCalls);
@@ -176,7 +177,7 @@ namespace UnitTests {
         OffState off;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::Timeout, StateType>().execute(&off);
+        StateType* state = Sm::TriggerExecutor<Triggers::Timeout, size - 1>().execute(&off);
         Assert::AreEqual<int>(off.getTypeId(), state->getTypeId());
 
         Assert::AreEqual<int>(1, OffState::DoitCalls);
@@ -194,7 +195,7 @@ namespace UnitTests {
         OffState off;
 
         const int size = Length<TransitionList>::value;
-        StateType* state = Sm::TriggerExecutor<TransitionList, size - 1, Triggers::Off, StateType>().execute(&off);
+        StateType* state = Sm::TriggerExecutor<Triggers::Off, size - 1>().execute(&off);
         Assert::IsTrue(0 == state);
 
         Assert::AreEqual<int>(0, OffState::DoitCalls);

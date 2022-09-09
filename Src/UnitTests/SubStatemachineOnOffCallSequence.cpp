@@ -153,21 +153,21 @@ namespace UnitTests {
     // sub-states transitions are self transitions
     typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
     typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
-    typedef Declaration<Triggers::GoodbyeSub, StateType, ActiveState> ToIdleFromOffSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, StateType, IdleState, ActiveState> ToIdleFromOffSubTransition;
 
     typedef ActionSpy<struct ActiveState, struct IdleState> ToActiveFromIdleActionSpy;
     typedef ActionSpy<struct IdleState, struct AnyStateFake> ToIdleFromAnyActionSpy;
 
     typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, ToActiveFromIdleActionSpy> ToActiveFromIdleTransition;
-    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy> ToIdleFromActiveTransition;
+    //typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy> ToIdleFromActiveTransition;
 
     typedef
       Typelist<ToOnFromOffSubTransition,
       Typelist<ToOffFromOnSubTransition,
       Typelist<ToIdleFromOffSubTransition,
       Typelist<ToActiveFromIdleTransition,
-      Typelist<ToIdleFromActiveTransition,
-      NullType>>>>> TransitionList;
+      //Typelist<ToIdleFromActiveTransition,
+      NullType>>>> TransitionList;
 
     struct ActiveStateFinalizeGuard {
       template<typename T>
@@ -176,7 +176,6 @@ namespace UnitTests {
 
     typedef ActionSpy<struct IdleState, struct InitialStateFake> ToIdleFromInitialActionSpy;
     typedef InitialTransition<StateType, IdleState, ToIdleFromInitialActionSpy> InitTransition;
-    //typedef FinalTransition<StateType, ActiveStateFinalizeGuard, EmptyAction> ActivestateFinalTransition;
     typedef Statemachine<
       StateType,
       TransitionList,

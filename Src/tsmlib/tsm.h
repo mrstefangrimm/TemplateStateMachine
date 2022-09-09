@@ -23,7 +23,7 @@ struct is_same<T, T> {
 using namespace std;
 
 #else
-#error define either IAMARDINO or IAMWINDOWS
+#error define either IAMARDUINO or IAMWINDOWS
 #endif
 
 #include "templatemeta.h"

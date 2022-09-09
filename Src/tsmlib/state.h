@@ -19,7 +19,6 @@ namespace tsmlib {
 
 template<typename Derived, typename Comperator>
 struct StateBase {
-
   bool equals(const Derived& other) const {
     return Comperator::areEqual(*static_cast<const Derived*>(this), other);
   }
@@ -27,16 +26,16 @@ struct StateBase {
 
 template<typename Comperator, bool Singleton>
 struct State {
-  // TODO: INCOMPLETEEXIT not used
-#ifndef INCOMPLETEEXIT
-  virtual void exit() {};
-#endif
-
   bool equals(const State& other) const {
     return Comperator::areEqual(*this, other);
   }
+#ifndef DISABLENESTEDSTATES
+  virtual void exit() = 0;
+#else
+  void exit() {}
+#endif
 };
-
+// specialization of State class.
 template<typename Comperator>
 struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator> {
   //Microsoft typeid requires:
@@ -48,15 +47,12 @@ struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator
 template<typename State>
 struct AnyState : State {
   typedef AnyState CreatorType;
-  typedef AnyState ObjectType;
+  //typedef AnyState ObjectType;
 
   static AnyState* create() {
     return 0;
   }
   static void destroy(AnyState*) { }
-
-  void entry() { }
-  virtual void exit() { }
 };
 
 template<typename Derived, typename Basetype>
@@ -65,7 +61,8 @@ class SimpleState : public Basetype {
     void entry() {
       static_cast<Derived*>(this)->entry_();
     }
-    virtual void exit() {
+
+    void exit() {
       static_cast<Derived*>(this)->exit_();
     }
 
@@ -82,7 +79,8 @@ class SubstatesHolderState : public Basetype {
       static_cast<Derived*>(this)->entry_();
       _subStatemachine.begin();
     }
-    virtual void exit() {
+
+    void exit() {
       _subStatemachine.end();
       static_cast<Derived*>(this)->exit_();
     }
@@ -107,7 +105,7 @@ bool operator==(const State<Comperator, Minimal>& lhs, const State<Comperator, M
 template<typename T>
 struct SingletonCreator {
     typedef SingletonCreator<T> CreatorType;
-    typedef T ObjectType;
+    //typedef T ObjectType;
 
     static T* create() {
       return Instance;
@@ -122,7 +120,7 @@ template<typename T> T* SingletonCreator<T>::Instance = new T;
 template<typename T>
 struct FactorCreator {
   typedef FactorCreator<T> CreatorType;
-  typedef T ObjectType;
+  //typedef T ObjectType;
 
   static T* create() {
     return new T;
@@ -132,7 +130,7 @@ struct FactorCreator {
   }
 };
 
-#ifndef IAMARDUINO
+#if defined (IAMWINDOWS)
 struct TypeidStateComperator {
   static bool areEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
     // TODO: doesn't work with base and derived class

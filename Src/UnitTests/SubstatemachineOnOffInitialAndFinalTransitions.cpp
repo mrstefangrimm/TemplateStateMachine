@@ -152,8 +152,7 @@ namespace UnitTests {
     // sub-states transitions are self transitions
     typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
     typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
-    // TODO: Declaration does not work - typedef Declaration<Triggers::GoodbyeSub, StateType, ActiveState> ToIdleFromOffSubTransition;
-    typedef ExitTransition<Triggers::GoodbyeSub, StateType, ActiveState, ActiveState, OkGuard, EmptyAction> ToIdleFromOffSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, StateType, IdleState, ActiveState> ToIdleFromOffSubTransition;
 
     typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, EmptyAction> ToActiveFromIdleTransition;
     typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy> ToIdleFromActiveTransition;

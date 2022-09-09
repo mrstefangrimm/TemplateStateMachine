@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TemplateStateMachine", "Tem
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\UnitTests.vcxproj", "{8986F597-0FA2-4362-ACD4-32F3649F9BCB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LedOnOff", "Examples\LedOnOff\LedOnOff.vcxproj", "{D2CE092B-ED94-4F15-B402-E59482A7FE14}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{8986F597-0FA2-4362-ACD4-32F3649F9BCB}.Release|x64.Build.0 = Release|x64
 		{8986F597-0FA2-4362-ACD4-32F3649F9BCB}.Release|x86.ActiveCfg = Release|Win32
 		{8986F597-0FA2-4362-ACD4-32F3649F9BCB}.Release|x86.Build.0 = Release|Win32
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Debug|x64.ActiveCfg = Debug|x64
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Debug|x64.Build.0 = Debug|x64
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Debug|x86.ActiveCfg = Debug|Win32
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Debug|x86.Build.0 = Debug|Win32
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Release|x64.ActiveCfg = Release|x64
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Release|x64.Build.0 = Release|x64
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Release|x86.ActiveCfg = Release|Win32
+		{D2CE092B-ED94-4F15-B402-E59482A7FE14}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

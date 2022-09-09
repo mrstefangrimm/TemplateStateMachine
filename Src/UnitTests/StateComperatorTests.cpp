@@ -27,11 +27,13 @@ namespace UnitTests {
   template<typename T>
   struct TestStateA : T {
     uint8_t getTypeId() const override { return 1; }
+    void exit() { }
   };
 
   template<typename T>
   struct TestStateB : T {
     uint8_t getTypeId() const override { return 2; }
+    void exit() { }
   };
 
   template<typename T>
