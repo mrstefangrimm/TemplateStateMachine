@@ -17,6 +17,8 @@
 #define IAMARDUINO 1
 #include "tsm.h"
 
+#include "FreeMemory.h"
+
 using namespace tsmlib;
 
 typedef State<MemoryAddressStateComperator<true>, true> StateType;
@@ -40,6 +42,7 @@ class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<Le
     friend class SimpleState<LedOff, StateType>;
     void entry_() {
       digitalWrite(LED_BUILTIN, LOW);
+      Serial.println(freeMemory());
     }
     void exit_() { }
     template<uint8_t N>
@@ -63,6 +66,7 @@ typedef Statemachine <
 Sm statemachine;
 
 void setup() {
+  Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   statemachine.begin();
 }
