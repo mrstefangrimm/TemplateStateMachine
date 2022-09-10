@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"

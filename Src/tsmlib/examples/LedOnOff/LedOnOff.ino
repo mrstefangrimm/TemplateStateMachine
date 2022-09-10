@@ -13,17 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define DISABLENESTEDSTATES
+#define DISABLE_NESTED_STATES
 #define IAMARDUINO 1
 #include "tsm.h"
 
 using namespace tsmlib;
 
 typedef State<MemoryAddressStateComperator<true>, true> StateType;
+typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
 enum Triggers {
-  On,
-  Off,
+  TIMEOUT,
 };
 
 class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
@@ -46,22 +46,21 @@ class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<Le
     void doit_() { }
 };
 
-typedef Transition<Triggers::On, StateType, LedOn, LedOff, OkGuard, EmptyAction> ToOnFromOff;
-typedef Transition<Triggers::Off, StateType, LedOff, LedOn, OkGuard, EmptyAction> ToOffFromOn;
+typedef Transition<Triggers::TIMEOUT, LedOn, LedOff, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOff;
+typedef Transition<Triggers::TIMEOUT, LedOff, LedOn, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOn;
 
 typedef
 Typelist<ToOnFromOff,
-         Typelist<ToOffFromOn,
-         NullType>> TransitionList;
+  Typelist<ToOffFromOn,
+  NullType>> TransitionList;
 
-typedef InitialTransition<StateType, LedOff, EmptyAction> InitTransition;
+typedef InitialTransition<LedOff, StateTypeCreationPolicyType, EmptyAction> InitTransition;
 typedef Statemachine <
-StateType,
-TransitionList,
-InitTransition,
-NullEndTransition<StateType>> SM;
+  TransitionList,
+  InitTransition,
+  NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
-SM statemachine;
+Sm statemachine;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -69,8 +68,8 @@ void setup() {
 }
 
 void loop() {
-  statemachine.dispatch<Triggers::On>();
+  statemachine.dispatch<Triggers::TIMEOUT>();
   delay(1000);
-  statemachine.dispatch<Triggers::Off>();
+  statemachine.dispatch<Triggers::TIMEOUT>();
   delay(1000);
 }

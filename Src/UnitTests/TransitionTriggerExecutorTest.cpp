@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 using namespace std;
@@ -29,6 +31,7 @@ namespace UnitTests {
     using namespace Loki;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
     enum Triggers {
       On,
@@ -78,10 +81,10 @@ namespace UnitTests {
       virtual void exit() { }
     };
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
-    typedef SelfTransition<Triggers::Timeout, StateType, OnState, OkGuard, EmptyAction> ToOnFromOnTransition;
-    typedef SelfTransition<Triggers::Timeout, StateType, OffState, OkGuard, EmptyAction> ToOffFromOffTransition;
+    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef SelfTransition<Triggers::Timeout, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOnTransition;
+    typedef SelfTransition<Triggers::Timeout, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -96,8 +99,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_ActiveStateOnTriggerTimeout_TriggersOnStateDoit)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -114,8 +117,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_ActiveStateOnTriggerOn_UnhandledTransformation)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -132,8 +135,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_WrongActiveStateTriggerTimeout_UnhandledTransformation)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -150,8 +153,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_ActiveStateOnTriggerWrong_UnhandledTransformation)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -168,8 +171,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_ActiveStateOffTriggerTimeout_TriggersOffStateDoit)
       {
-        typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -186,8 +189,8 @@ namespace UnitTests {
 
       TEST_METHOD(Execute_ActiveStateOffTriggerOff_UnhandledTransformation)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OffState::DoitCalls = 0;
         OnState::DoitCalls = 0;
@@ -204,8 +207,8 @@ namespace UnitTests {
 
       TEST_METHOD(StatemachineTrigger_OnStateTimeout_TriggersOnStateDoit)
       {
-        typedef InitialTransition<StateType, OnState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OnState::ExitCalls = 0;
         OnState::EntryCalls = 0;
@@ -243,8 +246,8 @@ namespace UnitTests {
 
       TEST_METHOD(StatemachineTrigger_OffStateTimeout_TriggersOffStateDoit)
       {
-        typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-        typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+        typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+        typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
         OnState::ExitCalls = 0;
         OnState::EntryCalls = 0;

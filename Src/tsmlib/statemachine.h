@@ -19,9 +19,16 @@
 
 namespace tsmlib {
 
-template<typename StateType, typename Transitions, typename Initialtransition, typename Endtransition>
+template<typename Transitions, typename Initialtransition, typename Endtransition>
 class Statemachine {
   public:
+    typedef typename Initialtransition::StateType StateType;
+
+    Statemachine() {
+      typedef typename Initialtransition::StateType InitStateType;
+      typedef typename Endtransition::StateType EndStateType;
+      CompileTimeError<is_same<InitStateType, EndStateType>().value>();
+    }
 
     DispatchResult<StateType> begin() {
       auto result = Initialtransition().dispatch(0);
@@ -64,18 +71,11 @@ class Statemachine {
 
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, Index>::Result CurentTransition;
-        typedef typename CurentTransition::FromState::CreatorType FromFactory;
-        //typedef typename CurentTransition::FromState::ObjectType FromFactoryType;
-        auto fromState = FromFactory::create();
-        // fromState is 0 for AnyState
-        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) : true;
-        FromFactory::destroy(fromState);
+        typedef typename CurentTransition::FromType::ObjectType FromType;
+        bool hasSameFromState = activeState->template typeOf<FromType>();
 
         bool conditionMet = CurentTransition::N == N && hasSameFromState;
         if (conditionMet) {
-          //if (CurentTransition::E) {
-          //  return Endtransition().dispatch(activeState).activeState;
-          //}
           auto result = CurentTransition().dispatch(activeState);
           // If the state has not changed, continue to see if any other transition does.
           if (result.consumed) {
@@ -97,18 +97,11 @@ class Statemachine {
 
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
-        typedef typename FirstTransition::FromState::CreatorType FromFactory;
-        //typedef typename FirstTransition::FromState::ObjectType FromFactoryType;
-        auto fromState = FromFactory::create();
-        // fromState is 0 for AnyState
-        bool hasSameFromState = fromState != 0 ? activeState->equals(*fromState) : true;
-        FromFactory::destroy(fromState);
+        typedef typename FirstTransition::FromType::ObjectType FromType;
+        bool hasSameFromState = activeState->template typeOf<FromType>();
 
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
-          //if (FirstTransition::E) {
-          //  return Endtransition().dispatch(activeState).activeState;
-          //}
           return FirstTransition().dispatch(activeState).activeState;
         }
         return 0;

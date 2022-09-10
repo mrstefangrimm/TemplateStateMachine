@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -31,6 +33,7 @@ namespace UnitTests {
     using namespace std;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
     struct InitialStateFake : StateType {
       static const char* Name;
@@ -104,11 +107,11 @@ namespace UnitTests {
     typedef ActionSpy<struct OffState, struct OffState> ToOffFromOffActionSpy;
     typedef ActionSpy<struct FinalStateFake, struct OffState> ToFinalFromOffActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
-    typedef SelfTransition<Triggers::OnToOn, StateType, OnState, OkGuard, ToOnFromOnActionSpy> ToOnFromOnTransition;
-    typedef SelfTransition<Triggers::OffToOff, StateType, OffState, OkGuard, ToOffFromOffActionSpy> ToOffFromOffTransition;
-    typedef Transition<Triggers::OffToFinal, StateType, FinalStateFake, OffState, OkGuard, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
+    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
+    typedef SelfTransition<Triggers::OnToOn, OnState, StateTypeCreationPolicyType, OkGuard, ToOnFromOnActionSpy> ToOnFromOnTransition;
+    typedef SelfTransition<Triggers::OffToOff, OffState, StateTypeCreationPolicyType, OkGuard, ToOffFromOffActionSpy> ToOffFromOffTransition;
+    typedef Transition<Triggers::OffToFinal, FinalStateFake, OffState, StateTypeCreationPolicyType, OkGuard, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -119,12 +122,11 @@ namespace UnitTests {
       NullType>>>>> TransitionList;
 
     typedef ActionSpy<struct OffState, struct InitialStateFake> ToOffFromInitialActionSpy;
-    typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> InitTransition;
+    typedef InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitialActionSpy> InitTransition;
     typedef Statemachine<
-      StateType,
       TransitionList,
       InitTransition,
-      NullEndTransition<StateType>> Sm;
+      NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
     TEST_CLASS(StatemachineOnOffCallSequence)
     {

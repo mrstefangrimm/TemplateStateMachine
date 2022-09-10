@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -29,6 +31,7 @@ namespace UnitTests {
   using namespace Helpers;
 
   typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+  typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
   typedef ActionSpy<struct OnState, struct OffState> ToOnFromOffActionSpy;
   typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
@@ -69,10 +72,10 @@ namespace UnitTests {
     void doit_() { }
   };
 
-  typedef Transition<Triggers::On, StateType, OnState, OffState, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
-  typedef Transition<Triggers::Off, StateType, OffState, OnState, ToOffFromOnGuardDummy, ToOffFromOnActionSpy> ToOffFromOnTransition;
-  typedef SelfTransition<Triggers::OnToOn, StateType, OnState, ToOnFromOnGuardDummy, ToOnFromOnActionSpy> ToOnFromOnTransition;
-  typedef SelfTransition<Triggers::OffToOff, StateType, OffState, ToOffFromOffGuardDummy, ToOffFromOffActionSpy> ToOffFromOffTransition;
+  typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
+  typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, ToOffFromOnGuardDummy, ToOffFromOnActionSpy> ToOffFromOnTransition;
+  typedef SelfTransition<Triggers::OnToOn, OnState, StateTypeCreationPolicyType, ToOnFromOnGuardDummy, ToOnFromOnActionSpy> ToOnFromOnTransition;
+  typedef SelfTransition<Triggers::OffToOff, OffState, StateTypeCreationPolicyType, ToOffFromOffGuardDummy, ToOffFromOffActionSpy> ToOffFromOffTransition;
 
   typedef
     Typelist<ToOnFromOffTransition,
@@ -81,8 +84,8 @@ namespace UnitTests {
     Typelist<ToOffFromOffTransition,
     NullType>>>> TransitionList;
 
-  typedef InitialTransition<StateType, OffState, EmptyAction> InitTransition;
-  typedef Statemachine<StateType, TransitionList, InitTransition, NullEndTransition<StateType>> Sm;
+  typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+  typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
   TEST_CLASS(StatemachineOnOffGuardAndActionTest)
   {

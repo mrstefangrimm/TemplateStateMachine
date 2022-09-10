@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -31,17 +33,26 @@ namespace UnitTests {
     using namespace std;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
     struct InitialStateFake : StateType {
       static const char* Name;
     };
     const char* InitialStateFake::Name = "Initial";
 
-    struct AnyStateFake : SimpleState<AnyStateFake, StateType> {
+    //struct AnyStateFake : SimpleState<AnyStateFake, StateType> {
+    //  
+    //  typedef AnyStateFake CreatorType;
+    //  typedef AnyStateFake ObjectType;
+
+    //  static AnyStateFake* create() { return 0; }
+    //  static void destroy(AnyStateFake*) { }
+
+    //};
+    //
+
+    struct AnyStateFake : SimpleState<AnyStateFake, StateType>, StateTypeCreationPolicyType {
       static const char* Name;
-      typedef AnyStateFake CreatorType;
-      static AnyStateFake* create() { return 0; }
-      static void destroy(AnyStateFake*) { }
 
     private:
       friend class SimpleState<AnyStateFake, StateType>;
@@ -118,9 +129,9 @@ namespace UnitTests {
     typedef ActionSpy<struct OffState, struct OnState> ToOffFromOnActionSpy;
     typedef ActionSpy<struct IdleState, struct OnState> ToIdleFromOnActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
-    typedef ExitTransition<Triggers::GoodbyeSub, StateType, IdleState, OnState, OkGuard, ToIdleFromOnActionSpy> ToIdleFromOnTransition;
+    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
+    typedef ExitTransition<Triggers::GoodbyeSub, IdleState, OnState, StateTypeCreationPolicyType, OkGuard, ToIdleFromOnActionSpy> ToIdleFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -129,12 +140,11 @@ namespace UnitTests {
       NullType>>> ActivestateTransitionList;
 
     typedef ActionSpy<struct OffState, struct InitialStateFake> ToOffFromInitialActionSpy;
-    typedef InitialTransition<StateType, OffState, ToOffFromInitialActionSpy> ActivestateInitTransition;
+    typedef InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitialActionSpy> ActivestateInitTransition;
     typedef Statemachine<
-      StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullEndTransition<StateType>> ActivestateStatemachine;
+      NullEndTransition<StateTypeCreationPolicyType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static const char* Name;
@@ -151,14 +161,14 @@ namespace UnitTests {
     const char* ActiveState::Name = "ActiveState";
 
     // sub-states transitions are self transitions
-    typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
-    typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
-    typedef ExitDeclaration<Triggers::GoodbyeSub, StateType, IdleState, ActiveState> ToIdleFromOffSubTransition;
+    typedef Declaration<Triggers::On, ActiveState, StateTypeCreationPolicyType> ToOnFromOffSubTransition;
+    typedef Declaration<Triggers::Off, ActiveState, StateTypeCreationPolicyType> ToOffFromOnSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType> ToIdleFromOffSubTransition;
 
     typedef ActionSpy<struct ActiveState, struct IdleState> ToActiveFromIdleActionSpy;
     typedef ActionSpy<struct IdleState, struct AnyStateFake> ToIdleFromAnyActionSpy;
 
-    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, ToActiveFromIdleActionSpy> ToActiveFromIdleTransition;
+    typedef Transition<Triggers::Hello, ActiveState, IdleState, StateTypeCreationPolicyType, OkGuard, ToActiveFromIdleActionSpy> ToActiveFromIdleTransition;
     //typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy> ToIdleFromActiveTransition;
 
     typedef
@@ -175,12 +185,11 @@ namespace UnitTests {
     };
 
     typedef ActionSpy<struct IdleState, struct InitialStateFake> ToIdleFromInitialActionSpy;
-    typedef InitialTransition<StateType, IdleState, ToIdleFromInitialActionSpy> InitTransition;
+    typedef InitialTransition<IdleState, StateTypeCreationPolicyType, ToIdleFromInitialActionSpy> InitTransition;
     typedef Statemachine<
-      StateType,
       TransitionList,
       InitTransition,
-      NullEndTransition<StateType>> Sm;
+      NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
     TEST_CLASS(SubstatemachineOnOffInitialAndFinalTransitions)
     {

@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -34,6 +36,7 @@ namespace UnitTests {
     using namespace Helpers;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
     enum Triggers {
       On,
@@ -81,10 +84,10 @@ namespace UnitTests {
     typedef GuardDummy<StateType, EmptyState<StateType>, OnState> ToFinalFromOnGuardDummy;
     typedef ActionSpy<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
     typedef ActionSpy<EmptyState<StateType>, struct OnState> ToFinalFromOnActionSpy;
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
-    typedef FinalTransition<Triggers::Goodbye, StateType, OffState, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
-    typedef FinalTransition<Triggers::Goodbye, StateType, OnState, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy> ToFinalFromOnTransition;
+    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef FinalTransition<Triggers::Goodbye, OffState, StateTypeCreationPolicyType, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
+    typedef FinalTransition<Triggers::Goodbye, OnState, StateTypeCreationPolicyType, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy> ToFinalFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -94,14 +97,13 @@ namespace UnitTests {
       NullType>>>> TransitionList;
 
     typedef ActionSpy<struct OffState, struct EmptyState<StateType>> ToInitActionSpy;
-    typedef InitialTransition<StateType, OffState, ToInitActionSpy> ToInitTransition;
+    typedef InitialTransition<OffState, StateTypeCreationPolicyType, ToInitActionSpy> ToInitTransition;
 
     typedef GuardDummy<StateType, EmptyState<StateType>, AnyState<StateType>> ToEndFromAnyGuardDummy;
     typedef ActionSpy<struct EmptyState<StateType>, struct AnyState<StateType>> ToEndFromAnyActionSpy;
-    typedef EndTransition<StateType, ToEndFromAnyGuardDummy, ToEndFromAnyActionSpy> ToEndTransition;
+    typedef EndTransition<StateTypeCreationPolicyType, ToEndFromAnyGuardDummy, ToEndFromAnyActionSpy> ToEndTransition;
     
     typedef Statemachine<
-      StateType,
       TransitionList,
       ToInitTransition,
       ToEndTransition> Sm;
@@ -150,10 +152,9 @@ namespace UnitTests {
         typedef GuardDummy<StateType, EmptyState<StateType>, AnyState<StateType>> ToOffFromInitGuardDummy;
         typedef ActionSpy<struct EmptyState<StateType>, struct AnyState<StateType>> ToOffFromInitActionSpy;
         // This is wrong: Use InitialTransition to avoid that "begin" fails.
-        typedef Transition<0, StateType, OffState, OffState, ToOffFromInitGuardDummy, ToOffFromInitActionSpy> WrongToInitTransition;
+        typedef Transition<0, OffState, OffState, StateTypeCreationPolicyType, ToOffFromInitGuardDummy, ToOffFromInitActionSpy> WrongToInitTransition;
 
         typedef Statemachine<
-          StateType,
           TransitionList,
           WrongToInitTransition,
           ToEndTransition> SmWrongInitialTransition;

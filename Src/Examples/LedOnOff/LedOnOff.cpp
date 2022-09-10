@@ -19,7 +19,7 @@
 // Defines unint8_t which does not require an include on Arduino.
 #include <stdint.h>
 
-#define DISABLENESTEDSTATES
+#define DISABLE_NESTED_STATES
 
 #include "tsmlib\tsm.h"
 
@@ -29,10 +29,10 @@ using namespace tsmlib;
 using namespace std;
 
 typedef State<MemoryAddressStateComperator<true>, true> StateType;
+typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
 enum Triggers {
-  On,
-  Off,
+  TIMEOUT,
 };
 
 class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
@@ -55,22 +55,21 @@ class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<Le
   void doit_() { }
 };
 
-typedef Transition<Triggers::On, StateType, LedOn, LedOff, OkGuard, EmptyAction> ToOnFromOff;
-typedef Transition<Triggers::Off, StateType, LedOff, LedOn, OkGuard, EmptyAction> ToOffFromOn;
+typedef Transition<Triggers::TIMEOUT, LedOn, LedOff, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOff;
+typedef Transition<Triggers::TIMEOUT, LedOff, LedOn, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOn;
 
 typedef
 Typelist<ToOnFromOff,
   Typelist<ToOffFromOn,
   NullType>> TransitionList;
 
-typedef InitialTransition<StateType, LedOff, EmptyAction> InitTransition;
+typedef InitialTransition<LedOff, StateTypeCreationPolicyType, EmptyAction> InitTransition;
 typedef Statemachine <
-  StateType,
   TransitionList,
   InitTransition,
-  NullEndTransition<StateType>> SM;
+  NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
-SM statemachine;
+Sm statemachine;
 
 void setup() {
   cout << "pinMode(LED_BUILTIN, OUTPUT);" << endl;
@@ -78,9 +77,9 @@ void setup() {
 }
 
 void loop() {
-  statemachine.dispatch<Triggers::On>();
+  statemachine.dispatch<Triggers::TIMEOUT>();
   //delay(1000);
-  statemachine.dispatch<Triggers::Off>();
+  statemachine.dispatch<Triggers::TIMEOUT>();
   //delay(1000);
 }
 

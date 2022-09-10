@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -38,10 +40,12 @@ namespace UnitTests {
 
   template<typename T>
   struct TestStateMinimalA : T {
+    void exit() { }
   };
 
   template<typename T>
   struct TestStateMinimalB : T {
+    void exit() { }
   };
 
   TEST_CLASS(StateComperatorTests)

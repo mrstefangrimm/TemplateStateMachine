@@ -13,6 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+#define IAMWINDOWS 1
+
 #include "CppUnitTest.h"
 
 #include "tsmlib/state.h"
@@ -34,6 +36,7 @@ namespace UnitTests {
     using namespace Helpers;
 
     typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
     typedef ActionSpy<struct OffState, struct EmptyState<StateType>> ToOffFromInitialActionSpy;
     typedef ActionSpy<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
@@ -111,9 +114,9 @@ namespace UnitTests {
     typedef GuardDummy<StateType, AnyState<StateType>, AnyState<StateType>> ToFinalSubOnGuardDummy;
     typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubOnActionSpy;
 
-    typedef Transition<Triggers::On, StateType, OnState, OffState, OkGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, StateType, OffState, OnState, OkGuard, EmptyAction> ToOffFromOnTransition;
-    typedef ExitTransition<Triggers::GoodbyeSub, StateType, IdleState, OnState, ToFinalSubOnGuardDummy, ToFinalSubOnActionSpy> ToIdleFromOnTransition;
+    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
+    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOnTransition;
+    typedef ExitTransition<Triggers::GoodbyeSub, IdleState, OnState, StateTypeCreationPolicyType, ToFinalSubOnGuardDummy, ToFinalSubOnActionSpy> ToIdleFromOnTransition;
 
     typedef
       Typelist<ToOnFromOffTransition,
@@ -121,12 +124,11 @@ namespace UnitTests {
       Typelist<ToIdleFromOnTransition,
       NullType>>> ActivestateTransitionList;
 
-    typedef InitialTransition<StateType, OffState, EmptyAction> ActivestateInitTransition;
+    typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> ActivestateInitTransition;
     typedef Statemachine<
-      StateType,
       ActivestateTransitionList,
       ActivestateInitTransition,
-      NullEndTransition<StateType>> ActivestateStatemachine;
+      NullEndTransition<StateTypeCreationPolicyType>> ActivestateStatemachine;
 
     struct ActiveState : SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>, FactorCreator<ActiveState> {
       static int EntryCalls;
@@ -150,12 +152,12 @@ namespace UnitTests {
     typedef ActionSpy<AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesActionSpy;
 
     // sub-states transitions are self transitions
-    typedef Declaration<Triggers::On, StateType, ActiveState> ToOnFromOffSubTransition;
-    typedef Declaration<Triggers::Off, StateType, ActiveState> ToOffFromOnSubTransition;
-    typedef ExitDeclaration<Triggers::GoodbyeSub, StateType, IdleState, ActiveState> ToIdleFromOffSubTransition;
+    typedef Declaration<Triggers::On, ActiveState, StateTypeCreationPolicyType> ToOnFromOffSubTransition;
+    typedef Declaration<Triggers::Off, ActiveState, StateTypeCreationPolicyType> ToOffFromOnSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType> ToIdleFromOffSubTransition;
 
-    typedef Transition<Triggers::Hello, StateType, ActiveState, IdleState, OkGuard, EmptyAction> ToActiveFromIdleTransition;
-    typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy> ToIdleFromActiveTransition;
+    typedef Transition<Triggers::Hello, ActiveState, IdleState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToActiveFromIdleTransition;
+    typedef Transition<Triggers::Goodbye, IdleState, AnyState<StateType>, StateTypeCreationPolicyType, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy> ToIdleFromActiveTransition;
 
     typedef
       Typelist<ToOnFromOffSubTransition,
@@ -170,10 +172,9 @@ namespace UnitTests {
       bool check(T*) { return true; }
     };
 
-    typedef InitialTransition<StateType, IdleState, EmptyAction> InitTransition;
-    typedef EndTransition<StateType, ActiveStateFinalizeGuard, EmptyAction> ActivestateFinalTransition;
+    typedef InitialTransition<IdleState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+    typedef EndTransition<StateTypeCreationPolicyType, ActiveStateFinalizeGuard, EmptyAction> ActivestateFinalTransition;
     typedef Statemachine<
-      StateType,
       TransitionList,
       InitTransition,
       ActivestateFinalTransition> Sm;

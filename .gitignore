@@ -35,3 +35,6 @@
 /Src/**/x64
 /Src/.vs
 *.vcxproj.user
+/Src/Examples/LedOnOff/tsmlib
+/Src/TemplateStateMachine/tsmlib
+/Src/UnitTests/tsmlib

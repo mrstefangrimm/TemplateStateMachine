@@ -13,8 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#include "CppUnitTest.h"
+#define IAMWINDOWS 1
 
+#include "CppUnitTest.h"
 #include "tsmlib\state.h"
 #include "tsmlib\choice.h"
 
