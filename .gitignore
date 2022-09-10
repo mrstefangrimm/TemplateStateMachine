@@ -32,8 +32,8 @@
 *.app
 
 # Visual Studio
-/Src/**/x64
-/Src/.vs
+/vsproj/**/x64
+/vsproj/.vs
 *.vcxproj.user
 /Src/Examples/LedOnOff/tsmlib
 /Src/TemplateStateMachine/tsmlib

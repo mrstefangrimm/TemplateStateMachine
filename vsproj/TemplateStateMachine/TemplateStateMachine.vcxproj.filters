@@ -9,22 +9,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tsmlib\state.h">
+    <ClInclude Include="..\..\src\choice.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="tsmlib\templatemeta.h">
+    <ClInclude Include="..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="tsmlib\transition.h">
+    <ClInclude Include="..\..\src\statemachine.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="tsmlib\tsm.h">
+    <ClInclude Include="..\..\src\templatemeta.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="tsmlib\statemachine.h">
+    <ClInclude Include="..\..\src\transition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="tsmlib\choice.h">
+    <ClInclude Include="..\..\src\tsm.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,8 +17,8 @@
 
 #include "CppUnitTest.h"
 
-#include "tsmlib/state.h"
-#include "tsmlib/templatemeta.h"
+#include "..\..\src\state.h"
+#include "..\..\src\templatemeta.h"
 
 namespace UnitTests {
 

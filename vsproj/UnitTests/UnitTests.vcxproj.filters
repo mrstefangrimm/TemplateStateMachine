@@ -13,25 +13,25 @@
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tsmlib\state.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="tsmlib\templatemeta.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="tsmlib\statemachine.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="tsmlib\transition.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tsmlib\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tsmlib\tsm.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="TestHelpers.h" />
+    <ClInclude Include="..\..\src\choice.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\state.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\statemachine.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\templatemeta.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tsm.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">

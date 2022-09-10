@@ -16,8 +16,8 @@
 #define IAMWINDOWS 1
 
 #include "CppUnitTest.h"
-#include "tsmlib\state.h"
-#include "tsmlib\choice.h"
+#include "..\..\src\state.h"
+#include "..\..\src\choice.h"
 
 namespace UnitTests {
 

@@ -15,7 +15,7 @@
 */
 #define IAMWINDOWS 1
 
-#include "tsmlib/tsm.h"
+#include "..\..\src\tsm.h"
 #include <iostream>
 
 using namespace tsmlib;

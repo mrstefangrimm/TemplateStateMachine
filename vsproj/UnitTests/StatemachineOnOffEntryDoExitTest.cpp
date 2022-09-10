@@ -17,10 +17,10 @@
 
 #include "CppUnitTest.h"
 
-#include "tsmlib/state.h"
-#include "tsmlib/templatemeta.h"
-#include "tsmlib/statemachine.h"
-#include "tsmlib/transition.h"
+#include "..\..\src\state.h"
+#include "..\..\src\templatemeta.h"
+#include "..\..\src\statemachine.h"
+#include "..\..\src\transition.h"
 
 namespace UnitTests {
 

@@ -176,13 +176,13 @@
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\tsmlib\choice.h" />
-    <ClInclude Include="..\tsmlib\tsm.h" />
+    <ClInclude Include="..\..\src\choice.h" />
+    <ClInclude Include="..\..\src\state.h" />
+    <ClInclude Include="..\..\src\statemachine.h" />
+    <ClInclude Include="..\..\src\templatemeta.h" />
+    <ClInclude Include="..\..\src\transition.h" />
+    <ClInclude Include="..\..\src\tsm.h" />
     <ClInclude Include="TestHelpers.h" />
-    <ClInclude Include="tsmlib\state.h" />
-    <ClInclude Include="tsmlib\statemachine.h" />
-    <ClInclude Include="tsmlib\templatemeta.h" />
-    <ClInclude Include="tsmlib\transition.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

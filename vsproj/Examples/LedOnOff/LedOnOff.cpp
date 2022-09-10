@@ -21,7 +21,7 @@
 
 #define DISABLE_NESTED_STATES
 
-#include "tsmlib\tsm.h"
+#include "..\..\..\src\tsm.h"
 
 #include <iostream>
 

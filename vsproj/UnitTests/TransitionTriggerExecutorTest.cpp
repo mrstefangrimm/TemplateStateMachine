@@ -18,9 +18,9 @@
 #include "CppUnitTest.h"
 
 using namespace std;
-#include "tsmlib/transition.h"
-#include "tsmlib/statemachine.h"
-#include "tsmlib/state.h"
+#include "..\..\src\transition.h"
+#include "..\..\src\statemachine.h"
+#include "..\..\src\state.h"
 
 namespace UnitTests {
 

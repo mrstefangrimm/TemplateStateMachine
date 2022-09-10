@@ -1,7 +1,7 @@
 #pragma once
 
 #define IAMWINDOWS 1
-#include "tsmlib/tsm.h"
+#include "..\..\src\tsm.h"
 
 namespace UnitTests {
   namespace Helpers {
