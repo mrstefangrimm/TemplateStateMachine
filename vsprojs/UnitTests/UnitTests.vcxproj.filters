@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="StateComperatorTests.cpp" />
+    <ClCompile Include="CreatorTests.cpp" />
+    <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
+    <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
+    <ClCompile Include="ChoiceTests.cpp" />
+    <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
+    <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestHelpers.h" />
+    <ClInclude Include="..\..\src\choice.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\state.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\statemachine.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\templatemeta.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tsm.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="tsmlib">
+      <UniqueIdentifier>{a7938580-3b40-40d6-8f03-72887e1f19a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
