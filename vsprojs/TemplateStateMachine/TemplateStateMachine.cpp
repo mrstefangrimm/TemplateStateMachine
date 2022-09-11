@@ -50,7 +50,8 @@ struct SimulationInit : StateType, FactorCreator<SimulationInit> {
   bool entry() { return false; }
   void exit() { }
   template<uint8_t N>
-  void doit() {
+  StateType* doit() {
+    return 0;
   }
 };
 
@@ -59,7 +60,8 @@ struct SimulationManual : StateType, FactorCreator<SimulationManual> {
   bool entry() { return false; }
   void exit() { }
   template<uint8_t N>
-  void doit() {
+  StateType* doit() {
+    return 0;
   }
 };
 
@@ -68,7 +70,8 @@ struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
   bool entry() { return false; }
   void exit() { }
   template<uint8_t N>
-  void doit() {
+  StateType* doit() {
+    return 0;
   }
 };
 

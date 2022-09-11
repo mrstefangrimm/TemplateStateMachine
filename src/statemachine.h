@@ -58,6 +58,8 @@ class Statemachine {
 
       if (result.deferredEntry) {
         TriggerExecutor<N, size-1>::entry(result.state);
+        _activeState = 0;
+        return DispatchResult<StateType>(true, result.state, true);
       }
       _activeState = result.state;
       return DispatchResult<StateType>(true, _activeState);
@@ -75,7 +77,6 @@ class Statemachine {
     };
     template<uint8_t N, int Index>
     struct TriggerExecutor {
-
       static ExecuteResult execute(StateType* activeState) {
 
         // Finds last element in the list that meets the conditions.
@@ -118,8 +119,11 @@ class Statemachine {
         // Recursion
         TriggerExecutor < N, Index - 1 >::entry(entryState);
       }
+      static bool checkHierarchy() {
+        // TODO: Idea to check the hierarchy in the Tranistions (e.g. exit declarations last, etc.)
+      }
     };
-
+    // Specialization
     template<uint8_t N>
     struct TriggerExecutor<N, 0> {
       static ExecuteResult execute(StateType* activeState) {

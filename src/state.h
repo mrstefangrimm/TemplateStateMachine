@@ -86,8 +86,9 @@ class SimpleState : public Basetype {
     }
 
     template<uint8_t N>
-    void doit() {
+    Basetype* doit() {
       static_cast<Derived*>(this)->template doit_<N>();
+      return 0;
     }
 };
 
@@ -108,17 +109,15 @@ class SubstatesHolderState : public Basetype {
     }
 
     template<uint8_t N>
-    void doit() {
+    Basetype* doit() {
 
       // Return if substates consumed the trigger
       auto result = _subStatemachine.template dispatch<N>();
-      if (result.consumed) {
-        if (result.deferredEntry) {
-          static_cast<Derived*>(this)->exit_();
-       }
-       return;
+      if (result.consumed && result.deferredEntry) {
+        return result.activeState;
       }
       static_cast<Derived*>(this)->template doit_<N>();
+      return 0;
     }
 
     Statemachine _subStatemachine;

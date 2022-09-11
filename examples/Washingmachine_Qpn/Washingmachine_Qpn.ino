@@ -241,11 +241,6 @@ static QState Washingmachine_Running(Washingmachine * const me) {
             status_ = Q_TRAN(&Washingmachine_Washing);
             break;
         }
-        /*${AOs::Washingmachine::SM::Running::Q_TIMEOUT} */
-        case Q_TIMEOUT_SIG: {
-            status_ = Q_TRAN(&Washingmachine_Loading);
-            break;
-        }
         default: {
             status_ = Q_SUPER(&QHsm_top);
             break;
@@ -296,7 +291,7 @@ static QState Washingmachine_Rinsing(Washingmachine * const me) {
         /*${AOs::Washingmachine::SM::Running::Rinsing} */
         case Q_ENTRY_SIG: {
             me->counter_ = 0;
-            Serial.println(F("  Rinnsing"));
+            Serial.println(F("  Rinsing"));
             status_ = Q_HANDLED();
             break;
         }

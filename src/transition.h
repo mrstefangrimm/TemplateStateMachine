@@ -24,10 +24,10 @@ using namespace std;
 
 template<typename T>
 struct DispatchResult {
-  DispatchResult(bool consumed, T* activeState, bool exit = false) {
+  DispatchResult(bool consumed, T* activeState, bool deferredEntry = false) {
     this->consumed = consumed;
     this->activeState = activeState;
-    this->deferredEntry = exit;
+    this->deferredEntry = deferredEntry;
   }
   bool consumed;
   bool deferredEntry;
@@ -47,7 +47,7 @@ struct EmptyState : T {
   bool entry() { return false; }
   void exit() { }
   template<uint8_t N>
-  void doit() { }
+  EmptyState* doit() { return 0; }
 };
 
 /* Provides Action interface and does nothing. */
@@ -126,9 +126,9 @@ struct TransitionBase {
 
     // Self transition
     if (is_same<To, From>().value) {
-      static_cast<To*>(activeState)->template doit<Trigger>();
+      auto state = static_cast<To*>(activeState)->template doit<Trigger>();
       ToFactory::destroy(toState);
-      return DispatchResult<StateType>(true, activeState);
+      return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
 
     static_cast<From*>(activeState)->exit();

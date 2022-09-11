@@ -13,19 +13,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-//#define IAMWINDOWS 1
-
 #define IAMARDUINO 1
-// Defines unint8_t which does not require an include on Arduino.
-#include <stdint.h>
 
-#define BSP_Execute(x) std::cout << #x << std::endl;
+#define BSP_Execute(x) x
 
-#include "..\..\..\src\tsm.h"
-#include <iostream>
-
+#include "tsm.h"
 using namespace tsmlib;
-using namespace std;
+
+int ledState = LOW;
+void blink() {
+ BSP_Execute(digitalWrite(LED_BUILTIN, ledState);)
+ ledState = ledState == LOW ? HIGH : LOW;
+}
 
 typedef State<MemoryAddressStateComperator<true>, true> StateType;
 typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
@@ -50,7 +49,7 @@ struct Loading : public SimpleState<Loading, StateType>, public SingletonCreator
 struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator<Washing> {
   void entry_() {
     BSP_Execute(Serial.println(F("  Washing"));)
-      counter_ = 0;
+    counter_ = 0;
   }
   void exit_() { }
   template<uint8_t N>
@@ -64,7 +63,7 @@ struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator
 struct Rinsing : public SimpleState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
   void entry_() {
     BSP_Execute(Serial.println(F("  Rinsing"));)
-      counter_ = 0;
+    counter_ = 0;
   }
   void exit_() { }
   template<uint8_t N>
@@ -77,7 +76,7 @@ struct Rinsing : public SimpleState<Rinsing, StateType>, public SingletonCreator
 struct Spinning : public SimpleState<Spinning, StateType>, public SingletonCreator<Spinning> {
   void entry_() {
     BSP_Execute(Serial.println(F("  Spinning"));)
-      counter_ = 0;
+    counter_ = 0;
   }
   void exit_() { }
   template<uint8_t N>
@@ -178,36 +177,11 @@ Sm statemachine;
 
 void setup() {
   BSP_Execute(Serial.begin(9600);)
-  BSP_Execute(cout << "pinMode(LED_BUILTIN, OUTPUT);" << endl;)
+  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT);)
   statemachine.begin();
 }
 
 void loop() {
   statemachine.dispatch<Triggers::TIMEOUT>();
   BSP_Execute(delay(100);)
-}
-
-int main()
-{
-  setup();
-  // Loading
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Washing
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Rinsing
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Spinning
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Loading
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Washing
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Rinsing
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  // Running/Spinning
-  statemachine.dispatch<Triggers::TIMEOUT>();
-
-  while (true) {
-    loop();
-  }
 }
