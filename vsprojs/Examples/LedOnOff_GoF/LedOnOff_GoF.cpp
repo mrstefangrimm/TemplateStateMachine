@@ -16,6 +16,8 @@
 // Defines unint8_t which does not require an include on Arduino.
 #include <stdint.h>
 
+#define BSP_Execute(x) std::cout << #x << std::endl;
+
 #include <iostream>
 
 using namespace std;
@@ -61,12 +63,13 @@ LedState* Statemachine::ledOn = new LedOn;
 LedState* Statemachine::ledOff = new LedOff;
 
 void LedOn::timeout(class Statemachine* statemachine) {
-  cout << "digitalWrite(LED_BUILTIN, HIGH);" << endl;
+  BSP_Execute(digitalWrite(LED_BUILTIN, HIGH);)
   statemachine->changeLedState(Statemachine::ledOff);
 }
 
 void LedOff::timeout(class Statemachine* statemachine) {
-  cout << "digitalWrite(LED_BUILTIN, LOW)" << endl;
+  BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
+  BSP_Execute(Serial.println(freeMemory());)
   statemachine->changeLedState(Statemachine::ledOn);
 }
 
@@ -77,15 +80,16 @@ void Statemachine::changeLedState(LedState* state) {
 Statemachine statemachine;
 
 void setup() {
-  cout << "pinMode(LED_BUILTIN, OUTPUT);" << endl;
+  BSP_Execute(Serial.begin(9600);)
+  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT);)
   statemachine.begin();
 }
 
 void loop() {
   statemachine.dispatchTimeout();
-  //delay(1000);
+  BSP_Execute(delay(1000);)
   statemachine.dispatchTimeout();
-  //delay(1000);
+  BSP_Execute(delay(1000);)
 }
 
 int main()

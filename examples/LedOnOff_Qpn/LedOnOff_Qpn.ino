@@ -46,8 +46,8 @@ typedef struct LedOnOff {
 
 /* protected: */
 static QState LedOnOff_initial(LedOnOff * const me);
-static QState LedOnOff_off(LedOnOff * const me);
-static QState LedOnOff_on(LedOnOff * const me);
+static QState LedOnOff_Off(LedOnOff * const me);
+static QState LedOnOff_On(LedOnOff * const me);
 /*$enddecl${AOs::LedOnOff} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
 //...
 
@@ -144,23 +144,23 @@ static QState LedOnOff_initial(LedOnOff * const me) {
     QActive_armX((QActive *)me, 0U, BSP_TICKS_PER_SEC/2U, BSP_TICKS_PER_SEC/2U);
     Serial.begin(9600);
     pinMode(LED_BUILTIN, OUTPUT);
-    return Q_TRAN(&LedOnOff_off);
+    return Q_TRAN(&LedOnOff_Off);
 }
 
-/*${AOs::LedOnOff::SM::off} ................................................*/
-static QState LedOnOff_off(LedOnOff * const me) {
+/*${AOs::LedOnOff::SM::Off} ................................................*/
+static QState LedOnOff_Off(LedOnOff * const me) {
     QState status_;
     switch (Q_SIG(me)) {
-        /*${AOs::LedOnOff::SM::off} */
+        /*${AOs::LedOnOff::SM::Off} */
         case Q_ENTRY_SIG: {
             digitalWrite(LED_L, LOW);
             Serial.println(freeMemory());
             status_ = Q_HANDLED();
             break;
         }
-        /*${AOs::LedOnOff::SM::off::Q_TIMEOUT} */
+        /*${AOs::LedOnOff::SM::Off::Q_TIMEOUT} */
         case Q_TIMEOUT_SIG: {
-            status_ = Q_TRAN(&LedOnOff_on);
+            status_ = Q_TRAN(&LedOnOff_On);
             break;
         }
         default: {
@@ -171,19 +171,19 @@ static QState LedOnOff_off(LedOnOff * const me) {
     return status_;
 }
 
-/*${AOs::LedOnOff::SM::on} .................................................*/
-static QState LedOnOff_on(LedOnOff * const me) {
+/*${AOs::LedOnOff::SM::On} .................................................*/
+static QState LedOnOff_On(LedOnOff * const me) {
     QState status_;
     switch (Q_SIG(me)) {
-        /*${AOs::LedOnOff::SM::on} */
+        /*${AOs::LedOnOff::SM::On} */
         case Q_ENTRY_SIG: {
             digitalWrite(LED_L, HIGH);
             status_ = Q_HANDLED();
             break;
         }
-        /*${AOs::LedOnOff::SM::on::Q_TIMEOUT} */
+        /*${AOs::LedOnOff::SM::On::Q_TIMEOUT} */
         case Q_TIMEOUT_SIG: {
-            status_ = Q_TRAN(&LedOnOff_off);
+            status_ = Q_TRAN(&LedOnOff_Off);
             break;
         }
         default: {

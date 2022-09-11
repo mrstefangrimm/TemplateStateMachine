@@ -24,24 +24,27 @@ using namespace std;
 
 template<typename T>
 struct DispatchResult {
-  DispatchResult(bool consumed, T* activeState) {
+  DispatchResult(bool consumed, T* activeState, bool exit = false) {
     this->consumed = consumed;
     this->activeState = activeState;
+    this->deferredEntry = exit;
   }
   bool consumed;
+  bool deferredEntry;
   T* activeState;
 };
 
 template<typename T>
 struct EmptyState : T {
   typedef EmptyState CreatorType;
+  typedef EmptyState ObjectType;
 
   static EmptyState* create() {
     return 0;
   }
   static void destroy(EmptyState*) { }
 
-  void entry() { }
+  bool entry() { return false; }
   void exit() { }
   template<uint8_t N>
   void doit() { }
@@ -65,6 +68,8 @@ namespace impl {
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action, bool IsExitingTransition>
 struct TransitionBase {
   enum { N = Trigger };
+  enum { X = IsExitingTransition };
+  typedef To ToType;
   typedef From FromType;
   typedef typename CreationPolicy::ObjectType StateType;
 
@@ -85,7 +90,7 @@ struct TransitionBase {
       return DispatchResult<StateType>(true, toState);
     }
 
-    // Exit transition Any state <- AnyState
+    // End transition; to any state <- from AnyState
     if (is_same<From, AnyState<StateType>>().value) {
 
       // Delete toState and fromState not needed; both are "null".
@@ -112,13 +117,15 @@ struct TransitionBase {
     }
     FromFactory::destroy(fromState);
 
+    Action().perform(activeState);
+
     if (!Guard().check(activeState)) {
       ToFactory::destroy(toState);
       return DispatchResult<StateType>(false, activeState);
     }
+
     // Self transition
     if (is_same<To, From>().value) {
-      Action().perform(activeState);
       static_cast<To*>(activeState)->template doit<Trigger>();
       ToFactory::destroy(toState);
       return DispatchResult<StateType>(true, activeState);
@@ -126,11 +133,17 @@ struct TransitionBase {
 
     static_cast<From*>(activeState)->exit();
 
-    Action().perform(activeState);
-    toState->entry();
-    toState->template doit<Trigger>();
+    if (X) {
+      FromFactory::destroy(static_cast<From*>(activeState));
+      return DispatchResult<StateType>(true, toState, X);
+    }
+    bool cosumedBySubstate = toState->entry();
+    // TODO: Does not work in subStates.begin when the same trigger (e.g timeout) is defined for the substate (see washingmachine)
+    if (!cosumedBySubstate) {
+      toState->template doit<Trigger>();
+    }
     FromFactory::destroy(static_cast<From*>(activeState));
-    return DispatchResult<StateType>(true, toState);
+    return DispatchResult<StateType>(true, toState, X);
   }
 };
 }
@@ -165,7 +178,10 @@ template<uint8_t Trigger, typename Me, typename CreationPolicy>
 using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false>;
 
 template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy>
-using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, EmptyAction, false>;
+using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, EmptyAction, true>;
+
+template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard>
+using ExitDeclaration2 = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, EmptyAction, true>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
 using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, true>;

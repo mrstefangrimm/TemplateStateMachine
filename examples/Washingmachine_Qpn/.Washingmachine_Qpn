@@ -9,7 +9,8 @@
   <item name="backups">0</item>
  </group>
  <group name="windows">
-  <item id="AOs::LedOnOff::SM">0,0,841,830,*</item>
+  <item id="AOs::Washingmachine::SM">0,0,690,484,*</item>
+  <item id=".::Washingmachine_Qpn.ino">0,398,674,300</item>
  </group>
  <group name="search">
   <item name="options">2032128</item>

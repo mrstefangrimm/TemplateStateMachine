@@ -15,8 +15,10 @@
 */
 #define DISABLE_NESTED_STATES
 #define IAMARDUINO 1
-#include "tsm.h"
 
+#define BSP_Execute(x) x
+
+#include "tsm.h"
 #include "FreeMemory.h"
 
 using namespace tsmlib;
@@ -31,7 +33,7 @@ enum Triggers {
 class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
     friend class SimpleState<LedOn, StateType>;
     void entry_() {
-      digitalWrite(LED_BUILTIN, HIGH);
+      BSP_Execute(digitalWrite(LED_BUILTIN, HIGH);)
     }
     void exit_() { }
     template<uint8_t N>
@@ -41,8 +43,8 @@ class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedO
 class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<LedOff> {
     friend class SimpleState<LedOff, StateType>;
     void entry_() {
-      digitalWrite(LED_BUILTIN, LOW);
-      Serial.println(freeMemory());
+      BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
+      BSP_Execute(Serial.println(freeMemory());)
     }
     void exit_() { }
     template<uint8_t N>
@@ -66,14 +68,14 @@ typedef Statemachine <
 Sm statemachine;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(LED_BUILTIN, OUTPUT);
+  BSP_Execute(Serial.begin(9600);)
+  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT);)
   statemachine.begin();
 }
 
 void loop() {
   statemachine.dispatch<Triggers::TIMEOUT>();
-  delay(1000);
+  BSP_Execute(delay(1000);)
   statemachine.dispatch<Triggers::TIMEOUT>();
-  delay(1000);
+  BSP_Execute(delay(1000);)
 }

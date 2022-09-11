@@ -13,6 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
+#define BSP_Execute(x) x
+
 #include "FreeMemory.h"
 
 enum Triggers {
@@ -56,13 +59,13 @@ LedState* Statemachine::ledOn = new LedOn;
 LedState* Statemachine::ledOff = new LedOff;
 
 void LedOn::timeout(class Statemachine* statemachine) {
-  digitalWrite(LED_BUILTIN, HIGH);
+  BSP_Execute(digitalWrite(LED_BUILTIN, HIGH);)
   statemachine->changeLedState(Statemachine::ledOff);
 }
 
 void LedOff::timeout(class Statemachine* statemachine) {
-  digitalWrite(LED_BUILTIN, LOW);
-  Serial.println(freeMemory());
+  BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
+  BSP_Execute(Serial.println(freeMemory());)
   statemachine->changeLedState(Statemachine::ledOn);
 }
 
@@ -73,14 +76,14 @@ void Statemachine::changeLedState(LedState* state) {
 Statemachine statemachine;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(LED_BUILTIN, OUTPUT);
+  BSP_Execute(Serial.begin(9600);)
+  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT);)
   statemachine.begin();
 }
 
 void loop() {
   statemachine.dispatchTimeout();
-  delay(1000);
+  BSP_Execute(delay(1000);)
   statemachine.dispatchTimeout();
-  delay(1000);
+  BSP_Execute(delay(1000);)
 }

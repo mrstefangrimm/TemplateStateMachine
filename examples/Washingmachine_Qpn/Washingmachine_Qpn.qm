@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="5.2.1" links="0">
+ <documentation>This is the modified Blinky example for the Arduino-UNO board, which blinks the on-board LED (L) once per second. The example demonstrates:
+
+1. One active object class &quot;Washingmachine&quot; (inside the package &quot;AOs&quot;)
+2. A simple state machine</documentation>
+ <framework name="qpn"/>
+ <package name="AOs" stereotype="0x02">
+  <class name="Washingmachine" superclass="qpn::QActive">
+   <attribute name="counter_" type="uint8_t" visibility="0x00" properties="0x00"/>
+   <attribute name="isLedOn_" type="bool" visibility="0x00" properties="0x00"/>
+   <attribute name="washingLength_" type="const uint8_t" visibility="0x00" properties="0x01">
+    <code>= 50;</code>
+   </attribute>
+   <attribute name="rinsingLength_" type="const uint8_t" visibility="0x00" properties="0x01">
+    <code>= 30;</code>
+   </attribute>
+   <attribute name="spinningLength_" type="const uint8_t" visibility="0x00" properties="0x01">
+    <code>= 40;</code>
+   </attribute>
+   <operation name="blink" type="void" visibility="0x00" properties="0x00">
+    <code>if (me-&gt;isLedOn_) {
+  digitalWrite(LED_L, HIGH);
+}
+else {
+  digitalWrite(LED_L, LOW);
+}
+
+me-&gt;isLedOn_ = !me-&gt;isLedOn_;</code>
+   </operation>
+   <statechart properties="0x01">
+    <initial target="../1">
+     <action>QActive_armX((QActive *)me, 0U, BSP_TICKS_PER_SEC/8U, BSP_TICKS_PER_SEC/8U);
+Serial.begin(9600);
+pinMode(LED_BUILTIN, OUTPUT);</action>
+     <initial_glyph conn="2,3,5,0,14,5">
+      <action box="0,-2,6,2"/>
+     </initial_glyph>
+    </initial>
+    <state name="Loading">
+     <entry brief="LED off">digitalWrite(LED_L, LOW);
+Serial.println(F(&quot;Loading&quot;));
+Serial.println(F(&quot;  Door open.&quot;));</entry>
+     <exit>Serial.println(F(&quot;  Door closed.&quot;));</exit>
+     <tran trig="Q_TIMEOUT" target="../../2">
+      <tran_glyph conn="10,19,2,0,8">
+       <action box="0,0,11,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="6,8,22,11">
+      <entry box="1,2,17,4"/>
+      <exit box="1,6,6,2"/>
+     </state_glyph>
+    </state>
+    <state name="Running">
+     <entry>Serial.println(F(&quot;Running&quot;));</entry>
+     <initial target="../1">
+      <initial_glyph conn="12,34,5,0,5,2">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <state name="Washing">
+      <entry>me-&gt;counter_ = 0;
+Serial.println(F(&quot;  Washing&quot;));</entry>
+      <tran trig="Q_TIMEOUT">
+       <action>me-&gt;counter_++;</action>
+       <choice target="../../../2">
+        <guard brief="finished">me-&gt;counter_ &gt; Washingmachine_washingLength_</guard>
+        <choice_glyph conn="22,43,5,3,14">
+         <action box="2,-3,15,2"/>
+        </choice_glyph>
+       </choice>
+       <choice>
+        <guard brief="else">me-&gt;counter_ &lt;= Washingmachine_washingLength_</guard>
+        <action>if (me-&gt;counter_ % 4 == 0) {
+  Washingmachine_blink(me);
+}</action>
+        <choice_glyph conn="22,43,4,-1,5">
+         <action box="-5,2,10,2"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="12,43,3,-1,10">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="12,36,20,14">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <state name="Rinsing">
+      <entry>me-&gt;counter_ = 0;
+Serial.println(F(&quot;  Rinsing&quot;));</entry>
+      <tran trig="Q_TIMEOUT">
+       <action>me-&gt;counter_++;</action>
+       <choice>
+        <guard brief="else">me-&gt;counter_ &lt;= Washingmachine_rinsingLength_</guard>
+        <action>if (me-&gt;counter_ % 2 == 0) {
+  Washingmachine_blink(me);
+}</action>
+        <choice_glyph conn="46,46,4,-1,-6">
+         <action box="1,-5,10,2"/>
+        </choice_glyph>
+       </choice>
+       <choice target="../../../3">
+        <guard brief="finished">me-&gt;counter_ &gt; Washingmachine_rinsingLength_</guard>
+        <choice_glyph conn="46,46,5,3,14">
+         <action box="1,0,10,2"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="36,46,3,-1,10">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="36,36,20,14">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <state name="Spinning">
+      <entry>me-&gt;counter_ = 0;
+Serial.println(F(&quot;  Spinning&quot;));</entry>
+      <tran trig="Q_TIMEOUT">
+       <action>me-&gt;counter_++;</action>
+       <choice>
+        <guard brief="else">me-&gt;counter_ &lt;= Washingmachine_spinningLength_</guard>
+        <action>Washingmachine_blink(me);</action>
+        <choice_glyph conn="70,43,4,-1,5">
+         <action box="-5,2,10,2"/>
+        </choice_glyph>
+       </choice>
+       <choice target="../../../../1">
+        <guard brief="finished">me-&gt;counter_ &gt; Washingmachine_spinningLength_</guard>
+        <choice_glyph conn="70,43,5,1,14,-30,-56">
+         <action box="2,-3,10,2"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="60,43,3,-1,10">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="60,36,20,14">
+       <entry box="1,2,6,2"/>
+      </state_glyph>
+     </state>
+     <state_glyph node="6,27,76,27">
+      <entry box="1,2,6,2"/>
+     </state_glyph>
+    </state>
+    <state_diagram size="90,58"/>
+   </statechart>
+  </class>
+ </package>
+ <directory name=".">
+  <file name="Washingmachine_Qpn.ino">
+   <text>#include &quot;qpn.h&quot;     // QP-nano framework for Arduino
+
+#include &quot;Arduino.h&quot;  // Main include file for the Arduino SDK
+
+#include &quot;FreeMemory.h&quot;
+
+enum Signals {
+  MANUAL_MOTION_MODE_SIG = Q_USER_SIG,
+  TRIG1_SIG,
+  REMOTE_MODE_SIG,
+  CALIBRATION_MODE_SIG,
+  PROGRAM_CHANGE_SIG,
+  MOTOR_STEP_FORWARD_SIG,
+  MOTOR_STEP_BACKWARD_SIG,
+  MOTOR_MOVE_RELATIVE_SIG,
+  MOTOR_MOVE_ASOLUTE_SIG,
+  DKBIN_DISPATCH_SIG,
+  GET_DEVICEDATA_SIG,
+  PUT_DEVICEDATA_SIG,
+  POSITIONSTREAM_SIG,
+  ENTER_TEXTMODE_SIG
+};
+
+//============================================================================
+// declare all AO classes...
+$declare${AOs::Washingmachine}
+//...
+
+// AO instances and event queue buffers for them...
+Washingmachine AO_Washingmachine;
+static QEvt l_washingmachineQSto[10]; // Event queue storage for Washingmachine
+//...
+
+//============================================================================
+// QF_active[] array defines all active object control blocks ----------------
+QActiveCB const Q_ROM QF_active[] = {
+    { (QActive *)0,           (QEvt *)0,        0U                  },
+    { (QActive *)&amp;AO_Washingmachine,  l_washingmachineQSto,     Q_DIM(l_washingmachineQSto) }
+};
+
+//============================================================================
+// various constants for the application...
+enum {
+    BSP_TICKS_PER_SEC = 100, // number of system clock ticks in one second
+    LED_L = 13               // the pin number of the on-board LED (L)
+};
+
+//............................................................................
+void setup() {
+    // initialize the QF-nano framework
+    QF_init(Q_DIM(QF_active));
+
+    // initialize all AOs...
+    QActive_ctor(&amp;AO_Washingmachine.super, Q_STATE_CAST(&amp;Washingmachine_initial));
+
+    // initialize the hardware used in this sketch...
+    pinMode(LED_L, OUTPUT); // set the LED-L pin to output
+}
+
+//............................................................................
+void loop() {
+    QF_run(); // run the QF-nano framework
+}
+
+//============================================================================
+// interrupts...
+ISR(TIMER2_COMPA_vect) {
+    QF_tickXISR(0); // process time events for tick rate 0
+}
+
+//============================================================================
+// QF callbacks...
+void QF_onStartup(void) {
+    // set Timer2 in CTC mode, 1/1024 prescaler, start the timer ticking...
+    TCCR2A = (1U &lt;&lt; WGM21) | (0U &lt;&lt; WGM20);
+    TCCR2B = (1U &lt;&lt; CS22 ) | (1U &lt;&lt; CS21) | (1U &lt;&lt; CS20); // 1/2^10
+    ASSR  &amp;= ~(1U &lt;&lt; AS2);
+    TIMSK2 = (1U &lt;&lt; OCIE2A); // enable TIMER2 compare Interrupt
+    TCNT2  = 0U;
+
+    // set the output-compare register based on the desired tick frequency
+    OCR2A  = (F_CPU / BSP_TICKS_PER_SEC / 1024U) - 1U;
+}
+//............................................................................
+void QV_onIdle(void) {   // called with interrupts DISABLED
+    // Put the CPU and peripherals to the low-power mode. You might
+    // need to customize the clock management for your application,
+    // see the datasheet for your particular AVR MCU.
+    SMCR = (0 &lt;&lt; SM0) | (1 &lt;&lt; SE); // idle mode, adjust to your project
+    QV_CPU_SLEEP();  // atomically go to sleep and enable interrupts
+}
+//............................................................................
+Q_NORETURN Q_onAssert(char const Q_ROM * const module, int location) {
+    // implement the error-handling policy for your application!!!
+    (void)module;
+    (void)location;
+    QF_INT_DISABLE(); // disable all interrupts
+    QF_RESET();  // reset the CPU
+    for (;;) {
+    }
+}
+
+//============================================================================
+// define all AO classes (state machine)...
+$define${AOs::Washingmachine}
+//...
+</text>
+  </file>
+  <file name="FreeMemory.h">
+   <text>// Copied from:
+// https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
+
+#ifndef __FREEMEMORY_H
+#define __FREEMEMORY_H
+
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern &quot;C&quot; char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif  // __arm__
+
+int freeMemory() {
+  char top;
+#ifdef __arm__
+  return &amp;top - reinterpret_cast&lt;char*&gt;(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO &gt; 103 &amp;&amp; ARDUINO != 151)
+  return 1 + (&amp;top - __brkval);
+#else  // __arm__
+  return 1 + (__brkval ? &amp;top - __brkval : &amp;top - __malloc_heap_start);
+#endif  // __arm__
+}
+
+#endif</text>
+  </file>
+ </directory>
+</model>

@@ -43,6 +43,7 @@ namespace UnitTests {
     struct FinalStateFake : SimpleState<FinalStateFake, StateType> {
       static const char* Name;
       typedef FinalStateFake CreatorType;
+      typedef FinalStateFake ObjectType;
       static FinalStateFake* create() { return 0; }
       static void destroy(FinalStateFake*) { }
 
@@ -157,8 +158,8 @@ namespace UnitTests {
         // On <- Off
         result = sm.dispatch<Triggers::On>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
-        expected.push_back("OffState::Exit");
         expected.push_back("OnState<-OffState");
+        expected.push_back("OffState::Exit");
         expected.push_back("OnState::Entry");
         expected.push_back("OnState::Do");
 
@@ -175,14 +176,14 @@ namespace UnitTests {
         // Off <- On, unhandled trigger
         result = sm.dispatch<Triggers::Off>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
-        expected.push_back("OnState::Exit");
         expected.push_back("OffState<-OnState");
+        expected.push_back("OnState::Exit");
         expected.push_back("OffState::Entry");
         expected.push_back("OffState::Do");
 
         result = sm.dispatch<Triggers::OffToFinal>();
-        expected.push_back("OffState::Exit");
         expected.push_back("Final<-OffState");
+        expected.push_back("OffState::Exit");
 
         Assert::AreEqual<size_t>(expected.size(), recorder.size());
         for (int n = 0; n < recorder.size(); n++) {

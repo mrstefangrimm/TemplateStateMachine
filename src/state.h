@@ -76,8 +76,9 @@ struct AnyState : T {
 template<typename Derived, typename Basetype>
 class SimpleState : public Basetype {
   public:
-    void entry() {
+    bool entry() {
       static_cast<Derived*>(this)->entry_();
+      return false;
     }
 
     void exit() {
@@ -90,12 +91,15 @@ class SimpleState : public Basetype {
     }
 };
 
+#ifndef DISABLENESTEDSTATES
+
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
   public:
-    void entry() {
+    bool entry() {
       static_cast<Derived*>(this)->entry_();
       _subStatemachine.begin();
+      return true;
     }
 
     void exit() {
@@ -107,13 +111,20 @@ class SubstatesHolderState : public Basetype {
     void doit() {
 
       // Return if substates consumed the trigger
-      if (_subStatemachine.template dispatch<N>().consumed) return;
-
+      auto result = _subStatemachine.template dispatch<N>();
+      if (result.consumed) {
+        if (result.deferredEntry) {
+          static_cast<Derived*>(this)->exit_();
+       }
+       return;
+      }
       static_cast<Derived*>(this)->template doit_<N>();
     }
 
     Statemachine _subStatemachine;
 };
+
+#endif
 
 template<typename Comperator, bool Minimal>
 bool operator==(const State<Comperator, Minimal>& lhs, const State<Comperator, Minimal>& rhs) {

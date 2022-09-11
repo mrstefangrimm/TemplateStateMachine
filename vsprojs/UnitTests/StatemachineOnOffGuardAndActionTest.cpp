@@ -135,7 +135,7 @@ namespace UnitTests {
       result = sm.dispatch<Triggers::On>();
       Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::Calls);
-      Assert::AreEqual<int>(0, ToOnFromOffActionSpy::Calls);
+      Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::Calls);
@@ -148,7 +148,7 @@ namespace UnitTests {
       result = sm.dispatch<Triggers::On>();
       Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
-      Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
+      Assert::AreEqual<int>(2, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::Calls);
@@ -160,7 +160,7 @@ namespace UnitTests {
       result = sm.dispatch<Triggers::OnToOn>();
       Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
-      Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
+      Assert::AreEqual<int>(2, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnActionSpy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOnGuardDummy::Calls);
@@ -172,7 +172,7 @@ namespace UnitTests {
       result = sm.dispatch<Triggers::On>();
       Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
-      Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
+      Assert::AreEqual<int>(2, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::Calls);
       Assert::AreEqual<int>(0, ToOffFromOnActionSpy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOnGuardDummy::Calls);
@@ -184,7 +184,7 @@ namespace UnitTests {
       result = sm.dispatch<Triggers::Off>();
       Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
       Assert::AreEqual<int>(2, ToOnFromOffGuardDummy::Calls);
-      Assert::AreEqual<int>(1, ToOnFromOffActionSpy::Calls);
+      Assert::AreEqual<int>(2, ToOnFromOffActionSpy::Calls);
       Assert::AreEqual<int>(1, ToOffFromOnGuardDummy::Calls);
       Assert::AreEqual<int>(1, ToOffFromOnActionSpy::Calls);
       Assert::AreEqual<int>(1, ToOnFromOnGuardDummy::Calls);

@@ -277,7 +277,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OnState::EntryCalls);
         Assert::AreEqual<int>(0, OnState::DoitCalls);
         Assert::AreEqual<int>(1, ToInitActionSpy::Calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::Calls, WSTRING("1, ToFinalFromOffActionSpy::Calls"));
+        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::Calls, WSTRING("1, ToFinalFromOffActionSpy::Calls"));
         Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::Calls);
         Assert::AreEqual<int>(1, ToFinalFromOffGuardDummy::Calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::Calls);
