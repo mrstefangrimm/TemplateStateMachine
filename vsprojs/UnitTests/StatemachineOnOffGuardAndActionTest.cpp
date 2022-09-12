@@ -55,10 +55,10 @@ namespace UnitTests {
 
   private:
     friend class SimpleState<OnState, StateType>;
-    void entry_() { }
-    void exit_() { }
+    void entry() { }
+    void exit() { }
     template<uint8_t N>
-    void doit_() { }
+    void doit() { }
   };
 
   struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
@@ -66,10 +66,10 @@ namespace UnitTests {
 
   private:
     friend class SimpleState<OffState, StateType>;
-    void entry_() { }
-    void exit_() { }
+    void entry() { }
+    void exit() { }
     template<uint8_t N>
-    void doit_() { }
+    void doit() { }
   };
 
   typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;

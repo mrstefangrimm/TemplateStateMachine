@@ -49,10 +49,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<FinalStateFake, StateType>;
-      void entry_() { }
-      void exit_() { }
+      void entry() { }
+      void exit() { }
       template<uint8_t N>
-      void doit_() { }
+      void doit() { }
     };
     const char* FinalStateFake::Name = "Final";
 
@@ -82,10 +82,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OnState, StateType>;
-      void entry_() { recorder.push_back("OnState::Entry"); }
-      void exit_() { recorder.push_back("OnState::Exit"); }
+      void entry() { recorder.push_back("OnState::Entry"); }
+      void exit() { recorder.push_back("OnState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("OnState::Do"); }
+      void doit() { recorder.push_back("OnState::Do"); }
     };
     const char* OnState::Name = "OnState";
 
@@ -95,10 +95,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OffState, StateType>;
-      void entry_() { recorder.push_back("OffState::Entry"); }
-      void exit_() { recorder.push_back("OffState::Exit"); }
+      void entry() { recorder.push_back("OffState::Entry"); }
+      void exit() { recorder.push_back("OffState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("OffState::Do"); }
+      void doit() { recorder.push_back("OffState::Do"); }
     };
     const char* OffState::Name = "OffState";
 

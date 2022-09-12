@@ -47,30 +47,30 @@ enum Triggers {
 
 struct SimulationInit : StateType, FactorCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
-  bool entry() { return false; }
-  void exit() { }
+  bool entry_() { return false; }
+  void exit_() { }
   template<uint8_t N>
-  StateType* doit() {
+  StateType* doit_() {
     return 0;
   }
 };
 
 struct SimulationManual : StateType, FactorCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
-  bool entry() { return false; }
-  void exit() { }
+  bool entry_() { return false; }
+  void exit_() { }
   template<uint8_t N>
-  StateType* doit() {
+  StateType* doit_() {
     return 0;
   }
 };
 
 struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
-  bool entry() { return false; }
-  void exit() { }
+  bool entry_() { return false; }
+  void exit_() { }
   template<uint8_t N>
-  StateType* doit() {
+  StateType* doit_() {
     return 0;
   }
 };
@@ -167,19 +167,19 @@ struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubsta
 private:
   friend class SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>;
 
-  void entry_() {
+  void entry() {
   }
-  void exit_() {
+  void exit() {
   }
   template<uint8_t N>
-  void doit_() {
+  void doit() {
     if (N == Triggers::Positionstream) {
-      _isPositionStreamActive = !_isPositionStreamActive;
+      isPositionStreamActive_ = !isPositionStreamActive_;
     }
   }
 
 private:
-  bool _isPositionStreamActive = false;
+  bool isPositionStreamActive_ = false;
 };
 
 struct Calibration : SimpleState<Calibration, StateType>, FactorCreator<Calibration> {
@@ -187,10 +187,10 @@ struct Calibration : SimpleState<Calibration, StateType>, FactorCreator<Calibrat
 
 private:
   friend class SimpleState<Calibration, StateType>;
-  void entry_() { }
-  void exit_() { }
+  void entry() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() {
+  void doit() {
   }
 };
 

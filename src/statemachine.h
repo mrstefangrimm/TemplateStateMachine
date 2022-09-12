@@ -112,8 +112,8 @@ class Statemachine {
         bool conditionMet = CurentTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry();
-          state->template doit<N>();
+          state->entry_();
+          state->template doit_<N>();
           return;
         }
         // Recursion
@@ -153,8 +153,8 @@ class Statemachine {
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry();
-          state->template doit<N>();
+          state->entry_();
+          state->template doit_<N>();
         }
         return;
       }

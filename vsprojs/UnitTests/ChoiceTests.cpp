@@ -29,26 +29,26 @@ namespace UnitTests {
 
   class Init : public SimpleState<Init, StateType>, public SingletonCreator<Init> {
     friend class SimpleState<Init, StateType>;
-    void entry_() { }
-    void exit_() { }
+    void entry() { }
+    void exit() { }
     template<uint8_t N>
-    void doit_() { }
+    void doit() { }
   };
 
   class ChoiceTrue : public SimpleState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
     friend class SimpleState<ChoiceTrue, StateType>;
-    void entry_() { }
-    void exit_() { }
+    void entry() { }
+    void exit() { }
     template<uint8_t N>
-    void doit_() { }
+    void doit() { }
   };
 
   class ChoiceFalse : public SimpleState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
     friend class SimpleState<ChoiceFalse, StateType>;
-    void entry_() { }
-    void exit_() { }
+    void entry() { }
+    void exit() { }
     template<uint8_t N>
-    void doit_() { }
+    void doit() { }
   };
 
   struct GuardDummy {

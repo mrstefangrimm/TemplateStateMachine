@@ -53,10 +53,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OnState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -71,10 +71,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OffState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;

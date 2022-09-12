@@ -29,23 +29,23 @@ namespace UnitTests {
   template<typename T>
   struct TestStateA : T {
     uint8_t getTypeId() const override { return 1; }
-    void exit() { }
+    void exit_() { }
   };
 
   template<typename T>
   struct TestStateB : T {
     uint8_t getTypeId() const override { return 2; }
-    void exit() { }
+    void exit_() { }
   };
 
   template<typename T>
   struct TestStateMinimalA : T {
-    void exit() { }
+    void exit_() { }
   };
 
   template<typename T>
   struct TestStateMinimalB : T {
-    void exit() { }
+    void exit_() { }
   };
 
   TEST_CLASS(StateComperatorTests)

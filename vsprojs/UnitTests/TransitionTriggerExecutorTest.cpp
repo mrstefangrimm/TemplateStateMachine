@@ -49,10 +49,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OnState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -67,10 +67,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OffState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;
@@ -78,7 +78,7 @@ namespace UnitTests {
 
     struct WrongState : StateType, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 3; }
-      virtual void exit() { }
+      virtual void exit_() { }
     };
 
     typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;

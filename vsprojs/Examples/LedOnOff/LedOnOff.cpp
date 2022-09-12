@@ -37,23 +37,23 @@ enum Triggers {
 
 class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
   friend class SimpleState<LedOn, StateType>;
-  void entry_() {
+  void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH);)
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 };
 
 class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<LedOff> {
   friend class SimpleState<LedOff, StateType>;
-  void entry_() {
+  void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
     BSP_Execute(Serial.println(freeMemory());)
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 };
 
 typedef Transition<Triggers::TIMEOUT, LedOn, LedOff, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOff;

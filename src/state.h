@@ -43,9 +43,9 @@ struct State {
     return Comperator::template hasType<T>(this);
   }
 #ifndef DISABLENESTEDSTATES
-  virtual void exit() = 0;
+  virtual void exit_() = 0;
 #else
-  void exit() {}
+  void exit_() {}
 #endif
 };
 // specialization of State class.
@@ -56,9 +56,9 @@ struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
-  virtual void exit() = 0;
+  virtual void exit_() = 0;
 #else
-  void exit() {}
+  void exit_() {}
 #endif
 };
 
@@ -76,18 +76,18 @@ struct AnyState : T {
 template<typename Derived, typename Basetype>
 class SimpleState : public Basetype {
   public:
-    bool entry() {
-      static_cast<Derived*>(this)->entry_();
+    bool entry_() {
+      static_cast<Derived*>(this)->entry();
       return false;
     }
 
-    void exit() {
-      static_cast<Derived*>(this)->exit_();
+    void exit_() {
+      static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
-    Basetype* doit() {
-      static_cast<Derived*>(this)->template doit_<N>();
+    Basetype* doit_() {
+      static_cast<Derived*>(this)->template doit<N>();
       return 0;
     }
 };
@@ -97,30 +97,30 @@ class SimpleState : public Basetype {
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
   public:
-    bool entry() {
-      static_cast<Derived*>(this)->entry_();
-      _subStatemachine.begin();
+    bool entry_() {
+      static_cast<Derived*>(this)->entry();
+      subStatemachine_.begin();
       return true;
     }
 
-    void exit() {
-      _subStatemachine.end();
-      static_cast<Derived*>(this)->exit_();
+    void exit_() {
+      subStatemachine_.end();
+      static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
-    Basetype* doit() {
+    Basetype* doit_() {
 
       // Return if substates consumed the trigger
-      auto result = _subStatemachine.template dispatch<N>();
+      auto result = subStatemachine_.template dispatch<N>();
       if (result.consumed && result.deferredEntry) {
         return result.activeState;
       }
-      static_cast<Derived*>(this)->template doit_<N>();
+      static_cast<Derived*>(this)->template doit<N>();
       return 0;
     }
 
-    Statemachine _subStatemachine;
+    Statemachine subStatemachine_;
 };
 
 #endif

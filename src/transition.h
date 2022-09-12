@@ -44,10 +44,10 @@ struct EmptyState : T {
   }
   static void destroy(EmptyState*) { }
 
-  bool entry() { return false; }
-  void exit() { }
+  bool entry_() { return false; }
+  void exit_() { }
   template<uint8_t N>
-  EmptyState* doit() { return 0; }
+  EmptyState* doit_() { return 0; }
 };
 
 /* Provides Action interface and does nothing. */
@@ -82,8 +82,8 @@ struct TransitionBase {
     // Initial transition
     if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
       Action().perform(activeState);
-      toState->entry();
-      toState->template doit<Trigger>();
+      toState->entry_();
+      toState->template doit_<Trigger>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -97,7 +97,7 @@ struct TransitionBase {
 
       if (Guard().check(activeState)) {
         // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-        static_cast<StateType*>(activeState)->exit();
+        static_cast<StateType*>(activeState)->exit_();
         Action().perform(activeState);
 
         // TODO: AnyState::destroy is called.
@@ -126,21 +126,21 @@ struct TransitionBase {
 
     // Self transition
     if (is_same<To, From>().value) {
-      auto state = static_cast<To*>(activeState)->template doit<Trigger>();
+      auto state = static_cast<To*>(activeState)->template doit_<Trigger>();
       ToFactory::destroy(toState);
       return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
 
-    static_cast<From*>(activeState)->exit();
+    static_cast<From*>(activeState)->exit_();
 
     if (X) {
       FromFactory::destroy(static_cast<From*>(activeState));
       return DispatchResult<StateType>(true, toState, X);
     }
-    bool cosumedBySubstate = toState->entry();
+    bool cosumedBySubstate = toState->entry_();
     // TODO: Does not work in subStates.begin when the same trigger (e.g timeout) is defined for the substate (see washingmachine)
     if (!cosumedBySubstate) {
-      toState->template doit<Trigger>();
+      toState->template doit_<Trigger>();
     }
     FromFactory::destroy(static_cast<From*>(activeState));
     return DispatchResult<StateType>(true, toState, X);
