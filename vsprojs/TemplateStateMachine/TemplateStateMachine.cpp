@@ -47,6 +47,7 @@ enum Triggers {
 
 struct SimulationInit : StateType, FactorCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
+  template<uint8_t T>
   bool _entry() { return false; }
   void _exit() { }
   template<uint8_t N>
@@ -57,6 +58,7 @@ struct SimulationInit : StateType, FactorCreator<SimulationInit> {
 
 struct SimulationManual : StateType, FactorCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
+  template<uint8_t T>
   bool _entry() { return false; }
   void _exit() { }
   template<uint8_t N>
@@ -67,6 +69,7 @@ struct SimulationManual : StateType, FactorCreator<SimulationManual> {
 
 struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
+  template<uint8_t T>
   bool _entry() { return false; }
   void _exit() { }
   template<uint8_t N>

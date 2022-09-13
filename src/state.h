@@ -76,6 +76,7 @@ struct AnyState : T {
 template<typename Derived, typename Basetype>
 class SimpleState : public Basetype {
   public:
+    template<uint8_t N>
     bool _entry() {
       static_cast<Derived*>(this)->entry();
       return false;
@@ -97,10 +98,10 @@ class SimpleState : public Basetype {
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
   public:
+    template<uint8_t N>
     bool _entry() {
       static_cast<Derived*>(this)->entry();
-      // TODO: begin calls init transition
-      subStatemachine_.begin();
+      subStatemachine_.template _begin<N>();
       return true;
     }
 

@@ -44,6 +44,7 @@ struct EmptyState : T {
   }
   static void destroy(EmptyState*) { }
 
+  template<uint8_t N>
   bool _entry() { return false; }
   void _exit() { }
   template<uint8_t N>
@@ -83,8 +84,8 @@ struct TransitionBase {
     // Initial transition
     if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
       Action().perform(activeState);
-      toState->_entry();
-      toState->template _doit<Trigger>();
+      toState->template _entry<N>();
+      toState->template _doit<N>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -112,6 +113,17 @@ struct TransitionBase {
 
     // The transition is valid if the "fromState" is also the activeState state from the state machine.
     if (activeState == 0 || !fromState->equals(*activeState)) {
+
+      // Entering substate transition
+      if (E && activeState == 0) {
+        toState->template _entry<N>();
+        toState->template _doit<N>();
+
+        // Delete not needed. "activeState" and "fromState" are null (the initial state)
+
+        return DispatchResult<StateType>(true, toState);
+      }
+
       ToFactory::destroy(toState);
       FromFactory::destroy(fromState);
       return DispatchResult<StateType>(false, activeState);
@@ -127,7 +139,7 @@ struct TransitionBase {
 
     // Self transition
     if (is_same<To, From>().value) {
-      auto state = static_cast<To*>(activeState)->template _doit<Trigger>();
+      auto state = static_cast<To*>(activeState)->template _doit<N>();
       ToFactory::destroy(toState);
       return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
@@ -138,16 +150,10 @@ struct TransitionBase {
       FromFactory::destroy(static_cast<From*>(activeState));
       return DispatchResult<StateType>(true, toState, X);
     }
-    if (E) {
-      // TODO: wrong: Initializes BA
-      //bool cosumedBySubstate = toState->_entry();
 
-      auto res = toState->template _doit<Trigger>();
-      return DispatchResult<StateType>(true, res, E);
-    }
-    bool cosumedBySubstate = toState->_entry();
+    bool cosumedBySubstate = toState->template _entry<N>();
     if (!cosumedBySubstate) {
-      toState->template _doit<Trigger>();
+      toState->template _doit<N>();
     }
     FromFactory::destroy(static_cast<From*>(activeState));
     return DispatchResult<StateType>(true, toState, X);
@@ -156,7 +162,7 @@ struct TransitionBase {
 }
 
 template<typename To, typename CreationPolicy, typename Action>
-struct InitialTransition : impl::TransitionBase<0, To, EmptyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, Action, false, false> {
+struct InitialTransition : impl::TransitionBase<0, To, EmptyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, Action, false, true> {
 };
 
 template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
@@ -187,8 +193,11 @@ using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuar
 template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy>
 using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, EmptyAction, true, false>;
 
-template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Action>
-using EntryDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, Action, false, true>;
+template<uint8_t Trigger, typename To, typename CreationPolicy, typename Action>
+using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, false, true>;
+
+//template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Action>
+//using EntryTransition = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, Action, false, true>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
 using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, true, false>;
