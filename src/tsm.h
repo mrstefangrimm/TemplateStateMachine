@@ -18,8 +18,6 @@ struct is_same<T, T> {
 #include <stdint.h>
 #include <typeinfo>
 
-#define ISMINIMAL false
-
 using namespace std;
 
 #else

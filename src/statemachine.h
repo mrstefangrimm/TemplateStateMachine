@@ -19,29 +19,27 @@
 
 namespace tsmlib {
 
-template<typename Transitions, typename Initialtransition, typename Endtransition>
+template<typename Transitions, typename Initialtransition, typename Terminatetransition>
 class Statemachine {
   public:
     typedef typename Initialtransition::StateType StateType;
 
     Statemachine() {
-      typedef typename Initialtransition::StateType InitStateType;
-      typedef typename Endtransition::StateType EndStateType;
-      CompileTimeError<is_same<InitStateType, EndStateType>().value>();
+      CompileTimeError<is_same<Initialtransition::StateType, typename Terminatetransition::StateType>().value>();
     }
 
     DispatchResult<StateType> begin() {
       auto result = Initialtransition().dispatch(0);
       if (result.consumed) {
-        _activeState = result.activeState;
+        activeState_ = result.activeState;
       }
       return result;
     }
 
     DispatchResult<StateType> end() {
-      auto result = Endtransition().dispatch(_activeState);
+      auto result = Terminatetransition().dispatch(activeState_);
       if (result.consumed) {
-        _activeState = 0;
+        activeState_ = 0;
       }
       return result;
     }
@@ -49,24 +47,29 @@ class Statemachine {
     template<uint8_t N>
     DispatchResult<StateType> dispatch() {
 
-      if (_activeState == 0) return DispatchResult<StateType>(false, _activeState);
+      if (activeState_ == 0) {
+        const int size = Length<Transitions>::value;
+        auto result = TriggerExecutor<N, size - 1>::init();
+        activeState_ = result.state;
+        return DispatchResult<StateType>(true, result.state);
+      }
 
       const int size = Length<Transitions>::value;
-      auto result = TriggerExecutor<N, size-1>::execute(_activeState);
+      auto result = TriggerExecutor<N, size-1>::execute(activeState_);
       // Transition not found
-      if (result.state == 0) return DispatchResult<StateType>(false, _activeState);
+      if (result.state == 0) return DispatchResult<StateType>(false, activeState_);
 
       if (result.deferredEntry) {
         TriggerExecutor<N, size-1>::entry(result.state);
-        _activeState = 0;
+        activeState_ = 0;
         return DispatchResult<StateType>(true, result.state, true);
       }
-      _activeState = result.state;
-      return DispatchResult<StateType>(true, _activeState);
+      activeState_ = result.state;
+      return DispatchResult<StateType>(true, activeState_);
     }
 
   private:
-    StateType* _activeState = 0;
+    StateType* activeState_ = 0;
 
   public:
 
@@ -112,12 +115,37 @@ class Statemachine {
         bool conditionMet = CurentTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry_();
-          state->template doit_<N>();
+          state->_entry();
+          state->template _doit<N>();
           return;
         }
         // Recursion
         TriggerExecutor < N, Index - 1 >::entry(entryState);
+      }
+      static ExecuteResult init() {
+        // Finds last element in the list that meets the conditions.
+        typedef typename TypeAt<Transitions, Index>::Result CurentTransition;
+
+        bool conditionMet = CurentTransition::N == N;
+        if (conditionMet) {
+          typedef typename CurentTransition::FromType::ObjectType FromType;
+          typedef typename CurentTransition::FromType::CreatorType FromFactory;
+          FromType* fromState = FromFactory::create();
+
+          typedef typename CurentTransition::ToType::ObjectType ToType;
+          typedef typename CurentTransition::ToType::CreatorType ToFactory;
+
+          ToType* state = ToFactory::create();
+          state->_entry();
+          state->template _doit<N>();
+          ExecuteResult ret;
+          ret.state = state;
+          ret.deferredEntry = false;
+          ret.transitionIndex = Index;
+          return ret;
+        }
+        // Recursion
+        return TriggerExecutor < N, Index - 1 >::init();
       }
       static bool checkHierarchy() {
         // TODO: Idea to check the hierarchy in the Tranistions (e.g. exit declarations last, etc.)
@@ -127,8 +155,7 @@ class Statemachine {
     template<uint8_t N>
     struct TriggerExecutor<N, 0> {
       static ExecuteResult execute(StateType* activeState) {
-
-        // Finds last element in the list that meets the conditions.
+        // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::FromType::ObjectType FromType;
         bool hasSameFromState = activeState->template typeOf<FromType>();
@@ -145,7 +172,7 @@ class Statemachine {
         return ExecuteResult();
       }
       static void entry(StateType* entryState) {
-        // Finds last element in the list that meets the conditions.
+        // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::ToType::ObjectType ToType;
         bool hasSameFromState = entryState->template typeOf<ToType>();
@@ -153,10 +180,30 @@ class Statemachine {
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry_();
-          state->template doit_<N>();
+          state->_entry();
+          state->template _doit<N>();
         }
         return;
+      }
+      static ExecuteResult init() {
+        // End of recursion.
+        typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
+
+        bool conditionMet = FirstTransition::N == N;
+        if (conditionMet) {
+          typedef typename FirstTransition::ToType::ObjectType ToType;
+          typedef typename FirstTransition::ToType::CreatorType ToFactory;
+
+          ToType* state = ToFactory::create();
+          state->_entry();
+          state->template _doit<N>();
+          ExecuteResult ret;
+          ret.state = state;
+          ret.deferredEntry = false;
+          ret.transitionIndex = 0;
+          return ret;
+        }
+        return ExecuteResult();;
       }
     };
 };

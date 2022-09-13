@@ -44,10 +44,10 @@ struct EmptyState : T {
   }
   static void destroy(EmptyState*) { }
 
-  bool entry_() { return false; }
-  void exit_() { }
+  bool _entry() { return false; }
+  void _exit() { }
   template<uint8_t N>
-  EmptyState* doit_() { return 0; }
+  EmptyState* _doit() { return 0; }
 };
 
 /* Provides Action interface and does nothing. */
@@ -65,9 +65,10 @@ struct OkGuard {
 };
 
 namespace impl {
-template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action, bool IsExitingTransition>
+template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action, bool IsExitingTransition, bool IsEnteringTransition>
 struct TransitionBase {
   enum { N = Trigger };
+  enum { E = IsEnteringTransition };
   enum { X = IsExitingTransition };
   typedef To ToType;
   typedef From FromType;
@@ -82,8 +83,8 @@ struct TransitionBase {
     // Initial transition
     if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
       Action().perform(activeState);
-      toState->entry_();
-      toState->template doit_<Trigger>();
+      toState->_entry();
+      toState->template _doit<Trigger>();
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -97,7 +98,7 @@ struct TransitionBase {
 
       if (Guard().check(activeState)) {
         // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-        static_cast<StateType*>(activeState)->exit_();
+        static_cast<StateType*>(activeState)->_exit();
         Action().perform(activeState);
 
         // TODO: AnyState::destroy is called.
@@ -126,21 +127,27 @@ struct TransitionBase {
 
     // Self transition
     if (is_same<To, From>().value) {
-      auto state = static_cast<To*>(activeState)->template doit_<Trigger>();
+      auto state = static_cast<To*>(activeState)->template _doit<Trigger>();
       ToFactory::destroy(toState);
       return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
 
-    static_cast<From*>(activeState)->exit_();
+    static_cast<From*>(activeState)->_exit();
 
     if (X) {
       FromFactory::destroy(static_cast<From*>(activeState));
       return DispatchResult<StateType>(true, toState, X);
     }
-    bool cosumedBySubstate = toState->entry_();
-    // TODO: Does not work in subStates.begin when the same trigger (e.g timeout) is defined for the substate (see washingmachine)
+    if (E) {
+      // TODO: wrong: Initializes BA
+      //bool cosumedBySubstate = toState->_entry();
+
+      auto res = toState->template _doit<Trigger>();
+      return DispatchResult<StateType>(true, res, E);
+    }
+    bool cosumedBySubstate = toState->_entry();
     if (!cosumedBySubstate) {
-      toState->template doit_<Trigger>();
+      toState->template _doit<Trigger>();
     }
     FromFactory::destroy(static_cast<From*>(activeState));
     return DispatchResult<StateType>(true, toState, X);
@@ -149,11 +156,11 @@ struct TransitionBase {
 }
 
 template<typename To, typename CreationPolicy, typename Action>
-struct InitialTransition : impl::TransitionBase<0, To, EmptyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, Action, false> {
+struct InitialTransition : impl::TransitionBase<0, To, EmptyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, Action, false, false> {
 };
 
 template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
-struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false> {
+struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false> {
   FinalTransition() {
     // Make sure the user defines a guard for the final transition. This is not UML compliant.
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
@@ -161,7 +168,7 @@ struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename Creat
 };
 
 template<typename CreationPolicy, typename Guard, typename Action>
-struct EndTransition : impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, Guard, Action, false> {
+struct EndTransition : impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, Guard, Action, false, false> {
   EndTransition() {
     // Final transition without guard does not make sense; the state machine would immediately go to the final state.
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
@@ -169,24 +176,24 @@ struct EndTransition : impl::TransitionBase<0, EmptyState<typename CreationPolic
 };
 
 template<typename CreationPolicy>
-using NullEndTransition = impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, EmptyAction, false>;
+using NullEndTransition = impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, EmptyAction, false, false>;
 
 template<uint8_t Trigger, typename Me, typename CreationPolicy, typename Guard, typename Action>
-using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Guard, Action, false>;
+using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Guard, Action, false, false>;
 
 template<uint8_t Trigger, typename Me, typename CreationPolicy>
-using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false>;
+using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false, false>;
 
 template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy>
-using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, EmptyAction, true>;
+using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, EmptyAction, true, false>;
 
-template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard>
-using ExitDeclaration2 = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, EmptyAction, true>;
-
-template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, true>;
+template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Action>
+using EntryDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, Action, false, true>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using Transition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false>;
+using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, true, false>;
+
+template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
+using Transition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, false>;
 
 }

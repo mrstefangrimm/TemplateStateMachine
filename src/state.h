@@ -22,7 +22,7 @@ namespace tsmlib {
 using namespace Loki;
 
 template<typename Derived, typename Comperator>
-struct StateBase {
+struct _StateBase {
   bool equals(const Derived& other) const {
     return Comperator::areEqual(*static_cast<const Derived*>(this), other);
   }
@@ -43,22 +43,22 @@ struct State {
     return Comperator::template hasType<T>(this);
   }
 #ifndef DISABLENESTEDSTATES
-  virtual void exit_() = 0;
+  virtual void _exit() = 0;
 #else
-  void exit_() {}
+  void _exit() {}
 #endif
 };
 // specialization of State class.
 template<typename Comperator>
-struct State<Comperator, false> : StateBase<State<Comperator, false>, Comperator> {
+struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperator> {
   //Microsoft typeid requires:
   virtual void vvfunc() {}
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
-  virtual void exit_() = 0;
+  virtual void _exit() = 0;
 #else
-  void exit_() {}
+  void _exit() {}
 #endif
 };
 
@@ -76,17 +76,17 @@ struct AnyState : T {
 template<typename Derived, typename Basetype>
 class SimpleState : public Basetype {
   public:
-    bool entry_() {
+    bool _entry() {
       static_cast<Derived*>(this)->entry();
       return false;
     }
 
-    void exit_() {
+    void _exit() {
       static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
-    Basetype* doit_() {
+    Basetype* _doit() {
       static_cast<Derived*>(this)->template doit<N>();
       return 0;
     }
@@ -97,24 +97,29 @@ class SimpleState : public Basetype {
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
   public:
-    bool entry_() {
+    bool _entry() {
       static_cast<Derived*>(this)->entry();
+      // TODO: begin calls init transition
       subStatemachine_.begin();
       return true;
     }
 
-    void exit_() {
+    void _exit() {
       subStatemachine_.end();
       static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
-    Basetype* doit_() {
+    Basetype* _doit() {
 
       // Return if substates consumed the trigger
       auto result = subStatemachine_.template dispatch<N>();
       if (result.consumed && result.deferredEntry) {
         return result.activeState;
+      }
+      // TODO: if consumed and ??? 
+      if (result.consumed && false) {
+        static_cast<Derived*>(this)->entry();
       }
       static_cast<Derived*>(this)->template doit<N>();
       return 0;
@@ -125,8 +130,8 @@ class SubstatesHolderState : public Basetype {
 
 #endif
 
-template<typename Comperator, bool Minimal>
-bool operator==(const State<Comperator, Minimal>& lhs, const State<Comperator, Minimal>& rhs) {
+template<typename Comperator, bool Singleton>
+bool operator==(const State<Comperator, Singleton>& lhs, const State<Comperator, Singleton>& rhs) {
   return lhs.equals(rhs);
 }
 
@@ -171,14 +176,14 @@ struct FactorCreator<T, false> {
   }
 };
 
-template<bool Minimal>
+template<bool Singleton>
 struct MemoryAddressStateComperator {
-  static bool areEqual(const State<MemoryAddressStateComperator, Minimal>& lhs, const State<MemoryAddressStateComperator, Minimal>& rhs) {
+  static bool areEqual(const State<MemoryAddressStateComperator, Singleton>& lhs, const State<MemoryAddressStateComperator, Singleton>& rhs) {
     return &lhs == &rhs;
   }
 
   template<typename T>
-  static bool hasType(const State<MemoryAddressStateComperator, Minimal>* me) {
+  static bool hasType(const State<MemoryAddressStateComperator, Singleton>* me) {
     typedef typename T::CreatorType Factory;
     auto other = Factory::create();
     // fromState is 0 for AnyState

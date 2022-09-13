@@ -29,23 +29,23 @@ namespace UnitTests {
   template<typename T>
   struct TestStateA : T {
     uint8_t getTypeId() const override { return 1; }
-    void exit_() { }
+    void _exit() { }
   };
 
   template<typename T>
   struct TestStateB : T {
     uint8_t getTypeId() const override { return 2; }
-    void exit_() { }
+    void _exit() { }
   };
 
   template<typename T>
-  struct TestStateMinimalA : T {
-    void exit_() { }
+  struct TestStateSingletonA : T {
+    void _exit() { }
   };
 
   template<typename T>
-  struct TestStateMinimalB : T {
-    void exit_() { }
+  struct TestStateSingletonB : T {
+    void _exit() { }
   };
 
   TEST_CLASS(StateComperatorTests)
@@ -82,8 +82,8 @@ namespace UnitTests {
 
     TEST_METHOD(Equals_ComperatorSingletonAndMinimal_ComparisonWorks)
     {
-      TestStateMinimalA<State<MemoryAddressStateComperator<true>, true>> a;
-      TestStateMinimalB<State<MemoryAddressStateComperator<true>, true>> b;
+      TestStateSingletonA<State<MemoryAddressStateComperator<true>, true>> a;
+      TestStateSingletonB<State<MemoryAddressStateComperator<true>, true>> b;
 
       Assert::IsFalse(a == b);
       Assert::IsTrue(a == a);
