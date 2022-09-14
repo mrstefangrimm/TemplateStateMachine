@@ -1,4 +1,6 @@
 #pragma once
+// For the Loki copyright, please visit http://loki-lib.sourceforge.net/
+// These types here where either copied from Loki or from the book "Modern C++"
 
 namespace Loki {
 
