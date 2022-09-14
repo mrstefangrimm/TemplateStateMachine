@@ -84,8 +84,10 @@ struct TransitionBase {
     // Initial transition
     if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
       Action().perform(activeState);
-      toState->template _entry<N>();
-      toState->template _doit<N>();
+      bool cosumedBySubstate = toState->template _entry<N>();
+      if (!cosumedBySubstate) {
+        toState->template _doit<N>();
+      }
 
       // Delete not needed. "activeState" and "fromState" are null (the initial state)
 
@@ -116,8 +118,10 @@ struct TransitionBase {
 
       // Entering substate transition
       if (E && activeState == 0) {
-        toState->template _entry<N>();
-        toState->template _doit<N>();
+        bool cosumedBySubstate = toState->template _entry<N>();
+        if (!cosumedBySubstate) {
+          toState->template _doit<N>();
+        }
 
         // Delete not needed. "activeState" and "fromState" are null (the initial state)
 

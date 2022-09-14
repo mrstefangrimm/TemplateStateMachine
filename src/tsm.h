@@ -13,7 +13,7 @@ struct is_same<T, T> {
 
 #define ISMINIMAL true
 
-#elif defined (IAMWINDOWS)
+#elif defined (IAMWORKSTATION)
 
 #include <stdint.h>
 #include <typeinfo>
@@ -21,7 +21,7 @@ struct is_same<T, T> {
 using namespace std;
 
 #else
-#error define either IAMARDUINO or IAMWINDOWS
+#error define either IAMARDUINO or IAMWORKSTATION
 #endif
 
 #include "templatemeta.h"

@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-//#define IAMWINDOWS 1
+//#define IAMWORKSTATION 1
 
 #define IAMARDUINO 1
 // Defines unint8_t which does not require an include on Arduino.

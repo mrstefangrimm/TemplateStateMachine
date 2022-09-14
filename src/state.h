@@ -118,11 +118,6 @@ class SubstatesHolderState : public Basetype {
       if (result.consumed && result.deferredEntry) {
         return result.activeState;
       }
-      // TODO: if consumed and ??? 
-      if (result.consumed && false) {
-        static_cast<Derived*>(this)->entry();
-      }
-      static_cast<Derived*>(this)->template doit<N>();
       return 0;
     }
 
@@ -196,7 +191,7 @@ struct MemoryAddressStateComperator {
 
 };
 
-#if defined (IAMWINDOWS)
+#if defined (IAMWORKSTATION)
 struct TypeidStateComperator {
   static bool areEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
     // TODO: doesn't work with base and derived class

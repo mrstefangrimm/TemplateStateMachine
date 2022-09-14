@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 #include "..\..\src\state.h"

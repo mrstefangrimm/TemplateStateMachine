@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 
@@ -70,29 +70,32 @@ namespace UT {
       enum Triggers {
         A_B,
         B_A,
-        AA_AB,
-        AB_AA,
         BA_BB,
         BB_BA,
-        BB_AA,
-        BA_AA,
-        B_AA,
-        B_AB,
-        BB_AB,
         BB_A,
         BBB_A,
       };
 
       vector<string> recorder;
 
-      typedef ActionSpy<struct B, struct A> B_A_spy;
-      typedef ActionSpy<struct A, struct B> A_B_spy;
-      typedef ActionSpy<struct BB, struct BA> BB_BA_spy;
-      typedef ActionSpy<struct BA, struct BB> BA_BB_spy;
-      typedef ActionSpy<struct BB, struct A> BB_A_spy;
-      typedef ActionSpy<struct BBB, struct A> BBB_A_spy;
-      typedef ActionSpy<struct BB, struct B> BB_B_spy;
-      typedef ActionSpy<struct BBB, struct B> BBB_B_spy;
+      struct A;
+      struct B;
+      struct BA;
+      struct BB;
+      struct BBA;
+      struct BBB;
+
+      typedef ActionSpy<B, A> B_A_spy;
+      typedef ActionSpy<A, B> A_B_spy;
+      typedef ActionSpy<BB, BA> BB_BA_spy;
+      typedef ActionSpy<BA, BB> BA_BB_spy;
+      typedef ActionSpy<BB, A> BB_A_spy;
+      typedef ActionSpy<BBB, A> BBB_A_spy;
+      typedef ActionSpy<BB, B> BB_B_spy;
+      typedef ActionSpy<BBB, B> BBB_B_spy;
+      typedef ActionSpy<BBA, BB> BBB_BB_spy;
+      typedef ActionSpy<BA, InitialStateFake> B_Init_spy;
+      typedef ActionSpy<BBA, InitialStateFake> BB_Init_spy;
 
       struct A : Leaf<A> {
         static const char* Name;
@@ -106,14 +109,13 @@ namespace UT {
       typedef Transition<Triggers::BB_BA, BB, BA, StateTypeCreationPolicyType, OkGuard, BB_BA_spy> BB_BA_t;
       typedef Transition<Triggers::BA_BB, BA, BB, StateTypeCreationPolicyType, OkGuard, BA_BB_spy> BA_BB_t;
       typedef EntryDeclaration<Triggers::BB_A, BB, StateTypeCreationPolicyType, BB_B_spy> BB_B_t;
-      //typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_B_spy> BBB_B_t;
+      typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_B_spy> BBB_B_t;
       typedef
         Typelist<BB_BA_t,
         Typelist<BA_BB_t,
         Typelist<BB_B_t,
-        //Typelist<BBB_B_t,
-        NullType>>> B_transitions;
-      typedef ActionSpy<BA, InitialStateFake> B_Init_spy;
+        Typelist<BBB_B_t,
+        NullType>>>> B_transitions;
       typedef InitialTransition<BA, StateTypeCreationPolicyType, B_Init_spy> B_initt;
       typedef Statemachine<
         B_transitions,
@@ -138,6 +140,25 @@ namespace UT {
       };
       const char* BA::Name = "BA";
 
+      typedef EntryDeclaration<Triggers::BBB_A, BBB, StateTypeCreationPolicyType, BBB_BB_spy> BBB_BB_t;
+      typedef
+        Typelist<BBB_BB_t,
+        NullType> BB_transitions;
+      typedef InitialTransition<BBA, StateTypeCreationPolicyType, BB_Init_spy> BB_initt;
+      typedef Statemachine<
+        BB_transitions,
+        BB_initt,
+        NullEndTransition<StateTypeCreationPolicyType>> BB_sm;
+
+      struct BB : Composite<BB, BB_sm> {
+        static const char* Name;
+        void entry() { recorder.push_back("BB::Entry"); }
+        void exit() { recorder.push_back("BB::Exit"); }
+        template<uint8_t N>
+        void doit() { recorder.push_back("BB::Do"); }
+      };
+      const char* BB::Name = "BB";
+
       struct BBA : Leaf<BBA> {
         static const char* Name;
         void entry() { recorder.push_back("BBA::Entry"); }
@@ -156,78 +177,31 @@ namespace UT {
       };
       const char* BBB::Name = "BBB";
 
-      typedef ActionSpy<BBA, BB> BBB_BB_spy;
-      typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_BB_spy> BBB_BB_t;
-      typedef
-        Typelist<BBB_BB_t,
-        NullType> BB_transitions;
-      typedef ActionSpy<BBA, InitialStateFake> BB_Init_spy;
-      typedef InitialTransition<BBA, StateTypeCreationPolicyType, BB_Init_spy> BB_initt;
-      typedef Statemachine<
-        BB_transitions,
-        BB_initt,
-        NullEndTransition<StateTypeCreationPolicyType>> BB_sm;
-
-
-      struct BB : Composite<BB, BB_sm> {
-        static const char* Name;
-        void entry() { recorder.push_back("BB::Entry"); }
-        void exit() { recorder.push_back("BB::Exit"); }
-        template<uint8_t N>
-        void doit() { recorder.push_back("BB::Do"); }
-      };
-      const char* BB::Name = "BB";
-
-
       typedef Transition<Triggers::B_A, B, A, StateTypeCreationPolicyType, OkGuard, B_A_spy> B_A_t;
       typedef Transition<Triggers::A_B, A, B, StateTypeCreationPolicyType, OkGuard, A_B_spy> A_B_t;
-      //typedef EntryTransformation<Triggers::BB_A, B, A, StateTypeCreationPolicyType, BB_A_spy> BB_A_t;
       typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, BB_A_spy> BB_A_t;
       typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, BBB_A_spy> BBB_A_t;
+      typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_decl;
       typedef
         Typelist<B_A_t,
         Typelist<A_B_t,
         Typelist<BB_A_t,
         Typelist<BBB_A_t,
-        NullType>>>> Toplevel_transitions;
-      typedef ActionSpy<A, InitialStateFake> Toplevel_Init_spy;
-      typedef InitialTransition<A, StateTypeCreationPolicyType, Toplevel_Init_spy> ToplevelInitTransition;
-      typedef Statemachine<
-        Toplevel_transitions,
-        ToplevelInitTransition,
-        NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
-
-      //// sub-states transitions are self transitions
-      //typedef Declaration<Triggers::On, ActiveState, StateTypeCreationPolicyType> ToOnFromOffSubTransition;
-      //typedef Declaration<Triggers::Off, ActiveState, StateTypeCreationPolicyType> ToOffFromOnSubTransition;
-      //typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType> ToIdleFromOffSubTransition;
-      //typedef ActionSpy<struct ActiveState, struct IdleState> ToActiveFromIdleActionSpy;
-      //typedef ActionSpy<struct IdleState, struct AnyStateFake> ToIdleFromAnyActionSpy;
-      //typedef Transition<Triggers::Hello, ActiveState, IdleState, StateTypeCreationPolicyType, OkGuard, ToActiveFromIdleActionSpy> ToActiveFromIdleTransition;
-      ////typedef Transition<Triggers::Goodbye, StateType, IdleState, AnyState<StateType>, OkGuard, ToIdleFromAnyActionSpy> ToIdleFromActiveTransition;
-      //typedef
-      //  Typelist<ToOnFromOffSubTransition,
-      //  Typelist<ToOffFromOnSubTransition,
-      //  Typelist<ToIdleFromOffSubTransition,
-      //  Typelist<ToActiveFromIdleTransition,
-      //  //Typelist<ToIdleFromActiveTransition,
-      //  NullType>>>> TransitionList;
-      //struct ActiveStateFinalizeGuard {
-      //  template<typename T>
-      //  bool check(T*) { return true; }
-      //typedef ActionSpy<struct IdleState, struct InitialStateFake> ToIdleFromInitialActionSpy;
-      //typedef InitialTransition<IdleState, StateTypeCreationPolicyType, ToIdleFromInitialActionSpy> InitTransition;
-      //typedef Statemachine<
-      //  TransitionList,
-      //  InitTransition,
-      //  NullEndTransition<StateTypeCreationPolicyType>> Sm;
+        Typelist<BB_BA_decl,
+        NullType>>>>> Toplevel_transitions;
 
       TEST_CLASS(StatemachineCallSequenceTests)
       {
       public:
 
-        TEST_METHOD(Callsequence_Toplevel)
+        TEST_METHOD(Callsequence_B__A)
         {
+          typedef InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake>> ToplevelInitTransition;
+          typedef Statemachine<
+            Toplevel_transitions,
+            ToplevelInitTransition,
+            NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
           Toplevel_sm sm;
           vector<string> expected;
           recorder.clear();
@@ -240,6 +214,34 @@ namespace UT {
           sm.dispatch<Triggers::B_A>();
           expected.push_back("B<-A");
           expected.push_back("A::Exit");
+          expected.push_back("B::Entry");
+          expected.push_back("BA<-Initial");
+          expected.push_back("BA::Entry");
+          expected.push_back("BA::Do");
+
+          Assert::IsTrue(expected.size() >= recorder.size());
+          for (int n = 0; n < recorder.size(); n++) {
+            string exp = expected[n];
+            string rec = recorder[n];
+            Assert::AreEqual<string>(exp, rec);
+          }
+          Assert::AreEqual<size_t>(expected.size(), recorder.size());
+        }
+
+        TEST_METHOD(Callsequence_A__B)
+        {
+          typedef InitialTransition<B, StateTypeCreationPolicyType, ActionSpy<B, InitialStateFake>> ToplevelInitTransition;
+          typedef Statemachine<
+            Toplevel_transitions,
+            ToplevelInitTransition,
+            NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
+          Toplevel_sm sm;
+          vector<string> expected;
+          recorder.clear();
+
+          sm.begin();
+          expected.push_back("B<-Initial");
           expected.push_back("B::Entry");
           expected.push_back("BA<-Initial");
           expected.push_back("BA::Entry");
@@ -261,8 +263,14 @@ namespace UT {
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
         }
 
-        TEST_METHOD(Callsequence_TopToFirstLevel)
+        TEST_METHOD(Callsequence_BB__A)
         {
+          typedef InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake>> ToplevelInitTransition;
+          typedef Statemachine<
+            Toplevel_transitions,
+            ToplevelInitTransition,
+            NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
           Toplevel_sm sm;
           vector<string> expected;
           recorder.clear();
@@ -280,7 +288,6 @@ namespace UT {
           expected.push_back("BBA<-Initial");
           expected.push_back("BBA::Entry");
           expected.push_back("BBA::Do");
-          expected.push_back("BB::Do");
 
           Assert::IsTrue(expected.size() >= recorder.size());
           for (int n = 0; n < recorder.size(); n++) {
@@ -291,8 +298,14 @@ namespace UT {
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
         }
 
-        TEST_METHOD(Callsequence_TopToSecondLevel)
+        TEST_METHOD(Callsequence_BBB__A)
         {
+          typedef InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake>> ToplevelInitTransition;
+          typedef Statemachine<
+            Toplevel_transitions,
+            ToplevelInitTransition,
+            NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
           Toplevel_sm sm;
           vector<string> expected;
           recorder.clear();
@@ -303,9 +316,10 @@ namespace UT {
           expected.push_back("A::Do");
 
           sm.dispatch<Triggers::BBB_A>();
-          expected.push_back("BB<-A");
+          expected.push_back("BBB<-A");
           expected.push_back("A::Exit");
           expected.push_back("B::Entry");
+
           expected.push_back("BB::Entry");
           expected.push_back("BBB::Entry");
           expected.push_back("BBB::Do");
@@ -318,6 +332,77 @@ namespace UT {
           }
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
         }
+
+        TEST_METHOD(Callsequence_BB__BA)
+        {
+          typedef InitialTransition<B, StateTypeCreationPolicyType, ActionSpy<B, InitialStateFake>> ToplevelInitTransition;
+          typedef Statemachine<
+            Toplevel_transitions,
+            ToplevelInitTransition,
+            NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
+          Toplevel_sm sm;
+          vector<string> expected;
+          recorder.clear();
+
+          sm.begin();
+          expected.push_back("B<-Initial");
+          expected.push_back("B::Entry");
+          expected.push_back("BA<-Initial");
+          expected.push_back("BA::Entry");
+          expected.push_back("BA::Do");
+
+          sm.dispatch<Triggers::BB_BA>();
+          expected.push_back("BB<-BA");
+          expected.push_back("BA::Exit");
+          expected.push_back("BB::Entry");
+          expected.push_back("BBA<-Initial");
+          expected.push_back("BBA::Entry");
+          expected.push_back("BBA::Do");
+
+          Assert::IsTrue(expected.size() >= recorder.size());
+          for (int n = 0; n < recorder.size(); n++) {
+            string exp = expected[n];
+            string rec = recorder[n];
+            Assert::AreEqual<string>(exp, rec);
+          }
+          Assert::AreEqual<size_t>(expected.size(), recorder.size());
+        }
+
+        //TEST_METHOD(Callsequence_A__BA)
+        //{
+        //  typedef InitialTransition<B, StateTypeCreationPolicyType, ActionSpy<B, InitialStateFake>> ToplevelInitTransition;
+        //  typedef Statemachine<
+        //    Toplevel_transitions,
+        //    ToplevelInitTransition,
+        //    NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
+
+        //  Toplevel_sm sm;
+        //  vector<string> expected;
+        //  recorder.clear();
+
+        //  sm.begin();
+        //  expected.push_back("B<-Initial");
+        //  expected.push_back("B::Entry");
+        //  expected.push_back("BA<-Initial");
+        //  expected.push_back("BA::Entry");
+        //  expected.push_back("BA::Do");
+
+        //  sm.dispatch<Triggers::A_BA>();
+        //  expected.push_back("A<-BA");
+        //  expected.push_back("BA::Exit");
+        //  expected.push_back("B::Exit");
+        //  expected.push_back("A::Entry");
+        //  expected.push_back("A::Do");
+
+        //  Assert::IsTrue(expected.size() >= recorder.size());
+        //  for (int n = 0; n < recorder.size(); n++) {
+        //    string exp = expected[n];
+        //    string rec = recorder[n];
+        //    Assert::AreEqual<string>(exp, rec);
+        //  }
+        //  Assert::AreEqual<size_t>(expected.size(), recorder.size());
+        //}
 
       };
     }

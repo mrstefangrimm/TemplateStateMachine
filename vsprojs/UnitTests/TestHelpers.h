@@ -1,6 +1,6 @@
 #pragma once
 
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 #include "..\..\src\tsm.h"
 
 namespace UnitTests {
