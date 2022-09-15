@@ -11,6 +11,7 @@
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
+    <ClCompile Include="StatemachineCallSequenceTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
@@ -37,5 +38,8 @@
     <Filter Include="tsmlib">
       <UniqueIdentifier>{a7938580-3b40-40d6-8f03-72887e1f19a6}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StatemachineCallSequenceTest.drawio" />
   </ItemGroup>
 </Project>

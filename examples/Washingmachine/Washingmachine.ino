@@ -34,26 +34,26 @@ enum Triggers {
 };
 
 struct Loading : public SimpleState<Loading, StateType>, public SingletonCreator<Loading> {
-  void entry_() {
+  void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
       BSP_Execute(Serial.println(F("Loading"));)
       BSP_Execute(Serial.println(F("  Door open."));)
   }
-  void exit_() {
+  void exit() {
     BSP_Execute(Serial.println(F("  Door closed."));)
   }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 };
 
 struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator<Washing> {
-  void entry_() {
+  void entry() {
     BSP_Execute(Serial.println(F("  Washing"));)
     counter_ = 0;
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() {
+  void doit() {
   }
 
   uint8_t counter_ = 0;
@@ -61,26 +61,26 @@ struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator
 };
 
 struct Rinsing : public SimpleState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
-  void entry_() {
+  void entry() {
     BSP_Execute(Serial.println(F("  Rinsing"));)
     counter_ = 0;
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 
   uint8_t counter_ = 0;
   const uint8_t rinsingLength_ = 30;
 };
 
 struct Spinning : public SimpleState<Spinning, StateType>, public SingletonCreator<Spinning> {
-  void entry_() {
+  void entry() {
     BSP_Execute(Serial.println(F("  Spinning"));)
     counter_ = 0;
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 
   uint8_t counter_ = 0;
   const uint8_t spinningLength_ = 40;
@@ -165,12 +165,12 @@ typedef Statemachine <
   NullEndTransition<StateTypeCreationPolicyType>> RunningSm;
 
 struct Running : public SubstatesHolderState<Running, StateType, RunningSm>, public SingletonCreator<Running> {
-  void entry_() {
+  void entry() {
     BSP_Execute(Serial.println(F("Running"));)
   }
-  void exit_() { }
+  void exit() { }
   template<uint8_t N>
-  void doit_() { }
+  void doit() { }
 };
 
 Sm statemachine;

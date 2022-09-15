@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 
@@ -24,177 +24,180 @@
 
 namespace UnitTests {
 
-  namespace Lifecycle {
+  namespace StatemachineTests {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-    using namespace tsmlib;
-    using namespace std;
+    namespace Lifecycle {
 
-    typedef State<VirtualGetTypeIdStateComperator, false> StateType;
-    typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
+      using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+      using namespace tsmlib;
+      using namespace std;
 
-    enum Triggers {
-      On,
-      Off,
-      OnToOn,
-      OffToOff
-    };
+      typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+      typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
 
-    template<typename T>
-    struct FactorCreatorFake {
-      typedef FactorCreatorFake<T> CreatorType;
-      typedef T ObjectType;
+      enum Triggers {
+        On,
+        Off,
+        OnToOn,
+        OffToOff
+      };
 
-      static int CreateCalls;
-      static int DeleteCalls;
+      template<typename T>
+      struct FactorCreatorFake {
+        typedef FactorCreatorFake<T> CreatorType;
+        typedef T ObjectType;
 
-      typedef FactorCreatorFake<T> CreatorType;
+        static int CreateCalls;
+        static int DeleteCalls;
 
-      static T* create() { CreateCalls++;  return new T; }
-      static void destroy(T* state) { DeleteCalls++;  delete state; }
-    };
-    template<typename T> int FactorCreatorFake<T>::CreateCalls = 0;
-    template<typename T> int FactorCreatorFake<T>::DeleteCalls = 0;
+        typedef FactorCreatorFake<T> CreatorType;
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreatorFake<OnState> {
-      static int EntryCalls;
-      static int ExitCalls;
-      static int DoitCalls;
+        static T* create() { CreateCalls++;  return new T; }
+        static void destroy(T* state) { DeleteCalls++;  delete state; }
+      };
+      template<typename T> int FactorCreatorFake<T>::CreateCalls = 0;
+      template<typename T> int FactorCreatorFake<T>::DeleteCalls = 0;
 
-      uint8_t getTypeId() const override { return 1; }
+      struct OnState : SimpleState<OnState, StateType>, FactorCreatorFake<OnState> {
+        static int EntryCalls;
+        static int ExitCalls;
+        static int DoitCalls;
 
-    private:
-      friend class SimpleState<OnState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
-      template<uint8_t N>
-      void doit_() { DoitCalls++; }
-    };
-    int OnState::EntryCalls = 0;
-    int OnState::ExitCalls = 0;
-    int OnState::DoitCalls = 0;
+        uint8_t getTypeId() const override { return 1; }
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreatorFake<OffState> {
-      static int EntryCalls;
-      static int ExitCalls;
-      static int DoitCalls;
+      private:
+        friend class SimpleState<OnState, StateType>;
+        void entry() { EntryCalls++; }
+        void exit() { ExitCalls++; }
+        template<uint8_t N>
+        void doit() { DoitCalls++; }
+      };
+      int OnState::EntryCalls = 0;
+      int OnState::ExitCalls = 0;
+      int OnState::DoitCalls = 0;
 
-      uint8_t getTypeId() const override { return 2; }
+      struct OffState : SimpleState<OffState, StateType>, FactorCreatorFake<OffState> {
+        static int EntryCalls;
+        static int ExitCalls;
+        static int DoitCalls;
 
-    private:
-      friend class SimpleState<OffState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
-      template<uint8_t N>
-      void doit_() { DoitCalls++; }
-    };
-    int OffState::EntryCalls = 0;
-    int OffState::ExitCalls = 0;
-    int OffState::DoitCalls = 0;
+        uint8_t getTypeId() const override { return 2; }
 
-    typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
-    typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOnTransition;
-    typedef SelfTransition<Triggers::OnToOn, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOnTransition;
-    typedef SelfTransition<Triggers::OffToOff, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOffTransition;
+      private:
+        friend class SimpleState<OffState, StateType>;
+        void entry() { EntryCalls++; }
+        void exit() { ExitCalls++; }
+        template<uint8_t N>
+        void doit() { DoitCalls++; }
+      };
+      int OffState::EntryCalls = 0;
+      int OffState::ExitCalls = 0;
+      int OffState::DoitCalls = 0;
 
-    typedef
-      Typelist<ToOnFromOffTransition,
-      Typelist<ToOffFromOnTransition,
-      Typelist<ToOnFromOnTransition,
-      Typelist<ToOffFromOffTransition,
-      NullType>>>> TransitionList;
+      typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
+      typedef Transition<Triggers::Off, OffState, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOnTransition;
+      typedef SelfTransition<Triggers::OnToOn, OnState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOnTransition;
+      typedef SelfTransition<Triggers::OffToOff, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOffFromOffTransition;
 
-    typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
-    typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
+      typedef
+        Typelist<ToOnFromOffTransition,
+        Typelist<ToOffFromOnTransition,
+        Typelist<ToOnFromOnTransition,
+        Typelist<ToOffFromOffTransition,
+        NullType>>>> TransitionList;
 
-    TEST_CLASS(StatemachineOnOffEntryDoExitTest)
-    {
-    public:
+      typedef InitialTransition<OffState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+      typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
 
-      TEST_METHOD(EntriesDoesExits_Roundtrip)
+      TEST_CLASS(StatemachineOnOffEntryDoExitTest)
       {
-        OnState on;
-        OffState off;
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(0, OnState::EntryCalls);
-        Assert::AreEqual<int>(0, OnState::DoitCalls);
-        Assert::AreEqual<int>(0, OffState::ExitCalls);
-        Assert::AreEqual<int>(0, OffState::EntryCalls);
-        Assert::AreEqual<int>(0, OffState::DoitCalls);
+      public:
 
-        Sm sm;
-        sm.begin();
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(0, OnState::EntryCalls);
-        Assert::AreEqual<int>(0, OnState::DoitCalls);
-        Assert::AreEqual<int>(0, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(1, OffState::DoitCalls);
+        TEST_METHOD(EntriesDoesExits_Roundtrip)
+        {
+          OnState on;
+          OffState off;
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(0, OnState::EntryCalls);
+          Assert::AreEqual<int>(0, OnState::DoitCalls);
+          Assert::AreEqual<int>(0, OffState::ExitCalls);
+          Assert::AreEqual<int>(0, OffState::EntryCalls);
+          Assert::AreEqual<int>(0, OffState::DoitCalls);
 
-        // Off <- Off, self transition
-        auto result = sm.dispatch<Triggers::OffToOff>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(0, OnState::EntryCalls);
-        Assert::AreEqual<int>(0, OnState::DoitCalls);
-        Assert::AreEqual<int>(0, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(2, OffState::DoitCalls);
+          Sm sm;
+          sm.begin();
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(0, OnState::EntryCalls);
+          Assert::AreEqual<int>(0, OnState::DoitCalls);
+          Assert::AreEqual<int>(0, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(1, OffState::DoitCalls);
 
-        // Off <- Off, unhandled trigger
-        result = sm.dispatch<Triggers::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(0, OnState::EntryCalls);
-        Assert::AreEqual<int>(0, OnState::DoitCalls);
-        Assert::AreEqual<int>(0, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(2, OffState::DoitCalls);
+          // Off <- Off, self transition
+          auto result = sm.dispatch<Triggers::OffToOff>();
+          Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(0, OnState::EntryCalls);
+          Assert::AreEqual<int>(0, OnState::DoitCalls);
+          Assert::AreEqual<int>(0, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // On <- Off
-        result = sm.dispatch<Triggers::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(1, OnState::EntryCalls);
-        Assert::AreEqual<int>(1, OnState::DoitCalls);
-        Assert::AreEqual<int>(1, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(2, OffState::DoitCalls);
+          // Off <- Off, unhandled trigger
+          result = sm.dispatch<Triggers::Off>();
+          Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(0, OnState::EntryCalls);
+          Assert::AreEqual<int>(0, OnState::DoitCalls);
+          Assert::AreEqual<int>(0, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // On <- On, self transition
-        result = sm.dispatch<Triggers::OnToOn>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(1, OnState::EntryCalls);
-        Assert::AreEqual<int>(2, OnState::DoitCalls);
-        Assert::AreEqual<int>(1, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(2, OffState::DoitCalls);
+          // On <- Off
+          result = sm.dispatch<Triggers::On>();
+          Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(1, OnState::EntryCalls);
+          Assert::AreEqual<int>(1, OnState::DoitCalls);
+          Assert::AreEqual<int>(1, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // On <- On, unhandled trigger
-        result = sm.dispatch<Triggers::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::ExitCalls);
-        Assert::AreEqual<int>(1, OnState::EntryCalls);
-        Assert::AreEqual<int>(2, OnState::DoitCalls);
-        Assert::AreEqual<int>(1, OffState::ExitCalls);
-        Assert::AreEqual<int>(1, OffState::EntryCalls);
-        Assert::AreEqual<int>(2, OffState::DoitCalls);
+          // On <- On, self transition
+          result = sm.dispatch<Triggers::OnToOn>();
+          Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(1, OnState::EntryCalls);
+          Assert::AreEqual<int>(2, OnState::DoitCalls);
+          Assert::AreEqual<int>(1, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // Off <- On, unhandled trigger
-        result = sm.dispatch<Triggers::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(1, OnState::ExitCalls);
-        Assert::AreEqual<int>(1, OnState::EntryCalls);
-        Assert::AreEqual<int>(2, OnState::DoitCalls);
-        Assert::AreEqual<int>(1, OffState::ExitCalls);
-        Assert::AreEqual<int>(2, OffState::EntryCalls);
-        Assert::AreEqual<int>(3, OffState::DoitCalls);
+          // On <- On, unhandled trigger
+          result = sm.dispatch<Triggers::On>();
+          Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(0, OnState::ExitCalls);
+          Assert::AreEqual<int>(1, OnState::EntryCalls);
+          Assert::AreEqual<int>(2, OnState::DoitCalls);
+          Assert::AreEqual<int>(1, OffState::ExitCalls);
+          Assert::AreEqual<int>(1, OffState::EntryCalls);
+          Assert::AreEqual<int>(2, OffState::DoitCalls);
 
-        // Active state is Off
-        Assert::AreEqual<int>(FactorCreatorFake<OffState>::CreateCalls, FactorCreatorFake<OffState>::DeleteCalls + 1);
-        Assert::AreEqual<int>(FactorCreatorFake<OnState>::CreateCalls, FactorCreatorFake<OnState>::DeleteCalls);
-      }
-    };
+          // Off <- On, unhandled trigger
+          result = sm.dispatch<Triggers::Off>();
+          Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+          Assert::AreEqual<int>(1, OnState::ExitCalls);
+          Assert::AreEqual<int>(1, OnState::EntryCalls);
+          Assert::AreEqual<int>(2, OnState::DoitCalls);
+          Assert::AreEqual<int>(1, OffState::ExitCalls);
+          Assert::AreEqual<int>(2, OffState::EntryCalls);
+          Assert::AreEqual<int>(3, OffState::DoitCalls);
+
+          // Active state is Off
+          Assert::AreEqual<int>(FactorCreatorFake<OffState>::CreateCalls, FactorCreatorFake<OffState>::DeleteCalls + 1);
+          Assert::AreEqual<int>(FactorCreatorFake<OnState>::CreateCalls, FactorCreatorFake<OnState>::DeleteCalls);
+        }
+      };
+    }
   }
 }

@@ -19,29 +19,42 @@
 
 namespace tsmlib {
 
-template<typename Transitions, typename Initialtransition, typename Endtransition>
+template<typename Transitions, typename Initialtransition, typename Terminatetransition>
 class Statemachine {
   public:
     typedef typename Initialtransition::StateType StateType;
 
     Statemachine() {
-      typedef typename Initialtransition::StateType InitStateType;
-      typedef typename Endtransition::StateType EndStateType;
-      CompileTimeError<is_same<InitStateType, EndStateType>().value>();
+      CompileTimeError<is_same<Initialtransition::StateType, typename Terminatetransition::StateType>().value>();
     }
 
     DispatchResult<StateType> begin() {
       auto result = Initialtransition().dispatch(0);
       if (result.consumed) {
-        _activeState = result.activeState;
+        activeState_ = result.activeState;
+      }
+      return result;
+    }
+
+    template<uint8_t N>
+    DispatchResult<StateType> _begin() {
+
+      // Transitions can have initaltransitions (for a higher-level state to a substate).
+      // The default Initialtransition is added to the front and is therefore executed when no other was found.
+      typedef Typelist<Initialtransition, NullType> Tl1;
+      typedef typename Append<Tl1, Transitions>::Result Tl2;
+      const int size = Length<Tl2>::value;
+      auto result = Initializer<Tl2, N, size - 1>::init();
+      if (result.consumed) {
+        activeState_ = result.activeState;
       }
       return result;
     }
 
     DispatchResult<StateType> end() {
-      auto result = Endtransition().dispatch(_activeState);
+      auto result = Terminatetransition().dispatch(activeState_);
       if (result.consumed) {
-        _activeState = 0;
+        activeState_ = 0;
       }
       return result;
     }
@@ -49,24 +62,24 @@ class Statemachine {
     template<uint8_t N>
     DispatchResult<StateType> dispatch() {
 
-      if (_activeState == 0) return DispatchResult<StateType>(false, _activeState);
+      if (activeState_ == 0) return DispatchResult<StateType>(false, activeState_);
 
       const int size = Length<Transitions>::value;
-      auto result = TriggerExecutor<N, size-1>::execute(_activeState);
+      auto result = TriggerExecutor<N, size-1>::execute(activeState_);
       // Transition not found
-      if (result.state == 0) return DispatchResult<StateType>(false, _activeState);
+      if (result.state == 0) return DispatchResult<StateType>(false, activeState_);
 
       if (result.deferredEntry) {
         TriggerExecutor<N, size-1>::entry(result.state);
-        _activeState = 0;
+        activeState_ = 0;
         return DispatchResult<StateType>(true, result.state, true);
       }
-      _activeState = result.state;
-      return DispatchResult<StateType>(true, _activeState);
+      activeState_ = result.state;
+      return DispatchResult<StateType>(true, activeState_);
     }
 
   private:
-    StateType* _activeState = 0;
+    StateType* activeState_ = 0;
 
   public:
 
@@ -78,15 +91,14 @@ class Statemachine {
     template<uint8_t N, int Index>
     struct TriggerExecutor {
       static ExecuteResult execute(StateType* activeState) {
-
         // Finds last element in the list that meets the conditions.
-        typedef typename TypeAt<Transitions, Index>::Result CurentTransition;
-        typedef typename CurentTransition::FromType::ObjectType FromType;
+        typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
+        typedef typename CurrentTransition::FromType::ObjectType FromType;
         bool hasSameFromState = activeState->template typeOf<FromType>();
 
-        bool conditionMet = CurentTransition::N == N && hasSameFromState;
+        bool conditionMet = CurrentTransition::N == N && hasSameFromState;
         if (conditionMet) {
-          auto result = CurentTransition().dispatch(activeState);
+          auto result = CurrentTransition().dispatch(activeState);
           // If the state has not changed, continue to see if any other transition does.
           if (result.consumed) {
             ExecuteResult ret;
@@ -105,30 +117,26 @@ class Statemachine {
       }
       static void entry(StateType* entryState) {
         // Finds last element in the list that meets the conditions.
-        typedef typename TypeAt<Transitions, Index>::Result CurentTransition;
-        typedef typename CurentTransition::ToType::ObjectType ToType;
+        typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
+        typedef typename CurrentTransition::ToType::ObjectType ToType;
         bool hasSameFromState = entryState->template typeOf<ToType>();
 
-        bool conditionMet = CurentTransition::N == N && hasSameFromState;
+        bool conditionMet = CurrentTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry();
-          state->template doit<N>();
+          state->template _entry<N>();
+          state->template _doit<N>();
           return;
         }
         // Recursion
         TriggerExecutor < N, Index - 1 >::entry(entryState);
-      }
-      static bool checkHierarchy() {
-        // TODO: Idea to check the hierarchy in the Tranistions (e.g. exit declarations last, etc.)
       }
     };
     // Specialization
     template<uint8_t N>
     struct TriggerExecutor<N, 0> {
       static ExecuteResult execute(StateType* activeState) {
-
-        // Finds last element in the list that meets the conditions.
+        // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::FromType::ObjectType FromType;
         bool hasSameFromState = activeState->template typeOf<FromType>();
@@ -145,7 +153,7 @@ class Statemachine {
         return ExecuteResult();
       }
       static void entry(StateType* entryState) {
-        // Finds last element in the list that meets the conditions.
+        // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::ToType::ObjectType ToType;
         bool hasSameFromState = entryState->template typeOf<ToType>();
@@ -153,11 +161,35 @@ class Statemachine {
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->entry();
-          state->template doit<N>();
+          state->template _entry<N>();
+          state->template _doit<N>();
         }
         return;
       }
     };
-};
+
+    template<typename T, uint8_t N, int Index>
+    struct Initializer {
+      static DispatchResult<StateType> init() {
+        typedef typename TypeAt<T, Index>::Result CurrentTransition;
+        if (CurrentTransition::E && CurrentTransition::N == N) {
+          return CurrentTransition().dispatch(0);
+        }
+        // Recursion
+        return Initializer <T, N, Index - 1 >::init();
+      }
+    };
+    // Specialization
+    template<typename T, uint8_t N>
+    struct Initializer<T, N, 0> {
+      static DispatchResult<StateType> init() {
+        // End of recursion.
+        typedef typename TypeAt<T, 0>::Result FirstTransition;
+        if (FirstTransition::E) {
+          return FirstTransition().dispatch(0);
+        }
+        return DispatchResult<StateType>(false, 0, false);
+      }
+    };
+  };
 }

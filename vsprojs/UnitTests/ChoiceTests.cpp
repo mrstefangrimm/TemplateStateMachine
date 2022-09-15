@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 #include "..\..\src\state.h"
@@ -21,81 +21,84 @@
 
 namespace UnitTests {
 
-  using namespace tsmlib;
-  using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+  namespace TransitionTests {
 
-  struct TestObject { };
-  typedef State<MemoryAddressStateComperator<true>, true> StateType;
+    using namespace tsmlib;
+    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-  class Init : public SimpleState<Init, StateType>, public SingletonCreator<Init> {
-    friend class SimpleState<Init, StateType>;
-    void entry_() { }
-    void exit_() { }
-    template<uint8_t N>
-    void doit_() { }
-  };
+    struct TestObject { };
+    typedef State<MemoryAddressStateComperator<true>, true> StateType;
 
-  class ChoiceTrue : public SimpleState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
-    friend class SimpleState<ChoiceTrue, StateType>;
-    void entry_() { }
-    void exit_() { }
-    template<uint8_t N>
-    void doit_() { }
-  };
+    class Init : public SimpleState<Init, StateType>, public SingletonCreator<Init> {
+      friend class SimpleState<Init, StateType>;
+      void entry() { }
+      void exit() { }
+      template<uint8_t N>
+      void doit() { }
+    };
 
-  class ChoiceFalse : public SimpleState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
-    friend class SimpleState<ChoiceFalse, StateType>;
-    void entry_() { }
-    void exit_() { }
-    template<uint8_t N>
-    void doit_() { }
-  };
+    class ChoiceTrue : public SimpleState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
+      friend class SimpleState<ChoiceTrue, StateType>;
+      void entry() { }
+      void exit() { }
+      template<uint8_t N>
+      void doit() { }
+    };
 
-  struct GuardDummy {
-    static bool CheckReturnValue;
-    template<typename T>
-    bool check(T*) {
-      return CheckReturnValue;
-    }
-  };
-  bool GuardDummy::CheckReturnValue = false;
+    class ChoiceFalse : public SimpleState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
+      friend class SimpleState<ChoiceFalse, StateType>;
+      void entry() { }
+      void exit() { }
+      template<uint8_t N>
+      void doit() { }
+    };
 
-  typedef Choice<0, StateType, ChoiceTrue, ChoiceFalse, Init, GuardDummy, EmptyAction> InitChoice;
+    struct GuardDummy {
+      static bool CheckReturnValue;
+      template<typename T>
+      bool check(T*) {
+        return CheckReturnValue;
+      }
+    };
+    bool GuardDummy::CheckReturnValue = false;
 
-  TEST_CLASS(ChoiceTests)
-  {
-  public:
+    typedef Choice<0, StateType, ChoiceTrue, ChoiceFalse, Init, GuardDummy, EmptyAction> InitChoice;
 
-    TEST_METHOD(Check_ReturnsTrue_TrueState)
+    TEST_CLASS(ChoiceTests)
     {
-      // Note: SingletonCreator requires to use the factories.
-      typedef typename ChoiceTrue::CreatorType TrueFactory;
-      ChoiceTrue* trueState = TrueFactory::create();
-      typedef typename Init::CreatorType InitFactory;
-      Init* init = InitFactory::create();
+    public:
 
-      GuardDummy::CheckReturnValue = true;
+      TEST_METHOD(Check_ReturnsTrue_TrueState)
+      {
+        // Note: SingletonCreator requires to use the factories.
+        typedef typename ChoiceTrue::CreatorType TrueFactory;
+        ChoiceTrue* trueState = TrueFactory::create();
+        typedef typename Init::CreatorType InitFactory;
+        Init* init = InitFactory::create();
 
-      InitChoice choice;
-      StateType* state = choice.dispatch(init);
+        GuardDummy::CheckReturnValue = true;
 
-      Assert::IsTrue(*trueState == *state);
-    }
+        InitChoice choice;
+        StateType* state = choice.dispatch(init);
 
-    TEST_METHOD(Check_ReturnsFalse_FalseState)
-    {
-      // Note: SingletonCreator requires to use the factories.
-      typedef typename ChoiceFalse::CreatorType FalseFactory;
-      ChoiceFalse* falseState = FalseFactory::create();
-      typedef typename Init::CreatorType InitFactory;
-      Init* init = InitFactory::create();
+        Assert::IsTrue(*trueState == *state);
+      }
 
-      GuardDummy::CheckReturnValue = false;
+      TEST_METHOD(Check_ReturnsFalse_FalseState)
+      {
+        // Note: SingletonCreator requires to use the factories.
+        typedef typename ChoiceFalse::CreatorType FalseFactory;
+        ChoiceFalse* falseState = FalseFactory::create();
+        typedef typename Init::CreatorType InitFactory;
+        Init* init = InitFactory::create();
 
-      InitChoice choice;
-      StateType* state = choice.dispatch(init);
+        GuardDummy::CheckReturnValue = false;
 
-      Assert::IsTrue(*falseState == *state);
-    }
-  };
+        InitChoice choice;
+        StateType* state = choice.dispatch(init);
+
+        Assert::IsTrue(*falseState == *state);
+      }
+    };
+  }
 }

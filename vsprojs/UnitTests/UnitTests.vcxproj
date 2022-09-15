@@ -167,6 +167,7 @@
     <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="StateComperatorTests.cpp" />
     <ClCompile Include="CreatorTests.cpp" />
+    <ClCompile Include="StatemachineCallSequenceTest.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
@@ -183,6 +184,9 @@
     <ClInclude Include="..\..\src\transition.h" />
     <ClInclude Include="..\..\src\tsm.h" />
     <ClInclude Include="TestHelpers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StatemachineCallSequenceTest.drawio" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

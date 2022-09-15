@@ -45,16 +45,16 @@ struct Choice {
       // Self transition
       if (is_same<TO_TRUE, FROM>().value) {
         ACTION().perform(static_cast<FROM*>(activeState));
-        static_cast<TO_TRUE*>(activeState)->template doit<Trigger>();
+        static_cast<TO_TRUE*>(activeState)->template _doit<Trigger>();
         return activeState;
       }
 
-      static_cast<FROM*>(activeState)->exit();
+      static_cast<FROM*>(activeState)->_exit();
 
       ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::create();
-      toState->entry();
-      toState->template doit<Trigger>();
+      toState->template _entry<0>();
+      toState->template _doit<Trigger>();
       FromFactory::destroy(static_cast<FROM*>(activeState));
       return toState;
     }
@@ -62,16 +62,16 @@ struct Choice {
     // Self transition
     if (is_same<TO_FALSE, FROM>().value) {
       ACTION().perform(static_cast<FROM*>(activeState));
-      static_cast<TO_FALSE*>(activeState)->template doit<Trigger>();
+      static_cast<TO_FALSE*>(activeState)->template _doit<Trigger>();
       return activeState;
     }
 
-    static_cast<FROM*>(activeState)->exit();
+    static_cast<FROM*>(activeState)->_exit();
 
     ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::create();
-    toState->entry();
-    toState->template doit<Trigger>();
+    toState->template _entry<0>();
+    toState->template _doit<Trigger>();
     FromFactory::destroy(static_cast<FROM*>(activeState));
     return toState;
   }

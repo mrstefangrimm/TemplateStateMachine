@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 
@@ -56,10 +56,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<AnyStateFake, StateType>;
-      void entry_() { }
-      void exit_() { }
+      void entry() { }
+      void exit() { }
       template<uint8_t N>
-      void doit_() { }
+      void doit() { }
     };
     const char* AnyStateFake::Name = "AnyStateFake";
 
@@ -90,10 +90,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<IdleState, StateType>;
-      void entry_() { recorder.push_back("IdleState::Entry"); }
-      void exit_() { recorder.push_back("IdleState::Exit"); }
+      void entry() { recorder.push_back("IdleState::Entry"); }
+      void exit() { recorder.push_back("IdleState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("IdleState::Do"); }
+      void doit() { recorder.push_back("IdleState::Do"); }
     };
     const char* IdleState::Name = "IdleState";
 
@@ -104,10 +104,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OnState, StateType>;
-      void entry_() { recorder.push_back("OnState::Entry"); }
-      void exit_() { recorder.push_back("OnState::Exit"); }
+      void entry() { recorder.push_back("OnState::Entry"); }
+      void exit() { recorder.push_back("OnState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("OnState::Do"); }
+      void doit() { recorder.push_back("OnState::Do"); }
     };
     const char* OnState::Name = "OnState";
 
@@ -118,10 +118,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OffState, StateType>;
-      void entry_() { recorder.push_back("OffState::Entry"); }
-      void exit_() { recorder.push_back("OffState::Exit"); }
+      void entry() { recorder.push_back("OffState::Entry"); }
+      void exit() { recorder.push_back("OffState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("OffState::Do"); }
+      void doit() { recorder.push_back("OffState::Do"); }
     };
     const char* OffState::Name = "OffState";
 
@@ -153,10 +153,10 @@ namespace UnitTests {
 
     private:
       friend class SubstatesHolderState<ActiveState, StateType, ActivestateStatemachine>;
-      void entry_() { recorder.push_back("ActiveState::Entry"); }
-      void exit_() { recorder.push_back("ActiveState::Exit"); }
+      void entry() { recorder.push_back("ActiveState::Entry"); }
+      void exit() { recorder.push_back("ActiveState::Exit"); }
       template<uint8_t N>
-      void doit_() { recorder.push_back("ActiveState::Do"); }
+      void doit() { recorder.push_back("ActiveState::Do"); }
     };
     const char* ActiveState::Name = "ActiveState";
 

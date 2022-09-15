@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWINDOWS 1
+#define IAMWORKSTATION 1
 
 #include "CppUnitTest.h"
 
@@ -49,10 +49,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OnState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OnState::EntryCalls = 0;
     int OnState::ExitCalls = 0;
@@ -67,10 +67,10 @@ namespace UnitTests {
 
     private:
       friend class SimpleState<OffState, StateType>;
-      void entry_() { EntryCalls++; }
-      void exit_() { ExitCalls++; }
+      void entry() { EntryCalls++; }
+      void exit() { ExitCalls++; }
       template<uint8_t N>
-      void doit_() { DoitCalls++; }
+      void doit() { DoitCalls++; }
     };
     int OffState::EntryCalls = 0;
     int OffState::ExitCalls = 0;
@@ -78,7 +78,7 @@ namespace UnitTests {
 
     struct WrongState : StateType, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 3; }
-      virtual void exit() { }
+      virtual void _exit() { }
     };
 
     typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;
@@ -115,7 +115,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OffState::DoitCalls);
       }
 
-      TEST_METHOD(Execute_ActiveStateOnTriggerOn_UnhandledTransformation)
+      TEST_METHOD(Execute_ActiveStateOnTriggerOn_UnhandledTransition)
       {
         typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
         typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
@@ -133,7 +133,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OnState::DoitCalls);
       }
 
-      TEST_METHOD(Execute_WrongActiveStateTriggerTimeout_UnhandledTransformation)
+      TEST_METHOD(Execute_WrongActiveStateTriggerTimeout_UnhandledTransition)
       {
         typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
         typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
@@ -151,7 +151,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OnState::DoitCalls);
       }
 
-      TEST_METHOD(Execute_ActiveStateOnTriggerWrong_UnhandledTransformation)
+      TEST_METHOD(Execute_ActiveStateOnTriggerWrong_UnhandledTransition)
       {
         typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
         typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
@@ -187,7 +187,7 @@ namespace UnitTests {
         Assert::AreEqual<int>(0, OnState::DoitCalls);
       }
 
-      TEST_METHOD(Execute_ActiveStateOffTriggerOff_UnhandledTransformation)
+      TEST_METHOD(Execute_ActiveStateOffTriggerOff_UnhandledTransition)
       {
         typedef InitialTransition<OnState, StateTypeCreationPolicyType, EmptyAction> InitTransition;
         typedef Statemachine<TransitionList, InitTransition, NullEndTransition<StateTypeCreationPolicyType>> Sm;
