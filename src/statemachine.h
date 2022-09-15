@@ -42,7 +42,7 @@ class Statemachine {
       // Transitions can have initaltransitions (for a higher-level state to a substate).
       // The default Initialtransition is added to the front and is therefore executed when no other was found.
       typedef Typelist<Initialtransition, NullType> Tl1;
-      typedef Append<Tl1, Transitions>::Result Tl2;
+      typedef typename Append<Tl1, Transitions>::Result Tl2;
       const int size = Length<Tl2>::value;
       auto result = Initializer<Tl2, N, size - 1>::init();
       if (result.consumed) {
@@ -124,7 +124,7 @@ class Statemachine {
         bool conditionMet = CurrentTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->_entry<N>();
+          state->template _entry<N>();
           state->template _doit<N>();
           return;
         }
@@ -161,31 +161,11 @@ class Statemachine {
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
         if (conditionMet) {
           ToType* state = static_cast<ToType*>(entryState);
-          state->_entry<N>();
+          state->template _entry<N>();
           state->template _doit<N>();
         }
         return;
       }
-      //static ExecuteResult init() {
-      //  // End of recursion.
-      //  typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
-
-      //  bool conditionMet = FirstTransition::N == N;
-      //  if (conditionMet) {
-      //    typedef typename FirstTransition::ToType::ObjectType ToType;
-      //    typedef typename FirstTransition::ToType::CreatorType ToFactory;
-
-      //    ToType* state = ToFactory::create();
-      //    state->_entry<N>();
-      //    state->template _doit<N>();
-      //    ExecuteResult ret;
-      //    ret.state = state;
-      //    ret.deferredEntry = false;
-      //    ret.transitionIndex = 0;
-      //    return ret;
-      //  }
-      //  return ExecuteResult();;
-      //}
     };
 
     template<typename T, uint8_t N, int Index>

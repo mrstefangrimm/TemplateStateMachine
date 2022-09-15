@@ -1,6 +1,17 @@
+State	KEYWORD1
 Transition	KEYWORD1
 Statemachine	KEYWORD1
+SingletonCreator	KEYWORD1
+MemoryAddressStateComperator	KEYWORD1
+Typelist	KEYWORD1
+NullType	KEYWORD1
+OkGuard	KEYWORD1
+EmptyAction	KEYWORD1
+
 dispatch	KEYWORD2
+entry	KEYWORD2
+exit	KEYWORD2
+doit	KEYWORD2
 
 IAMARDUINO	LITERAL1
 DISABLE_NESTED_STATES	LITERAL1

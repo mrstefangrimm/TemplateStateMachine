@@ -53,7 +53,7 @@ struct Choice {
 
       ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::create();
-      toState->_entry<0>();
+      toState->template _entry<0>();
       toState->template _doit<Trigger>();
       FromFactory::destroy(static_cast<FROM*>(activeState));
       return toState;
@@ -70,7 +70,7 @@ struct Choice {
 
     ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::create();
-    toState->_entry<0>();
+    toState->template _entry<0>();
     toState->template _doit<Trigger>();
     FromFactory::destroy(static_cast<FROM*>(activeState));
     return toState;
