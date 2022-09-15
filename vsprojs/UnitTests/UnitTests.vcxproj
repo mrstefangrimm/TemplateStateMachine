@@ -167,7 +167,7 @@
     <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="StateComperatorTests.cpp" />
     <ClCompile Include="CreatorTests.cpp" />
-    <ClCompile Include="StatemachineCallSequenceTests.cpp" />
+    <ClCompile Include="StatemachineCallSequenceTest.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />

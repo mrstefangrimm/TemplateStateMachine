@@ -11,7 +11,7 @@
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
-    <ClCompile Include="StatemachineCallSequenceTests.cpp" />
+    <ClCompile Include="StatemachineCallSequenceTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
