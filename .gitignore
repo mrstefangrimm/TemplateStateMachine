@@ -38,3 +38,5 @@
 /Src/Examples/LedOnOff/tsmlib
 /Src/TemplateStateMachine/tsmlib
 /Src/UnitTests/tsmlib
+*.bkp
+*.dtmp

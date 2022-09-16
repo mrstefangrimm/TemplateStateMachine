@@ -12,6 +12,7 @@
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
     <ClCompile Include="StatemachineCallSequenceTest.cpp" />
+    <ClCompile Include="StatemachineChoiceTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
