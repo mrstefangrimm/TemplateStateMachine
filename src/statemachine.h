@@ -94,6 +94,7 @@ class Statemachine {
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
         typedef typename CurrentTransition::FromType::ObjectType FromType;
+
         bool hasSameFromState = activeState->template typeOf<FromType>();
 
         bool conditionMet = CurrentTransition::N == N && hasSameFromState;
@@ -119,6 +120,11 @@ class Statemachine {
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
         typedef typename CurrentTransition::ToType::ObjectType ToType;
+        typedef typename CurrentTransition::CreationPolicy CreationPolicy;
+
+        // TODO: Mustn't be a choice transition
+        //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+
         bool hasSameFromState = entryState->template typeOf<ToType>();
 
         bool conditionMet = CurrentTransition::N == N && hasSameFromState;
@@ -156,6 +162,11 @@ class Statemachine {
         // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::ToType::ObjectType ToType;
+        typedef typename FirstTransition::CreationPolicy CreationPolicy;
+
+        // TODO: Mustn't be a choice transition
+        //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+
         bool hasSameFromState = entryState->template typeOf<ToType>();
 
         bool conditionMet = FirstTransition::N == N && hasSameFromState;

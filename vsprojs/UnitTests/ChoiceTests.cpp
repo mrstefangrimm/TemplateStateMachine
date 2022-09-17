@@ -56,7 +56,7 @@ namespace UnitTests {
     struct GuardDummy {
       static bool CheckReturnValue;
       template<typename T>
-      bool check(T*) {
+      bool eval(T*) {
         return CheckReturnValue;
       }
     };

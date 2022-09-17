@@ -33,6 +33,28 @@ struct _StateBase {
   }
 };
 
+#if defined (IAMWORKSTATION)
+
+// TODO: Typeid only works with `virtual void vvfunc() {}` with the Microsoft compiler.
+
+template<typename Derived>
+struct _StateBase<Derived, struct TypeidStateComperator> {
+  bool equals(const Derived& other) const {
+    auto derived = dynamic_cast<const Derived*>(this);
+    return typeid(*derived) == typeid(other);
+  }
+
+  template<typename T>
+  bool typeOf() {
+    auto derived = dynamic_cast<const Derived*>(this);
+    return typeid(*derived) == typeid(T);
+  }
+  //Microsoft typeid requires:
+  virtual void vvfunc() {}
+};
+
+#endif
+
 template<typename Comperator, bool Singleton>
 struct State {
   bool equals(const State& other) const {
@@ -51,8 +73,6 @@ struct State {
 // specialization of State class.
 template<typename Comperator>
 struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperator> {
-  //Microsoft typeid requires:
-  virtual void vvfunc() {}
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
@@ -136,15 +156,13 @@ struct SingletonCreator {
     typedef SingletonCreator<T> CreatorType;
     typedef T ObjectType;
 
-    static T* create() {
-      return Instance;
-    }
+    static T* create() { return instance; }
     static void destroy(T* state) { }
 
   private:
-    static T* Instance;
+    static T* instance;
 };
-template<typename T> T* SingletonCreator<T>::Instance = new T;
+template<typename T> T* SingletonCreator<T>::instance = new T;
 
 template<typename T, bool implementsCreate = true>
 struct FactorCreator {
@@ -191,28 +209,6 @@ struct MemoryAddressStateComperator {
 
 };
 
-#if defined (IAMWORKSTATION)
-struct TypeidStateComperator {
-  static bool areEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
-    // TODO: doesn't work with base and derived class
-    const type_info& l = typeid(lhs);
-    const type_info& r = typeid(rhs);
-    bool ret = (l == r);
-    return ret;
-  }
-
-  template<typename T>
-  static bool hasType(const State<TypeidStateComperator, false>* me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me->equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
-  }
-};
-
 struct VirtualGetTypeIdStateComperator {
   static bool areEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
     return lhs.getTypeId() == rhs.getTypeId();
@@ -229,6 +225,5 @@ struct VirtualGetTypeIdStateComperator {
     return sameType;
   }
 };
-#endif
 
 }

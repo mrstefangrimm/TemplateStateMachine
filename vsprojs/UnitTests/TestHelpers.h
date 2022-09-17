@@ -17,16 +17,16 @@ namespace UnitTests {
     };
     template<typename To, typename From> int ActionSpy<To, From>::Calls = 0;
 
-    template<typename StateType, typename TO, typename FROM>
+    template<typename StateType, typename To, typename From>
     struct GuardDummy {
       static int Calls;
       static bool CheckReturnValue;
       template<typename T>
-      bool check(T* activeState) {
-        if (!is_same < FROM, AnyState<StateType>>().value) {
-          FROM* from = FROM::CreatorType::create();
+      bool eval(T* activeState) {
+        if (!is_same < From, AnyState<StateType>>().value) {
+          From* from = From::CreatorType::create();
           Assert::IsTrue(activeState->equals(*from));
-          FROM::CreatorType::destroy(from);
+          From::CreatorType::destroy(from);
         }
         Calls++;
         return CheckReturnValue;
@@ -34,6 +34,28 @@ namespace UnitTests {
     };
     template<typename StateType, typename To, typename From> int GuardDummy<StateType, To, From>::Calls = 0;
     template<typename StateType, typename To, typename From> bool GuardDummy<StateType, To, From>::CheckReturnValue = true;
+
+    template<typename StateType>
+    struct InitialStateNamedFake : StateType {
+      static const char* Name;
+    };
+    template<typename StateType> const char* InitialStateNamedFake<StateType>::Name = "Initial";
+
+    template<typename T>
+    struct FactorCreatorFake {
+      typedef FactorCreatorFake<T> CreatorType;
+      typedef T ObjectType;
+
+      static int CreateCalls;
+      static int DeleteCalls;
+
+      static void reset() { CreateCalls = 0; DeleteCalls = 0; }
+
+      static T* create() { CreateCalls++;  return new T; }
+      static void destroy(T* state) { DeleteCalls++;  delete state; }
+    };
+    template<typename T> int FactorCreatorFake<T>::CreateCalls = 0;
+    template<typename T> int FactorCreatorFake<T>::DeleteCalls = 0;
 
   }
 }

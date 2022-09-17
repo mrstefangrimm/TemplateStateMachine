@@ -169,7 +169,7 @@ namespace UnitTests {
 
     struct ActiveStateFinalizeGuard {
       template<typename T>
-      bool check(T*) { return true; }
+      bool eval(T*) { return true; }
     };
 
     typedef InitialTransition<IdleState, StateTypeCreationPolicyType, EmptyAction> InitTransition;

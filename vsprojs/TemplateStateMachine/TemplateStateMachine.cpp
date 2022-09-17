@@ -32,7 +32,7 @@ struct ToSimFromCalibAction {
 
 struct ToSimFromCalibGuard {
   template<typename T>
-  bool check(T* activeState) { return true; }
+  bool eval(T* activeState) { return true; }
 };
 
 enum Triggers {
@@ -116,14 +116,14 @@ typedef Statemachine<
 
 struct ChoiceGuardRemoteDummy {
   template<typename T>
-  bool check(T*) {
+  bool eval(T*) {
     // true => SimulationRemote
     return true;
   }
 };
 struct ChoiceGuardManualDummy {
   template<typename T>
-  bool check(T*) {
+  bool eval(T*) {
     // true => SimulationManual
     return true;
   }
@@ -197,8 +197,30 @@ private:
   }
 };
 
+//template <class TList> struct Find;
+//template <> struct Find<NullType>
+//{
+//  enum { value = -1 };
+//};
+//template <class T, class U>
+//struct Find< Typelist<T, U> >
+//{
+//  enum { value = 1 + (is_same<bool, T>().value ? Find<NullType>::value : Find<U>::value) };
+//};
+
+
+
 int main()
 {
+  //typedef
+  //Typelist<bool,
+  //  Typelist<short,
+  //  Typelist<int,
+  //  Typelist<double,
+  //  NullType>>>> TL;
+
+  //const int index = Find<TL>::value;
+
   Simulation simulation;
   Calibration calibration;
 

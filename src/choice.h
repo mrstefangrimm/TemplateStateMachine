@@ -40,7 +40,7 @@ struct Choice {
     }
     FromFactory::destroy(fromState);
 
-    if (GUARD().check(static_cast<FROM*>(activeState))) {
+    if (GUARD().eval(static_cast<FROM*>(activeState))) {
 
       // Self transition
       if (is_same<TO_TRUE, FROM>().value) {

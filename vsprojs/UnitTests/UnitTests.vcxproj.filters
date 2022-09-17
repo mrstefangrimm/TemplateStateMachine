@@ -34,6 +34,9 @@
     <ClInclude Include="..\..\src\tsm.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\choicetransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">
@@ -42,5 +45,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="StatemachineCallSequenceTest.drawio" />
+    <None Include="StatemachineChoiceTest.drawio" />
   </ItemGroup>
 </Project>

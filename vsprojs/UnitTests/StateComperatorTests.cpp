@@ -29,32 +29,36 @@ namespace UnitTests {
   namespace StateTests {
 
     template<typename T>
-    struct TestStateA : T {
+    struct TestStateA : T, FactorCreator<TestStateA<T>> {
+      typedef typename FactorCreator<TestStateA> CreatorType;
       uint8_t getTypeId() const override { return 1; }
-      void _exit() { }
+      void _exit() override { }
     };
 
     template<typename T>
-    struct TestStateB : T {
+    struct TestStateB : T, FactorCreator<TestStateB<T>> {
+      typedef typename FactorCreator<TestStateB<T>> CreatorType;
       uint8_t getTypeId() const override { return 2; }
-      void _exit() { }
+      void _exit() override { }
     };
 
     template<typename T>
-    struct TestStateSingletonA : T {
-      void _exit() { }
+    struct TestStateSingletonA : T, SingletonCreator<TestStateSingletonA<T>> {
+      typedef typename SingletonCreator<TestStateSingletonA<T>> CreatorType;
+      void _exit() override { }
     };
 
     template<typename T>
-    struct TestStateSingletonB : T {
-      void _exit() { }
+    struct TestStateSingletonB : T, SingletonCreator<TestStateSingletonB<T>> {
+      typedef typename SingletonCreator<TestStateSingletonB<T>> CreatorType;
+      void _exit() override { }
     };
 
     TEST_CLASS(StateComperatorTests)
     {
     public:
 
-      TEST_METHOD(Equals_ComperatorStateless_ComparisonWorks)
+      TEST_METHOD(Equals_VirtualGetTypeIdStateComperator_ComparisonWorks)
       {
         TestStateA<State<VirtualGetTypeIdStateComperator, false>> a;
         TestStateB<State<VirtualGetTypeIdStateComperator, false>> b;
@@ -68,7 +72,18 @@ namespace UnitTests {
         Assert::IsTrue(b.equals(b));
       }
 
-      TEST_METHOD(Equals_ComperatorSingleton_ComparisonWorks)
+      TEST_METHOD(GetTypeId_VirtualGetTypeIdStateComperator_ComparisonWorks)
+      {
+        typedef TestStateA<State<VirtualGetTypeIdStateComperator, false>> A;
+        typedef TestStateB<State<VirtualGetTypeIdStateComperator, false>> B;
+        A a;
+        B b;
+
+        Assert::IsTrue(a.typeOf<A>());
+        Assert::IsTrue(b.typeOf<B>());
+      }
+
+      TEST_METHOD(Equals_MemoryAddressStateComperator_ComparisonWorks)
       {
         TestStateA<State<MemoryAddressStateComperator<false>, false>> a;
         TestStateB<State<MemoryAddressStateComperator<false>, false>> b;
@@ -82,7 +97,7 @@ namespace UnitTests {
         Assert::IsTrue(b.equals(b));
       }
 
-      TEST_METHOD(Equals_ComperatorSingletonAndMinimal_ComparisonWorks)
+      TEST_METHOD(Equals_MemoryAddressStateComperatorAndSingleton_ComparisonWorks)
       {
         TestStateSingletonA<State<MemoryAddressStateComperator<true>, true>> a;
         TestStateSingletonB<State<MemoryAddressStateComperator<true>, true>> b;
@@ -96,7 +111,18 @@ namespace UnitTests {
         Assert::IsTrue(b.equals(b));
       }
 
-      /*TEST_METHOD(Equals_ComperatorRtti_ComparisonWorks)
+      TEST_METHOD(GetTypeId_ComperatorSingleton_ComparisonWorks)
+      {
+        typedef TestStateSingletonA<State<MemoryAddressStateComperator<true>, true>> A;
+        typedef TestStateSingletonB<State<MemoryAddressStateComperator<true>, true>> B;
+        A* a = A::create();
+        B* b = B::create();
+
+        Assert::IsTrue(a->typeOf<A>());
+        Assert::IsTrue(b->typeOf<B>());
+      }
+
+      TEST_METHOD(Equals_TypeidStateComperator_ComparisonWorks)
       {
         TestStateA<State<TypeidStateComperator, false>> a;
         TestStateB<State<TypeidStateComperator, false>> b;
@@ -105,10 +131,21 @@ namespace UnitTests {
         Assert::IsTrue(a == a);
         Assert::IsTrue(b == b);
 
-        Assert::IsFalse(a.Equals(b));
-        Assert::IsTrue(a.Equals(a));
-        Assert::IsTrue(b.Equals(b));
-      }*/
+        Assert::IsFalse(a.equals(b));
+        Assert::IsTrue(a.equals(a));
+        Assert::IsTrue(b.equals(b));
+      }
+
+      TEST_METHOD(GetTypeId_TypeidStateComperator_ComparisonWorks)
+      {
+        typedef TestStateA<State<TypeidStateComperator, false>> A;
+        typedef TestStateB<State<TypeidStateComperator, false>> B;
+        A a;
+        B b;
+
+        Assert::IsTrue(a.typeOf<A>());
+        Assert::IsTrue(b.typeOf<B>());
+      }
 
     };
   }

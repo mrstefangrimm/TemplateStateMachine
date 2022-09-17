@@ -21,7 +21,9 @@
 #include "..\..\src\templatemeta.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\transition.h"
+#include "..\..\src\choicetransition.h"
 #include "..\..\src\choice.h"
+#include "TestHelpers.h"
 
 #include <vector>
 
@@ -35,32 +37,19 @@ namespace UT {
       using namespace Microsoft::VisualStudio::CppUnitTestFramework;
       using namespace tsmlib;
       using namespace std;
+      using namespace UnitTests::Helpers;
 
-      typedef State<MemoryAddressStateComperator<true>, true> StateType;
-      typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
-      template<typename Derived> struct Leaf : SimpleState<Derived, StateType>, SingletonCreator<Derived> {};
-      template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreator<Derived> {};
+      typedef State<VirtualGetTypeIdStateComperator, false> StateType;
+      typedef FactorCreatorFake<StateType> StateTypeCreationPolicyType;
+      template<typename Derived> struct Leaf : SimpleState<Derived, StateType>, FactorCreatorFake<Derived> {};
+      template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, FactorCreatorFake<Derived> {};
 
-      struct InitialStateFake : StateType {
-        static const char* Name;
-      };
-      const char* InitialStateFake::Name = "Initial";
-
-      struct AnyStateFake : SimpleState<AnyStateFake, StateType>, StateTypeCreationPolicyType {
-        static const char* Name;
-        void entry() { }
-        void exit() { }
-        template<uint8_t N>
-        void doit() { }
-      };
-      const char* AnyStateFake::Name = "AnyStateFake";
-
-      template<typename TO, typename FROM>
-      struct ActionSpy {
+      template<typename To, typename From>
+      struct ActionRecordingSpy {
         template<typename T>
         void perform(T*) {
           ostringstream buf;
-          buf << TO::Name << "<-" << FROM::Name;
+          buf << To::Name << "<-" << From::Name;
           recorder.push_back(buf.str());
         }
       };
@@ -72,31 +61,14 @@ namespace UT {
 
       vector<string> recorder;
 
-      struct AA : Leaf<AA> {
-        static const char* Name;
-        void entry() { recorder.push_back("AA::Entry"); }
-        void exit() { recorder.push_back("AA::Exit"); }
-        template<uint8_t N>
-        void doit() { recorder.push_back("AA::Do"); }
-      };
-      const char* AA::Name = "AA";
-
-      struct AB : Leaf<AB> {
-        static const char* Name;
-        void entry() { recorder.push_back("AB::Entry"); }
-        void exit() { recorder.push_back("AB::Exit"); }
-        template<uint8_t N>
-        void doit() { recorder.push_back("AB::Do"); }
-      };
-      const char* AB::Name = "AB";
-
-
       struct A : Leaf<A> {
         static const char* Name;
         void entry() { recorder.push_back("A::Entry"); }
         void exit() { recorder.push_back("A::Exit"); }
         template<uint8_t N>
         void doit() { recorder.push_back("A::Do"); }
+
+        uint8_t getTypeId() const override { return 1; };
       };
       const char* A::Name = "A";
 
@@ -106,6 +78,8 @@ namespace UT {
         void exit() { recorder.push_back("B::Exit"); }
         template<uint8_t N>
         void doit() { recorder.push_back("B::Do"); }
+
+        uint8_t getTypeId() const override { return 2; };
       };
       const char* B::Name = "B";
 
@@ -115,6 +89,8 @@ namespace UT {
         void exit() { recorder.push_back("C::Exit"); }
         template<uint8_t N>
         void doit() { recorder.push_back("C::Do"); }
+
+        uint8_t getTypeId() const override { return 3; };
       };
       const char* C::Name = "C";
 
@@ -130,20 +106,20 @@ namespace UT {
       struct ChoiceGuard {
         static bool ReturnValue;
         template<typename T>
-        bool check(T*) {
+        bool eval(T*) {
           return ReturnValue;
         }
       };
       bool ChoiceGuard::ReturnValue = true;
 
-      typedef ChoiceTransition<Triggers::Choice_B_C, B, C, A, StateTypeCreationPolicyType, ChoiceGuard, ActionSpy<X, A>> A_B_t;
-      typedef ChoiceTransition<Triggers::Choice_A, B, A, A, StateTypeCreationPolicyType, ChoiceGuard, ActionSpy<X, A>> A_A_t;
+      typedef ChoiceTransition<Triggers::Choice_B_C, B, C, A, StateTypeCreationPolicyType, ChoiceGuard, ActionRecordingSpy<X, A>> A_B_t;
+      typedef ChoiceTransition<Triggers::Choice_A, B, A, A, StateTypeCreationPolicyType, ChoiceGuard, ActionRecordingSpy<X, A>> A_A_t;
       typedef
         Typelist< A_B_t,
         Typelist< A_A_t,
         NullType>> Transitions;
 
-      typedef InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake>> ToplevelInitTransition;
+      typedef InitialTransition<A, StateTypeCreationPolicyType, ActionRecordingSpy<A, InitialStateNamedFake<StateType>>> ToplevelInitTransition;
       typedef Statemachine<
         Transitions,
         ToplevelInitTransition,
@@ -152,6 +128,13 @@ namespace UT {
       TEST_CLASS(StatemachineChoiceTests)
       {
       public:
+
+        TEST_METHOD_INITIALIZE(Initialize)
+        {
+          FactorCreatorFake<A>::reset();
+          FactorCreatorFake<B>::reset();
+          FactorCreatorFake<C>::reset();
+        }
 
         TEST_METHOD(Callsequence_B__A)
         {
@@ -178,6 +161,12 @@ namespace UT {
             Assert::AreEqual<string>(exp, rec);
           }
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
+
+          // Active state is B
+          Assert::AreNotEqual<int>(0, FactorCreatorFake<B>::CreateCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<A>::CreateCalls, FactorCreatorFake<A>::DeleteCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<B>::CreateCalls, FactorCreatorFake<B>::DeleteCalls + 1);
+          Assert::AreEqual<int>(FactorCreatorFake<C>::CreateCalls, FactorCreatorFake<C>::DeleteCalls);
         }
 
         TEST_METHOD(Callsequence_C__A)
@@ -205,6 +194,12 @@ namespace UT {
             Assert::AreEqual<string>(exp, rec);
           }
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
+
+          // Active state is C
+          Assert::AreNotEqual<int>(0, FactorCreatorFake<C>::CreateCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<A>::CreateCalls, FactorCreatorFake<A>::DeleteCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<B>::CreateCalls, FactorCreatorFake<B>::DeleteCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<C>::CreateCalls, FactorCreatorFake<C>::DeleteCalls + 1);
         }
 
         TEST_METHOD(Callsequence_A__A)
@@ -231,6 +226,12 @@ namespace UT {
 
           }
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
+
+          // Active state is A
+          Assert::AreNotEqual<int>(0, FactorCreatorFake<A>::CreateCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<A>::CreateCalls, FactorCreatorFake<A>::DeleteCalls + 1);
+          Assert::AreEqual<int>(FactorCreatorFake<B>::CreateCalls, FactorCreatorFake<B>::DeleteCalls);
+          Assert::AreEqual<int>(FactorCreatorFake<C>::CreateCalls, FactorCreatorFake<C>::DeleteCalls);
         }
 
       };
