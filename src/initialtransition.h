@@ -19,14 +19,14 @@
 
 namespace tsmlib {
 
-  template<typename To, typename CreationPolicy, typename Action>
-  struct InitialTransition {
+template<typename To, typename CreationPolicy, typename Action>
+struct InitialTransition {
 
   enum { N = -1 };
   enum { E = true };
   enum { X = false };
   typedef To ToType;
-  typedef CreationPolicy CreationPolicy;
+  typedef CreationPolicy CreationPolicyType;
   typedef typename CreationPolicy::ObjectType StateType;
   typedef EmptyState<StateType> FromType;
 

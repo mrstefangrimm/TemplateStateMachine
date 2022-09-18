@@ -39,19 +39,19 @@ struct _StateBase {
 
 template<typename Derived>
 struct _StateBase<Derived, struct TypeidStateComperator> {
-  bool equals(const Derived& other) const {
-    auto derived = dynamic_cast<const Derived*>(this);
-    return typeid(*derived) == typeid(other);
-  }
+    bool equals(const Derived& other) const {
+      auto derived = dynamic_cast<const Derived*>(this);
+      return typeid(*derived) == typeid(other);
+    }
 
-  template<typename T>
-  bool typeOf() {
-    auto derived = dynamic_cast<const Derived*>(this);
-    return typeid(*derived) == typeid(T);
-  }
-  //Microsoft typeid requires:
-  virtual void vvfunc() {}
-};
+    template<typename T>
+    bool typeOf() {
+      auto derived = dynamic_cast<const Derived*>(this);
+      return typeid(*derived) == typeid(T);
+    }
+    //Microsoft typeid requires:
+    virtual void vvfunc() {}
+  };
 
 #endif
 
@@ -156,7 +156,9 @@ struct SingletonCreator {
     typedef SingletonCreator<T> CreatorType;
     typedef T ObjectType;
 
-    static T* create() { return instance; }
+    static T* create() {
+      return instance;
+    }
     static void destroy(T* state) { }
 
   private:

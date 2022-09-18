@@ -19,44 +19,44 @@
 
 namespace tsmlib {
 
-  template<typename CreationPolicy, typename Guard, typename Action, bool AssertNotOkGuard>
-  struct EndTransitionBase {
+template<typename CreationPolicy, typename Guard, typename Action, bool AssertNotOkGuard>
+struct EndTransitionBase {
 
-    enum { N = -1 };
-    enum { E = false };
-    enum { X = true };
-    typedef CreationPolicy CreationPolicy;
-    typedef typename CreationPolicy::ObjectType StateType;
-    typedef EmptyState<StateType> ToType;
-    typedef AnyState<StateType> FromType;
+  enum { N = -1 };
+  enum { E = false };
+  enum { X = true };
+  typedef CreationPolicy CreationPolicyType;
+  typedef typename CreationPolicy::ObjectType StateType;
+  typedef EmptyState<StateType> ToType;
+  typedef AnyState<StateType> FromType;
 
-    EndTransitionBase() {
-      // Final transition without guard does not make sense; the state machine would immediately go to the final state.
-      CompileTimeError<!AssertNotOkGuard || (!is_same<Guard, OkGuard>().value)>();
+  EndTransitionBase() {
+    // Final transition without guard does not make sense; the state machine would immediately go to the final state.
+    CompileTimeError < !AssertNotOkGuard || (!is_same<Guard, OkGuard>().value) > ();
+  }
+
+  DispatchResult<StateType> dispatch(StateType* activeState) {
+
+    if (Guard().eval(activeState)) {
+      Action().perform(activeState);
+      // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
+      static_cast<StateType*>(activeState)->_exit();
+
+      typedef typename CreationPolicy::CreatorType Creator;
+      typedef typename CreationPolicy::ObjectType Object;
+      // TODO: AnyState::destroy is called.
+      Creator::destroy(activeState);
+
+      return DispatchResult<StateType>(true, 0);
     }
+    return DispatchResult<StateType>(false, activeState);
+  }
+};
 
-    DispatchResult<StateType> dispatch(StateType* activeState) {
+template<typename CreationPolicy, typename Guard, typename Action>
+using EndTransition = EndTransitionBase<CreationPolicy, Guard, Action, true>;
 
-      if (Guard().eval(activeState)) {
-        Action().perform(activeState);
-        // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-        static_cast<StateType*>(activeState)->_exit();
-
-        typedef typename CreationPolicy::CreatorType Creator;
-        typedef typename CreationPolicy::ObjectType Object;
-        // TODO: AnyState::destroy is called.
-        Creator::destroy(activeState);
- 
-        return DispatchResult<StateType>(true, 0);
-      }
-      return DispatchResult<StateType>(false, activeState);
-    }
-  };
-
-  template<typename CreationPolicy, typename Guard, typename Action>
-  using EndTransition = EndTransitionBase<CreationPolicy, Guard, Action, true>;
-
-  template<typename CreationPolicy>
-  using NullEndTransition = EndTransitionBase<CreationPolicy, OkGuard, EmptyAction, false>;
+template<typename CreationPolicy>
+using NullEndTransition = EndTransitionBase<CreationPolicy, OkGuard, EmptyAction, false>;
 
 }

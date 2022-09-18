@@ -45,7 +45,7 @@ class Statemachine {
       typedef Typelist<Initialtransition, NullType> Tl1;
       typedef typename Append<Tl1, Transitions>::Result Tl2;
       const int size = Length<Tl2>::value;
-      auto result = Initializer<Tl2, N, size - 1>::init();
+      auto result = Initializer < Tl2, N, size - 1 >::init();
       if (result.consumed) {
         activeState_ = result.activeState;
       }
@@ -66,12 +66,12 @@ class Statemachine {
       if (activeState_ == 0) return DispatchResult<StateType>(false, activeState_);
 
       const int size = Length<Transitions>::value;
-      auto result = TriggerExecutor<N, size-1>::execute(activeState_);
+      auto result = TriggerExecutor < N, size - 1 >::execute(activeState_);
       // Transition not found
       if (result.state == 0) return DispatchResult<StateType>(false, activeState_);
 
       if (result.deferredEntry) {
-        TriggerExecutor<N, size-1>::entry(result.state);
+        TriggerExecutor < N, size - 1 >::entry(result.state);
         activeState_ = 0;
         return DispatchResult<StateType>(true, result.state, true);
       }
@@ -121,7 +121,7 @@ class Statemachine {
         // Finds last element in the list that meets the conditions.
         typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
         typedef typename CurrentTransition::ToType::ObjectType ToType;
-        typedef typename CurrentTransition::CreationPolicy CreationPolicy;
+        typedef typename CurrentTransition::CreationPolicyType CreationPolicy;
 
         // TODO: Mustn't be a choice transition
         //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
@@ -164,7 +164,7 @@ class Statemachine {
         // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::ToType::ObjectType ToType;
-        typedef typename FirstTransition::CreationPolicy CreationPolicy;
+        typedef typename FirstTransition::CreationPolicyType CreationPolicy;
 
         // TODO: Mustn't be a choice transition
         //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
@@ -189,7 +189,7 @@ class Statemachine {
           return CurrentTransition().dispatch(0);
         }
         // Recursion
-        return Initializer <T, N, Index - 1 >::init();
+        return Initializer < T, N, Index - 1 >::init();
       }
     };
     // Specialization
@@ -204,5 +204,5 @@ class Statemachine {
         return DispatchResult<StateType>(false, 0, false);
       }
     };
-  };
+};
 }

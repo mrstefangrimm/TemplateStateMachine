@@ -45,10 +45,14 @@ struct EmptyState : T {
   static void destroy(EmptyState*) { }
 
   template<uint8_t N>
-  bool _entry() { return false; }
+  bool _entry() {
+    return false;
+  }
   void _exit() { }
   template<uint8_t N>
-  EmptyState* _doit() { return 0; }
+  EmptyState* _doit() {
+    return 0;
+  }
 };
 
 /* Provides Action interface and does nothing. */
@@ -70,7 +74,7 @@ struct NullTransition {
   typedef typename CreationPolicy::ObjectType StateType;
   typedef EmptyState<StateType> ToType;
   typedef EmptyState<StateType> FromType;
-  typedef NullType CreationPolicy;
+  typedef NullType CreationPolicyType;
   enum { N = -1 };
   enum { E = false };
 
@@ -81,7 +85,7 @@ struct NullTransition {
 
 namespace impl {
 
-template<
+template <
   uint8_t Trigger,
   typename To,
   typename From,
@@ -89,15 +93,15 @@ template<
   typename Guard,
   typename Action,
   bool IsEnteringTransition,
-  bool IsExitingTransition>
+  bool IsExitingTransition >
 struct TransitionBase {
   enum { N = Trigger };
   enum { E = IsEnteringTransition };
   enum { X = IsExitingTransition };
+  typedef CreationPolicy CreationPolicyType;
   typedef To ToType;
   typedef From FromType;
   typedef typename CreationPolicy::ObjectType StateType;
-  typedef CreationPolicy CreationPolicy;
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
     typedef typename From::CreatorType FromFactory;
