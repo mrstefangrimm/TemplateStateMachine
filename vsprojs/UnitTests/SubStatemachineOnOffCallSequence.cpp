@@ -21,6 +21,8 @@
 #include "..\..\src\templatemeta.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\transition.h"
+#include "..\..\src\initialtransition.h"
+#include "..\..\src\endtransition.h"
 
 #include <vector>
 

@@ -125,7 +125,7 @@ namespace UT {
         ToplevelInitTransition,
         NullEndTransition<StateTypeCreationPolicyType>> Toplevel_sm;
 
-      TEST_CLASS(StatemachineChoiceTests)
+      TEST_CLASS(ChoiceTransitionTest)
       {
       public:
 

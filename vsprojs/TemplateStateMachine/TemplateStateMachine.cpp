@@ -16,6 +16,8 @@
 #define IAMWORKSTATION 1
 
 #include "..\..\src\tsm.h"
+#include "..\..\src\choice.h"
+
 #include <iostream>
 
 using namespace tsmlib;

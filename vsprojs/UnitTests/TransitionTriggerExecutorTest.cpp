@@ -21,6 +21,8 @@ using namespace std;
 #include "..\..\src\transition.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\state.h"
+#include "..\..\src\initialtransition.h"
+#include "..\..\src\endtransition.h"
 
 namespace UnitTests {
 

@@ -57,5 +57,24 @@ namespace UnitTests {
     template<typename T> int FactorCreatorFake<T>::CreateCalls = 0;
     template<typename T> int FactorCreatorFake<T>::DeleteCalls = 0;
 
+    template<typename T>
+    struct SingletonCreatorFake {
+      typedef SingletonCreatorFake<T> CreatorType;
+      typedef T ObjectType;
+
+      static int createCalls;
+      static int deleteCalls;
+
+      static void reset() { createCalls = 0; deleteCalls = 0; }
+
+      static T* create() { createCalls++;  return instance; }
+      static void destroy(T* state) { deleteCalls++;  }
+  
+    private:
+      static T* instance;
+    };
+    template<typename T> int SingletonCreatorFake<T>::createCalls = 0;
+    template<typename T> int SingletonCreatorFake<T>::deleteCalls = 0;
+    template<typename T> T* SingletonCreatorFake<T>::instance = new T;
   }
 }

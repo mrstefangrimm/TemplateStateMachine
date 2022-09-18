@@ -85,49 +85,15 @@ struct TransitionBase {
   typedef CreationPolicy CreationPolicy;
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename To::CreatorType ToFactory;
     typedef typename From::CreatorType FromFactory;
     From* fromState = FromFactory::create();
-
-    // Initial transition
-    if (!is_same<EmptyState<StateType>, To>().value && is_same<EmptyState<StateType>, From>().value) {
-      Action().perform(activeState);
-      To* toState = ToFactory::create();
-      bool cosumedBySubstate = toState->template _entry<N>();
-      if (!cosumedBySubstate) {
-        toState->template _doit<N>();
-      }
-
-      // Delete not needed. "activeState" and "fromState" are null (the initial state)
-
-      return DispatchResult<StateType>(true, toState);
-    }
-
-    // End transition; to any state <- from AnyState
-    if (is_same<From, AnyState<StateType>>().value) {
-
-      // Delete fromState not needed; it is "null".
-
-      if (Guard().eval(activeState)) {
-        // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-        static_cast<StateType*>(activeState)->_exit();
-        Action().perform(activeState);
-
-        // TODO: AnyState::destroy is called.
-        typedef typename CreationPolicy::CreatorType Creator;
-        typedef typename CreationPolicy::ObjectType Object;
-        Creator::destroy(static_cast<Object*>(activeState));
-        To* toState = ToFactory::create();
-        return DispatchResult<StateType>(true, toState);
-      }
-      return DispatchResult<StateType>(false, activeState);
-    }
 
     // The transition is valid if the "fromState" is also the activeState state from the state machine.
     if (activeState == 0 || !fromState->equals(*activeState)) {
 
       // Entering substate transition
       if (E && activeState == 0) {
+        typedef typename To::CreatorType ToFactory;
         To* toState = ToFactory::create();
         bool cosumedBySubstate = toState->template _entry<N>();
         if (!cosumedBySubstate) {
@@ -151,8 +117,6 @@ struct TransitionBase {
       return DispatchResult<StateType>(false, activeState);
     }
 
-    
-
     // Self transition
     if (is_same<To, From>().value) {
       auto state = static_cast<To*>(activeState)->template _doit<N>();
@@ -163,10 +127,12 @@ struct TransitionBase {
 
     if (X) {
       FromFactory::destroy(static_cast<From*>(activeState));
+      typedef typename To::CreatorType ToFactory;
       To* toState = ToFactory::create();
       return DispatchResult<StateType>(true, toState, X);
     }
 
+    typedef typename To::CreatorType ToFactory;
     To* toState = ToFactory::create();
     bool cosumedBySubstate = toState->template _entry<N>();
     if (!cosumedBySubstate) {
@@ -178,10 +144,6 @@ struct TransitionBase {
 };
 }
 
-template<typename To, typename CreationPolicy, typename Action>
-struct InitialTransition : impl::TransitionBase<0, To, EmptyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, Action, false, true> {
-};
-
 template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
 struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false> {
   FinalTransition() {
@@ -189,17 +151,6 @@ struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename Creat
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
   }
 };
-
-template<typename CreationPolicy, typename Guard, typename Action>
-struct EndTransition : impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, Guard, Action, false, false> {
-  EndTransition() {
-    // Final transition without guard does not make sense; the state machine would immediately go to the final state.
-    CompileTimeError < !is_same<Guard, OkGuard>().value > ();
-  }
-};
-
-template<typename CreationPolicy>
-using NullEndTransition = impl::TransitionBase<0, EmptyState<typename CreationPolicy::ObjectType>, AnyState<typename CreationPolicy::ObjectType>, CreationPolicy, OkGuard, EmptyAction, false, false>;
 
 template<uint8_t Trigger, typename Me, typename CreationPolicy, typename Guard, typename Action>
 using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Guard, Action, false, false>;

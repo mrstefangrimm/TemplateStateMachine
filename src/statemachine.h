@@ -19,13 +19,13 @@
 
 namespace tsmlib {
 
-template<typename Transitions, typename Initialtransition, typename Terminatetransition>
+template<typename Transitions, typename Initialtransition, typename Endtransition>
 class Statemachine {
   public:
     typedef typename Initialtransition::StateType StateType;
 
     Statemachine() {
-      CompileTimeError<is_same<Initialtransition::StateType, typename Terminatetransition::StateType>().value>();
+      CompileTimeError<is_same<Initialtransition::StateType, typename Endtransition::StateType>().value>();
     }
 
     DispatchResult<StateType> begin() {
@@ -36,6 +36,7 @@ class Statemachine {
       return result;
     }
 
+    // TODO: friend class SubstatesHolderState<;
     template<uint8_t N>
     DispatchResult<StateType> _begin() {
 
@@ -52,7 +53,7 @@ class Statemachine {
     }
 
     DispatchResult<StateType> end() {
-      auto result = Terminatetransition().dispatch(activeState_);
+      auto result = Endtransition().dispatch(activeState_);
       if (result.consumed) {
         activeState_ = 0;
       }
@@ -145,6 +146,7 @@ class Statemachine {
         // End of recursion.
         typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
         typedef typename FirstTransition::FromType::ObjectType FromType;
+
         bool hasSameFromState = activeState->template typeOf<FromType>();
 
         bool conditionMet = FirstTransition::N == N && hasSameFromState;
