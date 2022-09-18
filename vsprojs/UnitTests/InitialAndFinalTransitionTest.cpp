@@ -80,7 +80,6 @@ namespace UT {
       enum Triggers {
         Finalize,
         BB_BA,
-        Finalize_BBA
       };
 
       vector<string> recorder;
@@ -91,6 +90,14 @@ namespace UT {
       struct BB;
       struct BBA;
       struct BBB;
+
+      struct BBAEndGuard {
+        template<typename T> bool eval(T*) {
+          return evalResult;
+        }
+        static bool evalResult;
+      };
+      bool BBAEndGuard::evalResult = false;
 
       struct A : Leaf<A> {
         static const char* Name;
@@ -103,8 +110,7 @@ namespace UT {
 
       typedef Transition<Triggers::Finalize, EmptyStateFake<StateType>, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<EmptyStateFake<StateType>, BA>> F_BA_t;
       typedef Transition<Triggers::BB_BA, BB, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<BB, BA>> BB_BA_t;
-      //typedef Declaration<Triggers::Finalize_BBA, BB, StateTypeCreationPolicyType> Finalize_BB_decl;
-      typedef ExitDeclaration<Triggers::Finalize_BBA, EmptyStateFake<StateType>, BB, StateTypeCreationPolicyType> Finalize_BB_decl;
+      typedef ExitDeclaration<Triggers::Finalize, EmptyStateFake<StateType>, BB, StateTypeCreationPolicyType, BBAEndGuard> Finalize_BB_decl;
       typedef
         Typelist<F_BA_t,
         Typelist<BB_BA_t,
@@ -135,19 +141,9 @@ namespace UT {
       };
       const char* BA::Name = "BA";
 
-      //typedef Transition<Triggers::Finalize_BBA, EmptyStateFake<StateType>, BBA, StateTypeCreationPolicyType, OkGuard, ActionSpy<EmptyStateFake<StateType>, BBA>> F_BBA_t;
-      //typedef ExitTransition<Triggers::Finalize_BBA, A, BBA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BBA>> F_BBA_t;
-      typedef Transition<Triggers::Finalize_BBA, A, B, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, B>> Impossible_t;
       typedef
-        Typelist<Impossible_t,
-        //Typelist<F_BBA_t,
+        Typelist<NullTransition<StateTypeCreationPolicyType>,
         NullType> BB_transitions;
-
-      struct BBAEndGuard {
-        template<typename T> bool eval(T*) { return evalResult; }
-        static bool evalResult;
-      };
-      bool BBAEndGuard::evalResult = true;
 
       typedef InitialTransition<BBA, StateTypeCreationPolicyType, ActionSpy<BBA, InitialStateFake>> BB_initt;
       typedef EndTransition<StateTypeCreationPolicyType, BBAEndGuard, ActionSpy<EmptyStateFake<StateType>, BBA>> A__BBA_endt;
@@ -186,9 +182,7 @@ namespace UT {
       typedef Transition<Triggers::Finalize, EmptyStateFake<StateType>, A, StateTypeCreationPolicyType, OkGuard, ActionSpy<EmptyStateFake<StateType>, A>> F_A_t;
       typedef Transition<Triggers::Finalize, EmptyStateFake<StateType>, B, StateTypeCreationPolicyType, OkGuard, ActionSpy<EmptyStateFake<StateType>, B>> F_B_t;
       typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_decl;
-      //typedef Declaration<Triggers::Finalize_BBA, B, StateTypeCreationPolicyType> Finalize_B_decl;
-      //typedef ExitDeclaration<Triggers::Finalize_BBA, EmptyStateFake<StateType>, B, StateTypeCreationPolicyType> Finalize_B_decl;
-      typedef ExitDeclaration<Triggers::Finalize_BBA, A, B, StateTypeCreationPolicyType> Finalize_B_decl;
+      typedef ExitDeclaration<Triggers::Finalize, A, B, StateTypeCreationPolicyType, BBAEndGuard> Finalize_B_decl;
       typedef
         Typelist< F_A_t,
         Typelist< F_B_t,
@@ -209,6 +203,8 @@ namespace UT {
           SingletonCreatorFake<BBA>::reset();
           SingletonCreatorFake<BBB>::reset();
           StateTypeCreationPolicyType::reset();
+
+          BBAEndGuard::evalResult = false;
         }
 
         TEST_METHOD(Callsequence_A__Initial)
@@ -408,8 +404,6 @@ namespace UT {
           Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
         }
 
-
-
         TEST_METHOD(Callsequence_A__Final_BBA)
         {
           NullEndTransition< StateTypeCreationPolicyType> NET;
@@ -424,6 +418,8 @@ namespace UT {
           Toplevel_sm sm;
           vector<string> expected;
           recorder.clear();
+
+          BBAEndGuard::evalResult = true;
 
           sm.begin();
           expected.push_back("B<-Initial");
@@ -441,7 +437,6 @@ namespace UT {
           expected.push_back("BBA::Do");
 
           // Active state is B/BB/BBA
-          Assert::AreNotEqual<int>(0, SingletonCreatorFake<B>::createCalls);
           Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
           Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls + 1);
           Assert::AreEqual<int>(SingletonCreatorFake<BA>::createCalls, SingletonCreatorFake<BA>::deleteCalls);
@@ -449,7 +444,7 @@ namespace UT {
           Assert::AreEqual<int>(SingletonCreatorFake<BBA>::createCalls, SingletonCreatorFake<BBA>::deleteCalls + 1);
           Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
 
-          sm.dispatch<Triggers::Finalize_BBA>();
+          sm.dispatch<Triggers::Finalize>();
           expected.push_back("Final<-BBA");
           expected.push_back("BBA::Exit");
           expected.push_back("BB::Exit");

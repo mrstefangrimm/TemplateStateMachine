@@ -91,7 +91,7 @@ typedef SelfTransition<Triggers::Positionstream, Calibration, StateTypeCreationP
 typedef Declaration<Triggers::Timeout, Simulation, StateTypeCreationPolicyType> ToSimFromSimTimeout;
 typedef Declaration<Triggers::Remote, Simulation, StateTypeCreationPolicyType> ToSimFromSimRemote;
 typedef Declaration<Triggers::Manual, Simulation, StateTypeCreationPolicyType> ToSimFromSimManual;
-typedef ExitDeclaration<Triggers::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType> ToCalibFromSimManual;
+typedef ExitDeclaration<Triggers::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType, OkGuard> ToCalibFromSimManual;
 
 typedef
 Typelist<ToSimFromCalib,

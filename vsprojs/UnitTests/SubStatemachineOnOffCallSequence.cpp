@@ -165,7 +165,7 @@ namespace UnitTests {
     // sub-states transitions are self transitions
     typedef Declaration<Triggers::On, ActiveState, StateTypeCreationPolicyType> ToOnFromOffSubTransition;
     typedef Declaration<Triggers::Off, ActiveState, StateTypeCreationPolicyType> ToOffFromOnSubTransition;
-    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType> ToIdleFromOffSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType, OkGuard> ToIdleFromOffSubTransition;
 
     typedef ActionSpy<struct ActiveState, struct IdleState> ToActiveFromIdleActionSpy;
     typedef ActionSpy<struct IdleState, struct AnyStateFake> ToIdleFromAnyActionSpy;

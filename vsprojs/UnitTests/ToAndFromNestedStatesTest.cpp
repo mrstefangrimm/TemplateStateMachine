@@ -104,7 +104,7 @@ namespace UT {
       typedef Transition<Triggers::BA_BB, BA, BB, StateTypeCreationPolicyType, OkGuard, BA_BB_spy> BA_BB_t;
       typedef EntryDeclaration<Triggers::BB_A, BB, StateTypeCreationPolicyType, BB_B_spy> BB_B_t;
       typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_B_spy> BBB_B_t;
-      typedef ExitTransition<Triggers::A_BA, A, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_t;
+      typedef Transition<Triggers::A_BA, A, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_t;
       typedef
         Typelist<BB_BA_t,
         Typelist<BA_BB_t,
@@ -178,7 +178,7 @@ namespace UT {
       typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, BB_A_spy> BB_A_t;
       typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, BBB_A_spy> BBB_A_d;
       typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_d;
-      typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, ActionSpy<A, BA>> A_BA_d;
+      typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_d;
       typedef
         Typelist<B_A_t,
         Typelist<A_B_t,
@@ -200,6 +200,7 @@ namespace UT {
           SingletonCreatorFake<BB>::reset();
           SingletonCreatorFake<BBA>::reset();
           SingletonCreatorFake<BBB>::reset();
+          StateTypeCreationPolicyType::reset();
         }
 
         TEST_METHOD(Callsequence_B__A)
@@ -280,13 +281,14 @@ namespace UT {
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
 
           // Active state is A
-          //Assert::AreNotEqual<int>(0, SingletonCreatorFake<B>::createCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
-          //Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BA>::createCalls, SingletonCreatorFake<BA>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BB>::createCalls, SingletonCreatorFake<BB>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BBA>::createCalls, SingletonCreatorFake<BBA>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
+          Assert::AreNotEqual<int>(0, SingletonCreatorFake<B>::createCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
+          Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
+          // Finalize is called and the sub-state is exited using polymorphism. StateTypeCreationPolicyType is used to delete the state.
+          Assert::AreEqual<int>(SingletonCreatorFake<BA>::createCalls, StateTypeCreationPolicyType::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<BB>::createCalls, SingletonCreatorFake<BB>::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<BBA>::createCalls, SingletonCreatorFake<BBA>::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
         }
 
         TEST_METHOD(Callsequence_BB__A)
@@ -324,13 +326,12 @@ namespace UT {
           Assert::AreEqual<size_t>(expected.size(), recorder.size());
 
           // Active state is B/BB/BBA
-          //Assert::AreNotEqual<int>(0, SingletonCreatorFake<B>::createCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls + 1);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BA>::createCalls, SingletonCreatorFake<BA>::deleteCalls);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BB>::createCalls, SingletonCreatorFake<BB>::deleteCalls + 1);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BBA>::createCalls, SingletonCreatorFake<BBA>::deleteCalls + 1);
-          //Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls + 1);
+          Assert::AreEqual<int>(SingletonCreatorFake<BA>::createCalls, SingletonCreatorFake<BA>::deleteCalls);
+          Assert::AreEqual<int>(SingletonCreatorFake<BB>::createCalls, SingletonCreatorFake<BB>::deleteCalls + 1);
+          Assert::AreEqual<int>(SingletonCreatorFake<BBA>::createCalls, SingletonCreatorFake<BBA>::deleteCalls + 1);
+          Assert::AreEqual<int>(SingletonCreatorFake<BBB>::createCalls, SingletonCreatorFake<BBB>::deleteCalls);
         }
 
         TEST_METHOD(Callsequence_BBB__A)

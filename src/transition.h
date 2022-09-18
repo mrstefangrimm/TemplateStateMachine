@@ -65,7 +65,22 @@ struct OkGuard {
   }
 };
 
+template<typename CreationPolicy>
+struct NullTransition {
+  typedef typename CreationPolicy::ObjectType StateType;
+  typedef EmptyState<StateType> ToType;
+  typedef EmptyState<StateType> FromType;
+  typedef NullType CreationPolicy;
+  enum { N = -1 };
+  enum { E = false };
+
+  DispatchResult<StateType> dispatch(StateType* activeState) {
+    return DispatchResult< StateType>(false, 0, false);
+  }
+};
+
 namespace impl {
+
 template<
   uint8_t Trigger,
   typename To,
@@ -73,8 +88,8 @@ template<
   typename CreationPolicy,
   typename Guard,
   typename Action,
-  bool IsExitingTransition,
-  bool IsEnteringTransition>
+  bool IsEnteringTransition,
+  bool IsExitingTransition>
 struct TransitionBase {
   enum { N = Trigger };
   enum { E = IsEnteringTransition };
@@ -100,8 +115,7 @@ struct TransitionBase {
           toState->template _doit<N>();
         }
 
-        // Delete not needed. "activeState" and "fromState" are null (the initial state)
-
+        FromFactory::destroy(fromState);
         return DispatchResult<StateType>(true, toState);
       }
 
@@ -158,14 +172,15 @@ using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Gua
 template<uint8_t Trigger, typename Me, typename CreationPolicy>
 using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false, false>;
 
-template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Action = EmptyAction>
-using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, OkGuard, Action, true, false>;
+template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard, typename Action = EmptyAction>
+using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, Action, false, true>;
 
 template<uint8_t Trigger, typename To, typename CreationPolicy, typename Action>
-using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, false, true>;
+using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, true, false>;
 
+// TODO: Most likely obsolete.
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, true, false>;
+using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, true>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
 using Transition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, false>;

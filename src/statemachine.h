@@ -36,7 +36,7 @@ class Statemachine {
       return result;
     }
 
-    // TODO: friend class SubstatesHolderState<;
+    // TODO: private: friend class SubstatesHolderState<...;
     template<uint8_t N>
     DispatchResult<StateType> _begin() {
 
