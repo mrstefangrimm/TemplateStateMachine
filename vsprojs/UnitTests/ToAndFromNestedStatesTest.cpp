@@ -102,9 +102,9 @@ namespace UT {
 
       typedef Transition<Triggers::BB_BA, BB, BA, StateTypeCreationPolicyType, OkGuard, BB_BA_spy> BB_BA_t;
       typedef Transition<Triggers::BA_BB, BA, BB, StateTypeCreationPolicyType, OkGuard, BA_BB_spy> BA_BB_t;
+      typedef ExitTransition<Triggers::A_BA, A, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_t;
       typedef EntryDeclaration<Triggers::BB_A, BB, StateTypeCreationPolicyType, BB_B_spy> BB_B_t;
       typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_B_spy> BBB_B_t;
-      typedef Transition<Triggers::A_BA, A, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_t;
       typedef
         Typelist<BB_BA_t,
         Typelist<BA_BB_t,
@@ -178,7 +178,7 @@ namespace UT {
       typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, BB_A_spy> BB_A_t;
       typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, BBB_A_spy> BBB_A_d;
       typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_d;
-      typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_d;
+      typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, OkGuard> A_BA_d;
       typedef
         Typelist<B_A_t,
         Typelist<A_B_t,

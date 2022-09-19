@@ -65,9 +65,11 @@ struct State {
     return Comperator::template hasType<T>(this);
   }
 #ifndef DISABLENESTEDSTATES
-  virtual void _exit() = 0;
+  virtual void _vexit() = 0;
+
+  template<uint8_t N> void _exit() { _vexit(); }
 #else
-  void _exit() {}
+  template<uint8_t N> void _exit() {}
 #endif
 };
 // specialization of State class.
@@ -76,9 +78,11 @@ struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperato
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
-  virtual void _exit() = 0;
+  virtual void _vexit() = 0;
+  
+  template<uint8_t N> void _exit() { _vexit(); }
 #else
-  void _exit() {}
+  template<uint8_t N> void _exit() {}
 #endif
 };
 
@@ -102,6 +106,11 @@ class SimpleState : public Basetype {
       return false;
     }
 
+    void _vexit() {
+      static_cast<Derived*>(this)->exit();
+    }
+
+    template<uint8_t N>
     void _exit() {
       static_cast<Derived*>(this)->exit();
     }
@@ -125,14 +134,18 @@ class SubstatesHolderState : public Basetype {
       return true;
     }
 
+    void _vexit() {
+      static_cast<Derived*>(this)->exit();
+    }
+
+    template<uint8_t N>
     void _exit() {
-      subStatemachine_.end();
+      subStatemachine_.template _end<N>();
       static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
     Basetype* _doit() {
-
       // Return if substates consumed the trigger
       auto result = subStatemachine_.template dispatch<N>();
       if (result.consumed && result.deferredEntry) {
@@ -141,6 +154,7 @@ class SubstatesHolderState : public Basetype {
       return 0;
     }
 
+private:
     Statemachine subStatemachine_;
 };
 
@@ -208,7 +222,6 @@ struct MemoryAddressStateComperator {
 
     return sameType;
   }
-
 };
 
 struct VirtualGetTypeIdStateComperator {

@@ -49,7 +49,7 @@ struct Choice {
         return activeState;
       }
 
-      static_cast<FROM*>(activeState)->_exit();
+      static_cast<FROM*>(activeState)->template _exit<Trigger>();
 
       ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::create();
@@ -66,7 +66,7 @@ struct Choice {
       return activeState;
     }
 
-    static_cast<FROM*>(activeState)->_exit();
+    static_cast<FROM*>(activeState)->template _exit<Trigger>();
 
     ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::create();

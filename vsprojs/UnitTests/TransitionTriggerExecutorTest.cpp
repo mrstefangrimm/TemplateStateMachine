@@ -80,7 +80,7 @@ namespace UnitTests {
 
     struct WrongState : StateType, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 3; }
-      virtual void _exit() { }
+      void _vexit() { }
     };
 
     typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;

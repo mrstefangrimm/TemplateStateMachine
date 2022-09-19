@@ -61,7 +61,6 @@ namespace UT {
 
         template<uint8_t N>
         bool _entry() { return false; }
-        void _exit() { }
         template<uint8_t N>
         EmptyStateFake* _doit() { return 0; }
       };

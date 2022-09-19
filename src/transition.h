@@ -48,7 +48,6 @@ struct EmptyState : T {
   bool _entry() {
     return false;
   }
-  void _exit() { }
   template<uint8_t N>
   EmptyState* _doit() {
     return 0;
@@ -77,6 +76,7 @@ struct NullTransition {
   typedef NullType CreationPolicyType;
   enum { N = -1 };
   enum { E = false };
+  enum { X = false };
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
     return DispatchResult< StateType>(false, 0, false);
@@ -141,7 +141,7 @@ struct TransitionBase {
       return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
 
-    static_cast<From*>(activeState)->_exit();
+    static_cast<From*>(activeState)->template _exit<N>();
 
     if (X) {
       FromFactory::destroy(static_cast<From*>(activeState));
@@ -176,13 +176,12 @@ using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Gua
 template<uint8_t Trigger, typename Me, typename CreationPolicy>
 using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false, false>;
 
-template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard, typename Action = EmptyAction>
-using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, Action, false, true>;
+template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard>
+using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, EmptyAction, false, true>;
 
 template<uint8_t Trigger, typename To, typename CreationPolicy, typename Action>
 using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, true, false>;
 
-// TODO: Most likely obsolete.
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
 using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, true>;
 

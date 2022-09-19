@@ -63,7 +63,7 @@ struct ChoiceTransition {
         return DispatchResult<StateType>(true, activeState, false);
       }
 
-      static_cast<From*>(activeState)->_exit();
+      static_cast<From*>(activeState)->template _exit<Trigger>();
       FromFactory::destroy(static_cast<From*>(activeState));
 
       To* toState = ToFactory::create();

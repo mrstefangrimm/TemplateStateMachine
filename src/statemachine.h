@@ -61,6 +61,16 @@ class Statemachine {
     }
 
     template<uint8_t N>
+    DispatchResult<StateType> _end() {
+      const int size = Length<Transitions>::value;
+      auto result = Finisher < Transitions, N, size - 1 >::end(activeState_);
+      if (result.consumed) {
+        activeState_ = 0;
+      }
+      return result;
+    }
+
+    template<uint8_t N>
     DispatchResult<StateType> dispatch() {
 
       if (activeState_ == 0) return DispatchResult<StateType>(false, activeState_);
@@ -204,5 +214,36 @@ class Statemachine {
         return DispatchResult<StateType>(false, 0, false);
       }
     };
+
+    template<typename T, uint8_t N, int Index>
+    struct Finisher {
+      static DispatchResult<StateType> end(StateType* activeState) {
+        typedef typename TypeAt<T, Index>::Result CurrentTransition;
+        if (CurrentTransition::X && CurrentTransition::N == N) {
+          auto result = CurrentTransition().dispatch(activeState);
+          if (result.consumed) {
+            return result;
+          }
+        }
+        // Recursion
+        return Finisher < T, N, Index - 1 >::end(activeState);
+      }
+    };
+    // Specialization
+    template<typename T, uint8_t N>
+    struct Finisher<T, N, 0> {
+      static DispatchResult<StateType> end(StateType* activeState) {
+        // End of recursion.
+        typedef typename TypeAt<T, 0>::Result FirstTransition;
+        if (FirstTransition::X && FirstTransition::N == N) {
+          auto result = FirstTransition().dispatch(activeState);
+          if (result.consumed) {
+            return result;
+          }
+        }
+        return Endtransition().dispatch(activeState);
+      }
+    };
+
 };
 }

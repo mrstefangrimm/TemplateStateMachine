@@ -32,26 +32,26 @@ namespace UnitTests {
     struct TestStateA : T, FactorCreator<TestStateA<T>> {
       typedef typename FactorCreator<TestStateA> CreatorType;
       uint8_t getTypeId() const override { return 1; }
-      void _exit() override { }
+      void _vexit() override { }
     };
 
     template<typename T>
     struct TestStateB : T, FactorCreator<TestStateB<T>> {
       typedef typename FactorCreator<TestStateB<T>> CreatorType;
       uint8_t getTypeId() const override { return 2; }
-      void _exit() override { }
+      void _vexit() override { }
     };
 
     template<typename T>
     struct TestStateSingletonA : T, SingletonCreator<TestStateSingletonA<T>> {
       typedef typename SingletonCreator<TestStateSingletonA<T>> CreatorType;
-      void _exit() override { }
+      void _vexit() override { }
     };
 
     template<typename T>
     struct TestStateSingletonB : T, SingletonCreator<TestStateSingletonB<T>> {
       typedef typename SingletonCreator<TestStateSingletonB<T>> CreatorType;
-      void _exit() override { }
+      void _vexit() override { }
     };
 
     TEST_CLASS(StateComperatorTests)
