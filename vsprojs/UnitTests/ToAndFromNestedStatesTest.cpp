@@ -178,6 +178,7 @@ namespace UT {
       typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, BB_A_spy> BB_A_t;
       typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, BBB_A_spy> BBB_A_d;
       typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_d;
+      typedef Declaration<Triggers::BA_BB, B, StateTypeCreationPolicyType> BA_BB_d;
       typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, OkGuard> A_BA_d;
       typedef
         Typelist<B_A_t,
@@ -185,8 +186,9 @@ namespace UT {
         Typelist<BB_A_t,
         Typelist<BBB_A_d,
         Typelist<BB_BA_d,
+        Typelist<BA_BB_d,
         Typelist<A_BA_d,
-        NullType>>>>>> Toplevel_transitions;
+        NullType>>>>>>> Toplevel_transitions;
 
       TEST_CLASS(ToAndFromNestedStates)
       {
@@ -395,6 +397,13 @@ namespace UT {
           expected.push_back("BBA<-Initial");
           expected.push_back("BBA::Entry");
           expected.push_back("BBA::Do");
+
+          sm.dispatch<Triggers::BA_BB>();
+          expected.push_back("BA<-BB");
+          expected.push_back("BBA::Exit");
+          expected.push_back("BB::Exit");
+          expected.push_back("BA::Entry");
+          expected.push_back("BA::Do");
 
           Assert::IsTrue(expected.size() >= recorder.size());
           for (int n = 0; n < recorder.size(); n++) {
