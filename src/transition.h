@@ -107,22 +107,21 @@ struct TransitionBase {
     typedef typename From::CreatorType FromFactory;
     From* fromState = FromFactory::create();
 
-    // The transition is valid if the "fromState" is also the activeState state from the state machine.
-    if (activeState == 0 || !fromState->equals(*activeState)) {
-
-      // Entering substate transition
-      if (E && activeState == 0) {
-        typedef typename To::CreatorType ToFactory;
-        To* toState = ToFactory::create();
-        bool cosumedBySubstate = toState->template _entry<N>();
-        if (!cosumedBySubstate) {
-          toState->template _doit<N>();
-        }
-
-        FromFactory::destroy(fromState);
-        return DispatchResult<StateType>(true, toState);
+    // Entering substate transition
+    if (E) {
+      typedef typename To::CreatorType ToFactory;
+      To* toState = ToFactory::create();
+      bool cosumedBySubstate = toState->template _entry<N>();
+      if (!cosumedBySubstate) {
+        toState->template _doit<N>();
       }
 
+      FromFactory::destroy(fromState);
+      return DispatchResult<StateType>(true, toState);
+    }
+
+    // The transition is valid if the "fromState" is also the activeState state from the state machine.
+    if (activeState == 0 || !fromState->equals(*activeState)) {
       FromFactory::destroy(fromState);
       return DispatchResult<StateType>(false, activeState);
     }
@@ -162,6 +161,7 @@ struct TransitionBase {
 };
 }
 
+// TODO: remove
 template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
 struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false> {
   FinalTransition() {

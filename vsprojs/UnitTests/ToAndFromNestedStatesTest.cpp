@@ -79,18 +79,6 @@ namespace UT {
       struct BBA;
       struct BBB;
 
-      typedef ActionSpy<B, A> B_A_spy;
-      typedef ActionSpy<A, B> A_B_spy;
-      typedef ActionSpy<BB, BA> BB_BA_spy;
-      typedef ActionSpy<BA, BB> BA_BB_spy;
-      typedef ActionSpy<BB, A> BB_A_spy;
-      typedef ActionSpy<BBB, A> BBB_A_spy;
-      typedef ActionSpy<BB, B> BB_B_spy;
-      typedef ActionSpy<BBB, B> BBB_B_spy;
-      typedef ActionSpy<BBA, BB> BBB_BB_spy;
-      typedef ActionSpy<BA, InitialStateFake> B_Init_spy;
-      typedef ActionSpy<BBA, InitialStateFake> BB_Init_spy;
-
       struct A : Leaf<A> {
         static const char* Name;
         void entry() { recorder.push_back("A::Entry"); }
@@ -100,11 +88,11 @@ namespace UT {
       };
       const char* A::Name = "A";
 
-      typedef Transition<Triggers::BB_BA, BB, BA, StateTypeCreationPolicyType, OkGuard, BB_BA_spy> BB_BA_t;
-      typedef Transition<Triggers::BA_BB, BA, BB, StateTypeCreationPolicyType, OkGuard, BA_BB_spy> BA_BB_t;
+      typedef Transition<Triggers::BB_BA, BB, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<BB, BA>> BB_BA_t;
+      typedef Transition<Triggers::BA_BB, BA, BB, StateTypeCreationPolicyType, OkGuard, ActionSpy<BA, BB>> BA_BB_t;
       typedef ExitTransition<Triggers::A_BA, A, BA, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, BA>> A_BA_t;
-      typedef EntryDeclaration<Triggers::BB_A, BB, StateTypeCreationPolicyType, BB_B_spy> BB_B_t;
-      typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, BBB_B_spy> BBB_B_t;
+      typedef EntryDeclaration<Triggers::BB_A, BB, StateTypeCreationPolicyType, ActionSpy<BB, B>> BB_B_t;
+      typedef EntryDeclaration<Triggers::BBB_A, BB, StateTypeCreationPolicyType, ActionSpy<BBB, B>> BBB_B_t;
       typedef
         Typelist<BB_BA_t,
         Typelist<BA_BB_t,
@@ -112,7 +100,7 @@ namespace UT {
         Typelist<BBB_B_t,
         Typelist<A_BA_t,
         NullType>>>>> B_transitions;
-      typedef InitialTransition<BA, StateTypeCreationPolicyType, B_Init_spy> B_initt;
+      typedef InitialTransition<BA, StateTypeCreationPolicyType, ActionSpy<BA, InitialStateFake>> B_initt;
       typedef Statemachine<
         B_transitions,
         B_initt,
@@ -136,11 +124,11 @@ namespace UT {
       };
       const char* BA::Name = "BA";
 
-      typedef EntryDeclaration<Triggers::BBB_A, BBB, StateTypeCreationPolicyType, BBB_BB_spy> BBB_BB_t;
+      typedef EntryDeclaration<Triggers::BBB_A, BBB, StateTypeCreationPolicyType, ActionSpy<BBA, BB>> BBB_BB_t;
       typedef
         Typelist<BBB_BB_t,
         NullType> BB_transitions;
-      typedef InitialTransition<BBA, StateTypeCreationPolicyType, BB_Init_spy> BB_initt;
+      typedef InitialTransition<BBA, StateTypeCreationPolicyType, ActionSpy<BBA, InitialStateFake>> BB_initt;
       typedef Statemachine<
         BB_transitions,
         BB_initt,
@@ -173,10 +161,10 @@ namespace UT {
       };
       const char* BBB::Name = "BBB";
 
-      typedef Transition<Triggers::B_A, B, A, StateTypeCreationPolicyType, OkGuard, B_A_spy> B_A_t;
-      typedef Transition<Triggers::A_B, A, B, StateTypeCreationPolicyType, OkGuard, A_B_spy> A_B_t;
-      typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, BB_A_spy> BB_A_t;
-      typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, BBB_A_spy> BBB_A_d;
+      typedef Transition<Triggers::B_A, B, A, StateTypeCreationPolicyType, OkGuard, ActionSpy<B, A>> B_A_t;
+      typedef Transition<Triggers::A_B, A, B, StateTypeCreationPolicyType, OkGuard, ActionSpy<A, B>> A_B_t;
+      typedef Transition<Triggers::BB_A, B, A, StateTypeCreationPolicyType, OkGuard, ActionSpy<BB, A>> BB_A_t;
+      typedef Transition<Triggers::BBB_A, B, A, StateTypeCreationPolicyType, OkGuard, ActionSpy<BBB, A>> BBB_A_d;
       typedef Declaration<Triggers::BB_BA, B, StateTypeCreationPolicyType> BB_BA_d;
       typedef Declaration<Triggers::BA_BB, B, StateTypeCreationPolicyType> BA_BB_d;
       typedef ExitDeclaration<Triggers::A_BA, A, B, StateTypeCreationPolicyType, OkGuard> A_BA_d;

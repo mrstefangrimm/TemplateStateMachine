@@ -42,10 +42,8 @@ class Statemachine {
 
       // Transitions can have initaltransitions (for a higher-level state to a substate).
       // The default Initialtransition is added to the front and is therefore executed when no other was found.
-      typedef Typelist<Initialtransition, NullType> Tl1;
-      typedef typename Append<Tl1, Transitions>::Result Tl2;
-      const int size = Length<Tl2>::value;
-      auto result = Initializer < Tl2, N, size - 1 >::init();
+      const int size = Length<Transitions>::value;
+      auto result = Initializer < Transitions, N, size - 1 >::init();
       if (result.consumed) {
         activeState_ = result.activeState;
       }
@@ -97,7 +95,6 @@ class Statemachine {
     struct ExecuteResult {
       StateType* state = 0;
       bool deferredEntry = false;
-      int transitionIndex = 0;
     };
     template<uint8_t N, int Index>
     struct TriggerExecutor {
@@ -116,7 +113,6 @@ class Statemachine {
             ExecuteResult ret;
             ret.state = result.activeState;
             ret.deferredEntry = result.deferredEntry;
-            ret.transitionIndex = Index;
             return ret;
           }
         }
@@ -165,7 +161,6 @@ class Statemachine {
           ExecuteResult ret;
           ret.state = result.activeState;
           ret.deferredEntry = result.deferredEntry;
-          ret.transitionIndex = 0;
           return ret;
         }
         return ExecuteResult();
@@ -196,7 +191,10 @@ class Statemachine {
       static DispatchResult<StateType> init() {
         typedef typename TypeAt<T, Index>::Result CurrentTransition;
         if (CurrentTransition::E && CurrentTransition::N == N) {
-          return CurrentTransition().dispatch(0);
+          auto result = CurrentTransition().dispatch(0);
+          if (result.consumed) {
+            return result;
+          }
         }
         // Recursion
         return Initializer < T, N, Index - 1 >::init();
@@ -208,10 +206,13 @@ class Statemachine {
       static DispatchResult<StateType> init() {
         // End of recursion.
         typedef typename TypeAt<T, 0>::Result FirstTransition;
-        if (FirstTransition::E) {
-          return FirstTransition().dispatch(0);
+        if (FirstTransition::E && FirstTransition::N == N) {
+          auto result = FirstTransition().dispatch(0);
+          if (result.consumed) {
+            return result;
+          }
         }
-        return DispatchResult<StateType>(false, 0, false);
+        return Initialtransition().dispatch(0);
       }
     };
 
