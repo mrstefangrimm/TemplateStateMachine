@@ -166,6 +166,7 @@
   <ItemGroup>
     <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
+    <ClCompile Include="SelfTransitionTest.cpp" />
     <ClCompile Include="StateComperatorTests.cpp" />
     <ClCompile Include="CreatorTests.cpp" />
     <ClCompile Include="ToAndFromNestedStatesTest.cpp" />
@@ -192,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="InitialAndFinalTransitionTest.drawio" />
+    <None Include="SelfTransitionTest.drawio" />
     <None Include="ToAndFromNestedStates.drawio" />
     <None Include="ChoiceTransitionTest.drawio" />
   </ItemGroup>

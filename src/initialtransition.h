@@ -25,6 +25,7 @@ struct InitialTransition {
   enum { N = -1 };
   enum { E = true };
   enum { X = false };
+  enum { R = false };
   typedef To ToType;
   typedef CreationPolicy CreationPolicyType;
   typedef typename CreationPolicy::ObjectType StateType;

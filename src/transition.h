@@ -54,13 +54,13 @@ struct EmptyState : T {
   }
 };
 
-/* Provides Action interface and does nothing. */
+//Provides Action interface and does nothing.
 struct EmptyAction {
   template<typename T>
   void perform(T*) { }
 };
 
-/* Provides Guard interface and returns true. */
+//Provides Guard interface and returns true.
 struct OkGuard {
   template<typename T>
   bool eval(T*) {
@@ -77,6 +77,7 @@ struct NullTransition {
   enum { N = -1 };
   enum { E = false };
   enum { X = false };
+  enum { R = false };
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
     return DispatchResult< StateType>(false, 0, false);
@@ -93,11 +94,13 @@ template <
   typename Guard,
   typename Action,
   bool IsEnteringTransition,
-  bool IsExitingTransition >
+  bool IsExitingTransition,
+  bool IsReenteringTransition>
 struct TransitionBase {
   enum { N = Trigger };
   enum { E = IsEnteringTransition };
   enum { X = IsExitingTransition };
+  enum { R = IsReenteringTransition };
   typedef CreationPolicy CreationPolicyType;
   typedef To ToType;
   typedef From FromType;
@@ -136,6 +139,12 @@ struct TransitionBase {
 
     // Self transition
     if (is_same<To, From>().value) {
+
+      if (R) {
+        static_cast<From*>(activeState)->template _exit<N>();
+        static_cast<From*>(activeState)->template _entry<N>();
+      }
+
       auto state = static_cast<To*>(activeState)->template _doit<N>();
       return DispatchResult<StateType>(true, state != 0 ? state : activeState);
     }
@@ -163,29 +172,29 @@ struct TransitionBase {
 
 // TODO: remove
 template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
-struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false> {
+struct FinalTransition : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
   FinalTransition() {
     // Make sure the user defines a guard for the final transition. This is not UML compliant.
     CompileTimeError < !is_same<Guard, OkGuard>().value > ();
   }
 };
 
-template<uint8_t Trigger, typename Me, typename CreationPolicy, typename Guard, typename Action>
-using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Guard, Action, false, false>;
+template<uint8_t Trigger, typename Me, typename CreationPolicy, typename Guard, typename Action, bool Reenter = false>
+using SelfTransition = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, Guard, Action, false, false, Reenter>;
 
 template<uint8_t Trigger, typename Me, typename CreationPolicy>
-using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false, false>;
+using Declaration = impl::TransitionBase<Trigger, Me, Me, CreationPolicy, OkGuard, EmptyAction, false, false, false>;
 
 template<uint8_t Trigger, typename To, typename Me, typename CreationPolicy, typename Guard>
-using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, EmptyAction, false, true>;
+using ExitDeclaration = impl::TransitionBase<Trigger, To, Me, CreationPolicy, Guard, EmptyAction, false, true, false>;
 
 template<uint8_t Trigger, typename To, typename CreationPolicy, typename Action>
-using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, true, false>;
+using EntryDeclaration = impl::TransitionBase<Trigger, To, To, CreationPolicy, OkGuard, Action, true, false, false>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, true>;
+using ExitTransition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, true, false>;
 
 template<uint8_t Trigger, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using Transition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, false>;
+using Transition = impl::TransitionBase<Trigger, To, From, CreationPolicy, Guard, Action, false, false, false>;
 
 }

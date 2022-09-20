@@ -14,6 +14,7 @@
     <ClCompile Include="ToAndFromNestedStatesTest.cpp" />
     <ClCompile Include="ChoiceTransitionTest.cpp" />
     <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
+    <ClCompile Include="SelfTransitionTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
@@ -54,5 +55,6 @@
     <None Include="ToAndFromNestedStates.drawio" />
     <None Include="ChoiceTransitionTest.drawio" />
     <None Include="InitialAndFinalTransitionTest.drawio" />
+    <None Include="SelfTransitionTest.drawio" />
   </ItemGroup>
 </Project>

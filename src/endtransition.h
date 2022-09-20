@@ -25,6 +25,7 @@ struct EndTransitionBase {
   enum { N = -1 };
   enum { E = false };
   enum { X = true };
+  enum { R = false };
   typedef CreationPolicy CreationPolicyType;
   typedef typename CreationPolicy::ObjectType StateType;
   typedef EmptyState<StateType> ToType;
