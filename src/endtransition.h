@@ -41,7 +41,7 @@ struct EndTransitionBase {
     if (Guard().eval(activeState)) {
       Action().perform(activeState);
       // TODO: "exit" of AnyState is called, not from the activeState object. Polymorphism is required.
-      static_cast<StateType*>(activeState)->_exit<N>();
+      static_cast<StateType*>(activeState)->template _exit<N>();
 
       typedef typename CreationPolicy::CreatorType Creator;
       typedef typename CreationPolicy::ObjectType Object;
