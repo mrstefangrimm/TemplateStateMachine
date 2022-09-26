@@ -42,7 +42,7 @@ namespace UT {
 
       typedef State<MemoryAddressStateComperator<true>, true> StateType;
       typedef SingletonCreatorFake<StateType> StateTypeCreationPolicyType;
-      template<typename Derived> struct Leaf : SimpleState<Derived, StateType>, SingletonCreatorFake<Derived> {};
+      template<typename Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
       template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreatorFake<Derived> {};
 
       struct InitialStateFake : StateType {

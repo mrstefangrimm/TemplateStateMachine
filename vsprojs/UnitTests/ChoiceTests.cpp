@@ -29,24 +29,24 @@ namespace UnitTests {
     struct TestObject { };
     typedef State<MemoryAddressStateComperator<true>, true> StateType;
 
-    class Init : public SimpleState<Init, StateType>, public SingletonCreator<Init> {
-      friend class SimpleState<Init, StateType>;
+    class Init : public BasicState<Init, StateType>, public SingletonCreator<Init> {
+      friend class BasicState<Init, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>
       void doit() { }
     };
 
-    class ChoiceTrue : public SimpleState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
-      friend class SimpleState<ChoiceTrue, StateType>;
+    class ChoiceTrue : public BasicState<ChoiceTrue, StateType>, public SingletonCreator<ChoiceTrue> {
+      friend class BasicState<ChoiceTrue, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>
       void doit() { }
     };
 
-    class ChoiceFalse : public SimpleState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
-      friend class SimpleState<ChoiceFalse, StateType>;
+    class ChoiceFalse : public BasicState<ChoiceFalse, StateType>, public SingletonCreator<ChoiceFalse> {
+      friend class BasicState<ChoiceFalse, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>

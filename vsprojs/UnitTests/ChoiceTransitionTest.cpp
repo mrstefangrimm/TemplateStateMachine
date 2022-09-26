@@ -41,7 +41,7 @@ namespace UT {
 
       typedef State<VirtualGetTypeIdStateComperator, false> StateType;
       typedef FactorCreatorFake<StateType> StateTypeCreationPolicyType;
-      template<typename Derived> struct Leaf : SimpleState<Derived, StateType>, FactorCreatorFake<Derived> {};
+      template<typename Derived> struct Leaf : BasicState<Derived, StateType>, FactorCreatorFake<Derived> {};
       template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, FactorCreatorFake<Derived> {};
 
       template<typename To, typename From>

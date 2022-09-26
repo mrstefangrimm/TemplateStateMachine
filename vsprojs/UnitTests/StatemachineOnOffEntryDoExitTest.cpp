@@ -44,7 +44,7 @@ namespace UnitTests {
         OffToOff
       };
 
-      struct OnState : SimpleState<OnState, StateType>, FactorCreatorFake<OnState> {
+      struct OnState : BasicState<OnState, StateType>, FactorCreatorFake<OnState> {
         static int EntryCalls;
         static int ExitCalls;
         static int DoitCalls;
@@ -52,7 +52,7 @@ namespace UnitTests {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class SimpleState<OnState, StateType>;
+        friend class BasicState<OnState, StateType>;
         void entry() { EntryCalls++; }
         void exit() { ExitCalls++; }
         template<uint8_t N>
@@ -62,7 +62,7 @@ namespace UnitTests {
       int OnState::ExitCalls = 0;
       int OnState::DoitCalls = 0;
 
-      struct OffState : SimpleState<OffState, StateType>, FactorCreatorFake<OffState> {
+      struct OffState : BasicState<OffState, StateType>, FactorCreatorFake<OffState> {
         static int EntryCalls;
         static int ExitCalls;
         static int DoitCalls;
@@ -70,7 +70,7 @@ namespace UnitTests {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class SimpleState<OffState, StateType>;
+        friend class BasicState<OffState, StateType>;
         void entry() { EntryCalls++; }
         void exit() { ExitCalls++; }
         template<uint8_t N>

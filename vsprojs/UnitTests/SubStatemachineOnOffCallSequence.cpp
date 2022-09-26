@@ -42,7 +42,7 @@ namespace UnitTests {
     };
     const char* InitialStateFake::Name = "Initial";
 
-    //struct AnyStateFake : SimpleState<AnyStateFake, StateType> {
+    //struct AnyStateFake : BasicState<AnyStateFake, StateType> {
     //  
     //  typedef AnyStateFake CreatorType;
     //  typedef AnyStateFake ObjectType;
@@ -53,11 +53,11 @@ namespace UnitTests {
     //};
     //
 
-    struct AnyStateFake : SimpleState<AnyStateFake, StateType>, StateTypeCreationPolicyType {
+    struct AnyStateFake : BasicState<AnyStateFake, StateType>, StateTypeCreationPolicyType {
       static const char* Name;
 
     private:
-      friend class SimpleState<AnyStateFake, StateType>;
+      friend class BasicState<AnyStateFake, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>
@@ -85,13 +85,13 @@ namespace UnitTests {
 
     vector<string> recorder;
 
-    struct IdleState : SimpleState<IdleState, StateType>, FactorCreator<IdleState> {
+    struct IdleState : BasicState<IdleState, StateType>, FactorCreator<IdleState> {
       static const char* Name;
 
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<IdleState, StateType>;
+      friend class BasicState<IdleState, StateType>;
       void entry() { recorder.push_back("IdleState::Entry"); }
       void exit() { recorder.push_back("IdleState::Exit"); }
       template<uint8_t N>
@@ -99,13 +99,13 @@ namespace UnitTests {
     };
     const char* IdleState::Name = "IdleState";
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+    struct OnState : BasicState<OnState, StateType>, FactorCreator<OnState> {
       static const char* Name;
 
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<OnState, StateType>;
+      friend class BasicState<OnState, StateType>;
       void entry() { recorder.push_back("OnState::Entry"); }
       void exit() { recorder.push_back("OnState::Exit"); }
       template<uint8_t N>
@@ -113,13 +113,13 @@ namespace UnitTests {
     };
     const char* OnState::Name = "OnState";
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+    struct OffState : BasicState<OffState, StateType>, FactorCreator<OffState> {
       static const char* Name;
 
       uint8_t getTypeId() const override { return 2; }
 
     private:
-      friend class SimpleState<OffState, StateType>;
+      friend class BasicState<OffState, StateType>;
       void entry() { recorder.push_back("OffState::Entry"); }
       void exit() { recorder.push_back("OffState::Exit"); }
       template<uint8_t N>

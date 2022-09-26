@@ -98,7 +98,7 @@ struct AnyState : T {
 };
 
 template<typename Derived, typename Basetype>
-class SimpleState : public Basetype {
+class BasicState : public Basetype {
   public:
     template<uint8_t N>
     bool _entry() {

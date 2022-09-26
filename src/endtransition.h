@@ -45,7 +45,7 @@ struct EndTransitionBase {
 
       typedef typename CreationPolicy::CreatorType Creator;
       typedef typename CreationPolicy::ObjectType Object;
-      // TODO: AnyState::destroy is called.
+      // TODO: AnyState::destroy is called. C++ delete must be called on the correct object.
       Creator::destroy(activeState);
 
       return DispatchResult<StateType>(true, 0);

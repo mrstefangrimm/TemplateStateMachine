@@ -177,11 +177,11 @@ private:
   bool isPositionStreamActive_ = false;
 };
 
-struct Calibration : SimpleState<Calibration, StateType>, FactorCreator<Calibration> {
+struct Calibration : BasicState<Calibration, StateType>, FactorCreator<Calibration> {
   uint8_t getTypeId() const override { return 2; }
 
 private:
-  friend class SimpleState<Calibration, StateType>;
+  friend class BasicState<Calibration, StateType>;
   void entry() { }
   void exit() { }
   template<uint8_t N>
