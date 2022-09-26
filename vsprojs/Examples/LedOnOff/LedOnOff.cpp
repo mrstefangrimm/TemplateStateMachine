@@ -35,8 +35,8 @@ enum Triggers {
   TIMEOUT,
 };
 
-class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedOn> {
-  friend class SimpleState<LedOn, StateType>;
+class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn> {
+  friend class BasicState<LedOn, StateType>;
   void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH);)
   }
@@ -45,8 +45,8 @@ class LedOn : public SimpleState<LedOn, StateType>, public SingletonCreator<LedO
   void doit() { }
 };
 
-class LedOff : public SimpleState<LedOff, StateType>, public SingletonCreator<LedOff> {
-  friend class SimpleState<LedOff, StateType>;
+class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<LedOff> {
+  friend class BasicState<LedOff, StateType>;
   void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
     BSP_Execute(Serial.println(freeMemory());)

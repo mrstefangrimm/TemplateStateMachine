@@ -21,6 +21,8 @@
 #include "..\..\src\templatemeta.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\transition.h"
+#include "..\..\src\initialtransition.h"
+#include "..\..\src\endtransition.h"
 
 #include <vector>
 
@@ -40,7 +42,7 @@ namespace UnitTests {
     };
     const char* InitialStateFake::Name = "Initial";
 
-    struct FinalStateFake : SimpleState<FinalStateFake, StateType> {
+    struct FinalStateFake : BasicState<FinalStateFake, StateType> {
       static const char* Name;
       typedef FinalStateFake CreatorType;
       typedef FinalStateFake ObjectType;
@@ -48,7 +50,7 @@ namespace UnitTests {
       static void destroy(FinalStateFake*) { }
 
     private:
-      friend class SimpleState<FinalStateFake, StateType>;
+      friend class BasicState<FinalStateFake, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>
@@ -76,12 +78,12 @@ namespace UnitTests {
 
     vector<string> recorder;
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+    struct OnState : BasicState<OnState, StateType>, FactorCreator<OnState> {
       static const char* Name;
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<OnState, StateType>;
+      friend class BasicState<OnState, StateType>;
       void entry() { recorder.push_back("OnState::Entry"); }
       void exit() { recorder.push_back("OnState::Exit"); }
       template<uint8_t N>
@@ -89,12 +91,12 @@ namespace UnitTests {
     };
     const char* OnState::Name = "OnState";
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+    struct OffState : BasicState<OffState, StateType>, FactorCreator<OffState> {
       static const char* Name;
       uint8_t getTypeId() const override { return 2; }
 
     private:
-      friend class SimpleState<OffState, StateType>;
+      friend class BasicState<OffState, StateType>;
       void entry() { recorder.push_back("OffState::Entry"); }
       void exit() { recorder.push_back("OffState::Exit"); }
       template<uint8_t N>

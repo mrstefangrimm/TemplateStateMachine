@@ -11,7 +11,10 @@
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
-    <ClCompile Include="StatemachineCallSequenceTest.cpp" />
+    <ClCompile Include="ToAndFromNestedStatesTest.cpp" />
+    <ClCompile Include="ChoiceTransitionTest.cpp" />
+    <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
+    <ClCompile Include="SelfTransitionTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
@@ -33,6 +36,15 @@
     <ClInclude Include="..\..\src\tsm.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\choicetransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\endtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\initialtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">
@@ -40,6 +52,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="StatemachineCallSequenceTest.drawio" />
+    <None Include="ToAndFromNestedStates.drawio" />
+    <None Include="ChoiceTransitionTest.drawio" />
+    <None Include="InitialAndFinalTransitionTest.drawio" />
+    <None Include="SelfTransitionTest.drawio" />
   </ItemGroup>
 </Project>

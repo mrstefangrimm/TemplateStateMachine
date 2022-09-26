@@ -34,7 +34,7 @@ enum Triggers {
   TIMEOUT,
 };
 
-struct Loading : public SimpleState<Loading, StateType>, public SingletonCreator<Loading> {
+struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<Loading> {
   void entry() {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
       BSP_Execute(Serial.println(F("Loading"));)
@@ -47,7 +47,7 @@ struct Loading : public SimpleState<Loading, StateType>, public SingletonCreator
   void doit() { }
 };
 
-struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator<Washing> {
+struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<Washing> {
   void entry() {
     BSP_Execute(Serial.println(F("  Washing"));)
       counter_ = 0;
@@ -61,7 +61,7 @@ struct Washing : public SimpleState<Washing, StateType>, public SingletonCreator
   const uint8_t washingLength_ = 50;
 };
 
-struct Rinsing : public SimpleState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
+struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
   void entry() {
     BSP_Execute(Serial.println(F("  Rinsing"));)
       counter_ = 0;
@@ -74,7 +74,7 @@ struct Rinsing : public SimpleState<Rinsing, StateType>, public SingletonCreator
   const uint8_t rinsingLength_ = 30;
 };
 
-struct Spinning : public SimpleState<Spinning, StateType>, public SingletonCreator<Spinning> {
+struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreator<Spinning> {
   void entry() {
     BSP_Execute(Serial.println(F("  Spinning"));)
       counter_ = 0;
@@ -98,7 +98,7 @@ struct IsWashingAction {
   }
 };
 struct IsWashingDone {
-  template<typename T> bool check(T* activeState) {
+  template<typename T> bool eval(T* activeState) {
     auto washingState = static_cast<Washing*>(activeState);
     return washingState->counter_ > washingState->washingLength_;
   }
@@ -115,7 +115,7 @@ struct IsRinsingAction {
   }
 };
 struct IsRinsingDone {
-  template<typename T> bool check(T* activeState) {
+  template<typename T> bool eval(T* activeState) {
     auto rinnsingState = static_cast<Rinsing*>(activeState);
     return rinnsingState->counter_ > rinnsingState->rinsingLength_;
   }
@@ -130,7 +130,7 @@ struct IsSpinningAction {
   }
 };
 struct IsSpinningDone {
-  template<typename T> bool check(T* activeState) {
+  template<typename T> bool eval(T* activeState) {
     auto spinningState = static_cast<Spinning*>(activeState);
     return spinningState->counter_ > spinningState->spinningLength_;
   }

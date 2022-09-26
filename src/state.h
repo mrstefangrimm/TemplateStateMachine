@@ -33,6 +33,28 @@ struct _StateBase {
   }
 };
 
+#if defined (IAMWORKSTATION)
+
+// TODO: Typeid only works with `virtual void vvfunc() {}` with the Microsoft compiler.
+
+template<typename Derived>
+struct _StateBase<Derived, struct TypeidStateComperator> {
+    bool equals(const Derived& other) const {
+      auto derived = dynamic_cast<const Derived*>(this);
+      return typeid(*derived) == typeid(other);
+    }
+
+    template<typename T>
+    bool typeOf() {
+      auto derived = dynamic_cast<const Derived*>(this);
+      return typeid(*derived) == typeid(T);
+    }
+    //Microsoft typeid requires:
+    virtual void vvfunc() {}
+  };
+
+#endif
+
 template<typename Comperator, bool Singleton>
 struct State {
   bool equals(const State& other) const {
@@ -43,22 +65,24 @@ struct State {
     return Comperator::template hasType<T>(this);
   }
 #ifndef DISABLENESTEDSTATES
-  virtual void _exit() = 0;
+  virtual void _vexit() = 0;
+
+  template<uint8_t N> void _exit() { _vexit(); }
 #else
-  void _exit() {}
+  template<uint8_t N> void _exit() {}
 #endif
 };
 // specialization of State class.
 template<typename Comperator>
 struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperator> {
-  //Microsoft typeid requires:
-  virtual void vvfunc() {}
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
-  virtual void _exit() = 0;
+  virtual void _vexit() = 0;
+  
+  template<uint8_t N> void _exit() { _vexit(); }
 #else
-  void _exit() {}
+  template<uint8_t N> void _exit() {}
 #endif
 };
 
@@ -74,7 +98,7 @@ struct AnyState : T {
 };
 
 template<typename Derived, typename Basetype>
-class SimpleState : public Basetype {
+class BasicState : public Basetype {
   public:
     template<uint8_t N>
     bool _entry() {
@@ -82,6 +106,11 @@ class SimpleState : public Basetype {
       return false;
     }
 
+    void _vexit() {
+      static_cast<Derived*>(this)->exit();
+    }
+
+    template<uint8_t N>
     void _exit() {
       static_cast<Derived*>(this)->exit();
     }
@@ -105,14 +134,18 @@ class SubstatesHolderState : public Basetype {
       return true;
     }
 
+    void _vexit() {
+      static_cast<Derived*>(this)->exit();
+    }
+
+    template<uint8_t N>
     void _exit() {
-      subStatemachine_.end();
+      subStatemachine_.template _end<N>();
       static_cast<Derived*>(this)->exit();
     }
 
     template<uint8_t N>
     Basetype* _doit() {
-
       // Return if substates consumed the trigger
       auto result = subStatemachine_.template dispatch<N>();
       if (result.consumed && result.deferredEntry) {
@@ -121,6 +154,7 @@ class SubstatesHolderState : public Basetype {
       return 0;
     }
 
+private:
     Statemachine subStatemachine_;
 };
 
@@ -137,14 +171,14 @@ struct SingletonCreator {
     typedef T ObjectType;
 
     static T* create() {
-      return Instance;
+      return instance;
     }
     static void destroy(T* state) { }
 
   private:
-    static T* Instance;
+    static T* instance;
 };
-template<typename T> T* SingletonCreator<T>::Instance = new T;
+template<typename T> T* SingletonCreator<T>::instance = new T;
 
 template<typename T, bool implementsCreate = true>
 struct FactorCreator {
@@ -188,29 +222,6 @@ struct MemoryAddressStateComperator {
 
     return sameType;
   }
-
-};
-
-#if defined (IAMWORKSTATION)
-struct TypeidStateComperator {
-  static bool areEqual(const State<TypeidStateComperator, false>& lhs, const State<TypeidStateComperator, false>& rhs) {
-    // TODO: doesn't work with base and derived class
-    const type_info& l = typeid(lhs);
-    const type_info& r = typeid(rhs);
-    bool ret = (l == r);
-    return ret;
-  }
-
-  template<typename T>
-  static bool hasType(const State<TypeidStateComperator, false>* me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me->equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
-  }
 };
 
 struct VirtualGetTypeIdStateComperator {
@@ -229,6 +240,5 @@ struct VirtualGetTypeIdStateComperator {
     return sameType;
   }
 };
-#endif
 
 }

@@ -52,22 +52,22 @@ namespace UnitTests {
       OffToOff
     };
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+    struct OnState : BasicState<OnState, StateType>, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<OnState, StateType>;
+      friend class BasicState<OnState, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>
       void doit() { }
     };
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+    struct OffState : BasicState<OffState, StateType>, FactorCreator<OffState> {
       uint8_t getTypeId() const override { return 2; }
 
     private:
-      friend class SimpleState<OffState, StateType>;
+      friend class BasicState<OffState, StateType>;
       void entry() { }
       void exit() { }
       template<uint8_t N>

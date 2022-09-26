@@ -21,6 +21,8 @@ using namespace std;
 #include "..\..\src\transition.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\state.h"
+#include "..\..\src\initialtransition.h"
+#include "..\..\src\endtransition.h"
 
 namespace UnitTests {
 
@@ -40,7 +42,7 @@ namespace UnitTests {
       Wrong,
     };
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+    struct OnState : BasicState<OnState, StateType>, FactorCreator<OnState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
@@ -48,7 +50,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<OnState, StateType>;
+      friend class BasicState<OnState, StateType>;
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
       template<uint8_t N>
@@ -58,7 +60,7 @@ namespace UnitTests {
     int OnState::ExitCalls = 0;
     int OnState::DoitCalls = 0;
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+    struct OffState : BasicState<OffState, StateType>, FactorCreator<OffState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
@@ -66,7 +68,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
 
     private:
-      friend class SimpleState<OffState, StateType>;
+      friend class BasicState<OffState, StateType>;
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
       template<uint8_t N>
@@ -78,7 +80,7 @@ namespace UnitTests {
 
     struct WrongState : StateType, FactorCreator<OnState> {
       uint8_t getTypeId() const override { return 3; }
-      virtual void _exit() { }
+      void _vexit() { }
     };
 
     typedef Transition<Triggers::On, OnState, OffState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToOnFromOffTransition;

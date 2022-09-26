@@ -21,6 +21,7 @@
 #include "..\..\src\templatemeta.h"
 #include "..\..\src\statemachine.h"
 #include "..\..\src\transition.h"
+#include "TestHelpers.h"
 
 namespace UnitTests {
 
@@ -31,6 +32,7 @@ namespace UnitTests {
       using namespace Microsoft::VisualStudio::CppUnitTestFramework;
       using namespace tsmlib;
       using namespace std;
+      using namespace UnitTests::Helpers;
 
       typedef State<VirtualGetTypeIdStateComperator, false> StateType;
       typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
@@ -42,23 +44,7 @@ namespace UnitTests {
         OffToOff
       };
 
-      template<typename T>
-      struct FactorCreatorFake {
-        typedef FactorCreatorFake<T> CreatorType;
-        typedef T ObjectType;
-
-        static int CreateCalls;
-        static int DeleteCalls;
-
-        typedef FactorCreatorFake<T> CreatorType;
-
-        static T* create() { CreateCalls++;  return new T; }
-        static void destroy(T* state) { DeleteCalls++;  delete state; }
-      };
-      template<typename T> int FactorCreatorFake<T>::CreateCalls = 0;
-      template<typename T> int FactorCreatorFake<T>::DeleteCalls = 0;
-
-      struct OnState : SimpleState<OnState, StateType>, FactorCreatorFake<OnState> {
+      struct OnState : BasicState<OnState, StateType>, FactorCreatorFake<OnState> {
         static int EntryCalls;
         static int ExitCalls;
         static int DoitCalls;
@@ -66,7 +52,7 @@ namespace UnitTests {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class SimpleState<OnState, StateType>;
+        friend class BasicState<OnState, StateType>;
         void entry() { EntryCalls++; }
         void exit() { ExitCalls++; }
         template<uint8_t N>
@@ -76,7 +62,7 @@ namespace UnitTests {
       int OnState::ExitCalls = 0;
       int OnState::DoitCalls = 0;
 
-      struct OffState : SimpleState<OffState, StateType>, FactorCreatorFake<OffState> {
+      struct OffState : BasicState<OffState, StateType>, FactorCreatorFake<OffState> {
         static int EntryCalls;
         static int ExitCalls;
         static int DoitCalls;
@@ -84,7 +70,7 @@ namespace UnitTests {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class SimpleState<OffState, StateType>;
+        friend class BasicState<OffState, StateType>;
         void entry() { EntryCalls++; }
         void exit() { ExitCalls++; }
         template<uint8_t N>

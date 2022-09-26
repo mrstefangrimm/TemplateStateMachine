@@ -16,6 +16,8 @@
 #define IAMWORKSTATION 1
 
 #include "..\..\src\tsm.h"
+#include "..\..\src\choice.h"
+
 #include <iostream>
 
 using namespace tsmlib;
@@ -32,7 +34,7 @@ struct ToSimFromCalibAction {
 
 struct ToSimFromCalibGuard {
   template<typename T>
-  bool check(T* activeState) { return true; }
+  bool eval(T* activeState) { return true; }
 };
 
 enum Triggers {
@@ -47,35 +49,25 @@ enum Triggers {
 
 struct SimulationInit : StateType, FactorCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
-  template<uint8_t T>
-  bool _entry() { return false; }
-  void _exit() { }
-  template<uint8_t N>
-  StateType* _doit() {
-    return 0;
-  }
+  template<uint8_t T> bool _entry() { return false; }
+  void _vexit() {}
+  template<uint8_t N> StateType* _doit() { return 0; }
 };
 
 struct SimulationManual : StateType, FactorCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
   template<uint8_t T>
   bool _entry() { return false; }
-  void _exit() { }
-  template<uint8_t N>
-  StateType* _doit() {
-    return 0;
-  }
+  void _vexit() {}
+  template<uint8_t N> StateType* _doit() { return 0; }
 };
 
 struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
   template<uint8_t T>
   bool _entry() { return false; }
-  void _exit() { }
-  template<uint8_t N>
-  StateType* _doit() {
-    return 0;
-  }
+  void _vexit() {}
+  template<uint8_t N> StateType* _doit() { return 0; }
 };
 
 struct Simulation;
@@ -89,7 +81,7 @@ typedef SelfTransition<Triggers::Positionstream, Calibration, StateTypeCreationP
 typedef Declaration<Triggers::Timeout, Simulation, StateTypeCreationPolicyType> ToSimFromSimTimeout;
 typedef Declaration<Triggers::Remote, Simulation, StateTypeCreationPolicyType> ToSimFromSimRemote;
 typedef Declaration<Triggers::Manual, Simulation, StateTypeCreationPolicyType> ToSimFromSimManual;
-typedef ExitDeclaration<Triggers::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType> ToCalibFromSimManual;
+typedef ExitDeclaration<Triggers::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType, OkGuard> ToCalibFromSimManual;
 
 typedef
 Typelist<ToSimFromCalib,
@@ -116,14 +108,14 @@ typedef Statemachine<
 
 struct ChoiceGuardRemoteDummy {
   template<typename T>
-  bool check(T*) {
+  bool eval(T*) {
     // true => SimulationRemote
     return true;
   }
 };
 struct ChoiceGuardManualDummy {
   template<typename T>
-  bool check(T*) {
+  bool eval(T*) {
     // true => SimulationManual
     return true;
   }
@@ -185,11 +177,11 @@ private:
   bool isPositionStreamActive_ = false;
 };
 
-struct Calibration : SimpleState<Calibration, StateType>, FactorCreator<Calibration> {
+struct Calibration : BasicState<Calibration, StateType>, FactorCreator<Calibration> {
   uint8_t getTypeId() const override { return 2; }
 
 private:
-  friend class SimpleState<Calibration, StateType>;
+  friend class BasicState<Calibration, StateType>;
   void entry() { }
   void exit() { }
   template<uint8_t N>
@@ -197,8 +189,30 @@ private:
   }
 };
 
+//template <class TList> struct Find;
+//template <> struct Find<NullType>
+//{
+//  enum { value = -1 };
+//};
+//template <class T, class U>
+//struct Find< Typelist<T, U> >
+//{
+//  enum { value = 1 + (is_same<bool, T>().value ? Find<NullType>::value : Find<U>::value) };
+//};
+
+
+
 int main()
 {
+  //typedef
+  //Typelist<bool,
+  //  Typelist<short,
+  //  Typelist<int,
+  //  Typelist<double,
+  //  NullType>>>> TL;
+
+  //const int index = Find<TL>::value;
+
   Simulation simulation;
   Calibration calibration;
 

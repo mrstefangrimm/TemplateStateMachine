@@ -40,7 +40,7 @@ struct Choice {
     }
     FromFactory::destroy(fromState);
 
-    if (GUARD().check(static_cast<FROM*>(activeState))) {
+    if (GUARD().eval(static_cast<FROM*>(activeState))) {
 
       // Self transition
       if (is_same<TO_TRUE, FROM>().value) {
@@ -49,7 +49,7 @@ struct Choice {
         return activeState;
       }
 
-      static_cast<FROM*>(activeState)->_exit();
+      static_cast<FROM*>(activeState)->template _exit<Trigger>();
 
       ACTION().perform(static_cast<FROM*>(activeState));
       TO_TRUE* toState = ToTrueFactory::create();
@@ -66,7 +66,7 @@ struct Choice {
       return activeState;
     }
 
-    static_cast<FROM*>(activeState)->_exit();
+    static_cast<FROM*>(activeState)->template _exit<Trigger>();
 
     ACTION().perform(static_cast<FROM*>(activeState));
     TO_FALSE* toState = ToFalseFactory::create();

@@ -23,9 +23,6 @@
 #include "..\..\src\transition.h"
 #include "TestHelpers.h"
 
-#define CAT(A, B) A##B
-#define WSTRING(A) CAT(L, #A)
-
 namespace UnitTests {
 
   namespace SubstatesTransitionInitFinal {
@@ -57,7 +54,7 @@ namespace UnitTests {
       Hello,
     };
 
-    struct IdleState : SimpleState<IdleState, StateType>, FactorCreator<IdleState> {
+    struct IdleState : BasicState<IdleState, StateType>, FactorCreator<IdleState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
@@ -65,7 +62,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<IdleState, StateType>;
+      friend class BasicState<IdleState, StateType>;
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
       template<uint8_t N>
@@ -75,7 +72,7 @@ namespace UnitTests {
     int IdleState::ExitCalls = 0;
     int IdleState::DoitCalls = 0;
 
-    struct OnState : SimpleState<OnState, StateType>, FactorCreator<OnState> {
+    struct OnState : BasicState<OnState, StateType>, FactorCreator<OnState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
@@ -83,7 +80,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 1; }
 
     private:
-      friend class SimpleState<OnState, StateType>;
+      friend class BasicState<OnState, StateType>;
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
       template<uint8_t N>
@@ -93,7 +90,7 @@ namespace UnitTests {
     int OnState::ExitCalls = 0;
     int OnState::DoitCalls = 0;
 
-    struct OffState : SimpleState<OffState, StateType>, FactorCreator<OffState> {
+    struct OffState : BasicState<OffState, StateType>, FactorCreator<OffState> {
       static int EntryCalls;
       static int ExitCalls;
       static int DoitCalls;
@@ -101,7 +98,7 @@ namespace UnitTests {
       uint8_t getTypeId() const override { return 2; }
 
     private:
-      friend class SimpleState<OffState, StateType>;
+      friend class BasicState<OffState, StateType>;
       void entry() { EntryCalls++; }
       void exit() { ExitCalls++; }
       template<uint8_t N>
@@ -154,7 +151,7 @@ namespace UnitTests {
     // sub-states transitions are self transitions
     typedef Declaration<Triggers::On, ActiveState, StateTypeCreationPolicyType> ToOnFromOffSubTransition;
     typedef Declaration<Triggers::Off, ActiveState, StateTypeCreationPolicyType> ToOffFromOnSubTransition;
-    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType> ToIdleFromOffSubTransition;
+    typedef ExitDeclaration<Triggers::GoodbyeSub, IdleState, ActiveState, StateTypeCreationPolicyType, OkGuard> ToIdleFromOffSubTransition;
 
     typedef Transition<Triggers::Hello, ActiveState, IdleState, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToActiveFromIdleTransition;
     typedef Transition<Triggers::Goodbye, IdleState, AnyState<StateType>, StateTypeCreationPolicyType, ToFinalSubstatesGuardDummy, ToFinalSubstatesActionSpy> ToIdleFromActiveTransition;
@@ -164,12 +161,12 @@ namespace UnitTests {
       Typelist<ToOffFromOnSubTransition,
       Typelist<ToIdleFromOffSubTransition,
       Typelist<ToActiveFromIdleTransition,
-      Typelist<ToIdleFromActiveTransition,
-      NullType>>>>> TransitionList;
+      //Typelist<ToIdleFromActiveTransition,
+      NullType>>>> TransitionList;
 
     struct ActiveStateFinalizeGuard {
       template<typename T>
-      bool check(T*) { return true; }
+      bool eval(T*) { return true; }
     };
 
     typedef InitialTransition<IdleState, StateTypeCreationPolicyType, EmptyAction> InitTransition;

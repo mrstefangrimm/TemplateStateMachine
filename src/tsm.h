@@ -28,4 +28,6 @@ using namespace std;
 #include "state.h"
 #include "statemachine.h"
 #include "transition.h"
-#include "choice.h"
+#include "choicetransition.h"
+#include "initialtransition.h"
+#include "endtransition.h"
