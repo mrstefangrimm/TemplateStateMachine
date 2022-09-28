@@ -138,7 +138,9 @@
     <ClCompile Include="TemplateStateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\choice.h" />
+    <ClInclude Include="..\..\src\choicetransition.h" />
+    <ClInclude Include="..\..\src\endtransition.h" />
+    <ClInclude Include="..\..\src\initialtransition.h" />
     <ClInclude Include="..\..\src\state.h" />
     <ClInclude Include="..\..\src\statemachine.h" />
     <ClInclude Include="..\..\src\templatemeta.h" />

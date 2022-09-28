@@ -7,7 +7,6 @@
     <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
-    <ClCompile Include="ChoiceTests.cpp" />
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
     <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
@@ -15,12 +14,10 @@
     <ClCompile Include="ChoiceTransitionTest.cpp" />
     <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
     <ClCompile Include="SelfTransitionTest.cpp" />
+    <ClCompile Include="HistoryTransitionTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
-    <ClInclude Include="..\..\src\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
@@ -56,5 +53,6 @@
     <None Include="ChoiceTransitionTest.drawio" />
     <None Include="InitialAndFinalTransitionTest.drawio" />
     <None Include="SelfTransitionTest.drawio" />
+    <None Include="HistoryTransitionTest.drawio" />
   </ItemGroup>
 </Project>

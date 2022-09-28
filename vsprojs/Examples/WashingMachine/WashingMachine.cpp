@@ -27,7 +27,7 @@
 using namespace tsmlib;
 using namespace std;
 
-typedef State<MemoryAddressStateComperator<true>, true> StateType;
+typedef State<MemoryAddressComperator, true> StateType;
 typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
 enum Triggers {

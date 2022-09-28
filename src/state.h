@@ -21,49 +21,13 @@ namespace tsmlib {
 
 using namespace Loki;
 
-template<typename Derived, typename Comperator>
-struct _StateBase {
-  bool equals(const Derived& other) const {
-    return Comperator::areEqual(*static_cast<const Derived*>(this), other);
-  }
-
-  template<typename T>
-  bool typeOf() {
-    return Comperator::template hasType<T>(*static_cast<const Derived*>(this));
-  }
-};
-
-#if defined (IAMWORKSTATION)
-
-// TODO: Typeid only works with `virtual void vvfunc() {}` with the Microsoft compiler.
-
-template<typename Derived>
-struct _StateBase<Derived, struct TypeidStateComperator> {
-    bool equals(const Derived& other) const {
-      auto derived = dynamic_cast<const Derived*>(this);
-      return typeid(*derived) == typeid(other);
-    }
-
-    template<typename T>
-    bool typeOf() {
-      auto derived = dynamic_cast<const Derived*>(this);
-      return typeid(*derived) == typeid(T);
-    }
-    //Microsoft typeid requires:
-    virtual void vvfunc() {}
-  };
-
-#endif
+// Pre-defined comperators
+struct MemoryAddressComperator;
+struct VirtualGetTypeIdStateComperator;
+struct RttiComperator;
 
 template<typename Comperator, bool Singleton>
 struct State {
-  bool equals(const State& other) const {
-    return Comperator::areEqual(*this, other);
-  }
-  template<typename T>
-  bool typeOf() {
-    return Comperator::template hasType<T>(this);
-  }
 #ifndef DISABLENESTEDSTATES
   virtual void _vexit() = 0;
 
@@ -71,10 +35,46 @@ struct State {
 #else
   template<uint8_t N> void _exit() {}
 #endif
+
+  bool equals(const State<Comperator, Singleton>& other) const {
+    return Comperator::areEqual(*this, other);
+  }
+
+  template<typename T>
+  bool typeOf() {
+    return Comperator::template hasType<T>(*this);
+  }
 };
-// specialization of State class.
-template<typename Comperator>
-struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperator> {
+
+// Specializations of State class. Non-singletons need some type-id method for comparison.
+template<>
+struct State<MemoryAddressComperator, true> {
+#ifndef DISABLENESTEDSTATES
+  virtual void _vexit() = 0;
+
+  template<uint8_t N> void _exit() { _vexit(); }
+#else
+  template<uint8_t N> void _exit() {}
+#endif
+
+  bool equals(const State<MemoryAddressComperator, true>& other) const {
+    return this == &other;
+  }
+
+  template<typename T>
+  bool typeOf() {
+    typedef typename T::CreatorType Factory;
+    auto other = Factory::create();
+    // other is 0 for AnyState
+    bool sameType = other != 0 ? this->equals(*other) : true;
+    Factory::destroy(other);
+
+    return sameType;
+  }
+};
+
+template<>
+struct State<VirtualGetTypeIdStateComperator, false> {
   virtual uint8_t getTypeId() const = 0;
 
 #ifndef DISABLE_NESTED_STATES
@@ -84,7 +84,46 @@ struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperato
 #else
   template<uint8_t N> void _exit() {}
 #endif
+
+  bool equals(const State<VirtualGetTypeIdStateComperator, false>& other) const {
+    auto derived = static_cast<const State<VirtualGetTypeIdStateComperator, false>*>(this);
+    return derived->getTypeId() == other.getTypeId();
+  }
+
+  template<typename T>
+  bool typeOf() {
+    typedef typename T::CreatorType Factory;
+    auto other = Factory::create();
+    // fromState is 0 for AnyState
+    bool sameType = this->getTypeId() == other->getTypeId();
+    Factory::destroy(other);
+
+    return sameType;
+  }
 };
+
+#if defined (IAMWORKSTATION)
+template<>
+struct State<RttiComperator, false> {
+
+#ifndef DISABLE_NESTED_STATES
+  virtual void _vexit() = 0;
+
+  template<uint8_t N> void _exit() { _vexit(); }
+#else
+  template<uint8_t N> void _exit() {}
+#endif
+
+  bool equals(const State<RttiComperator, false>& other) const {
+    return typeid(*this) == typeid(other);
+  }
+
+  template<typename T>
+  bool typeOf() {
+    return typeid(*this) == typeid(T);
+  }
+};
+#endif
 
 template<typename T>
 struct AnyState : T {
@@ -203,41 +242,6 @@ struct FactorCreator<T, false> {
   }
   static void destroy(T* state) {
     delete state;
-  }
-};
-
-template<bool Singleton>
-struct MemoryAddressStateComperator {
-  static bool areEqual(const State<MemoryAddressStateComperator, Singleton>& lhs, const State<MemoryAddressStateComperator, Singleton>& rhs) {
-    return &lhs == &rhs;
-  }
-
-  template<typename T>
-  static bool hasType(const State<MemoryAddressStateComperator, Singleton>* me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me->equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
-  }
-};
-
-struct VirtualGetTypeIdStateComperator {
-  static bool areEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
-    return lhs.getTypeId() == rhs.getTypeId();
-  }
-
-  template<typename T>
-  static bool hasType(const State<VirtualGetTypeIdStateComperator, false>& me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me.equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
   }
 };
 

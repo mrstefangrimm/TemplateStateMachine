@@ -36,32 +36,8 @@ class Statemachine {
       return result;
     }
 
-    // TODO: private: friend class SubstatesHolderState<...;
-    template<uint8_t N>
-    DispatchResult<StateType> _begin() {
-
-      // Transitions can have initaltransitions (for a higher-level state to a substate).
-      // The default Initialtransition is added to the front and is therefore executed when no other was found.
-      const int size = Length<Transitions>::value;
-      auto result = Initializer < Transitions, N, size - 1 >::init();
-      if (result.consumed) {
-        activeState_ = result.activeState;
-      }
-      return result;
-    }
-
     DispatchResult<StateType> end() {
       auto result = Endtransition().dispatch(activeState_);
-      if (result.consumed) {
-        activeState_ = 0;
-      }
-      return result;
-    }
-
-    template<uint8_t N>
-    DispatchResult<StateType> _end() {
-      const int size = Length<Transitions>::value;
-      auto result = Finisher < Transitions, N, size - 1 >::end(activeState_);
       if (result.consumed) {
         activeState_ = 0;
       }
@@ -87,9 +63,35 @@ class Statemachine {
       return DispatchResult<StateType>(true, activeState_);
     }
 
+    // TODO: private: friend class SubstatesHolderState<...;
+    template<uint8_t N>
+    DispatchResult<StateType> _begin() {
+
+      // Transitions can have initaltransitions (for a higher-level state to a substate).
+      // The default Initialtransition is added to the front and is therefore executed when no other was found.
+      const int size = Length<Transitions>::value;
+      auto result = Initializer < Transitions, N, size - 1 >::init();
+      if (result.consumed) {
+        activeState_ = result.activeState;
+      }
+      return result;
+    }
+
+    template<uint8_t N>
+    DispatchResult<StateType> _end() {
+      const int size = Length<Transitions>::value;
+      auto result = Finisher < Transitions, N, size - 1 >::end(activeState_);
+      if (result.consumed) {
+        activeState_ = 0;
+      }
+      return result;
+    }
+
   private:
     StateType* activeState_ = 0;
+    //TODO: StateType* historyState_ = 0;
 
+  // TODO: public only for unit tests
   public:
 
     struct ExecuteResult {

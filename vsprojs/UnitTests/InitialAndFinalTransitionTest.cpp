@@ -37,7 +37,7 @@ namespace UT {
       using namespace std;
       using namespace UnitTests::Helpers;
 
-      typedef State<MemoryAddressStateComperator<true>, true> StateType;
+      typedef State<MemoryAddressComperator, true> StateType;
       typedef SingletonCreatorFake<StateType> StateTypeCreationPolicyType;
       template<typename Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
       template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreatorFake<Derived> {};

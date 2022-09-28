@@ -164,7 +164,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ChoiceTests.cpp" />
+    <ClCompile Include="HistoryTransitionTest.cpp" />
     <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
     <ClCompile Include="SelfTransitionTest.cpp" />
     <ClCompile Include="StateComperatorTests.cpp" />
@@ -180,7 +180,6 @@
     <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\choice.h" />
     <ClInclude Include="..\..\src\choicetransition.h" />
     <ClInclude Include="..\..\src\endtransition.h" />
     <ClInclude Include="..\..\src\initialtransition.h" />
@@ -192,6 +191,7 @@
     <ClInclude Include="TestHelpers.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="HistoryTransitionTest.drawio" />
     <None Include="InitialAndFinalTransitionTest.drawio" />
     <None Include="SelfTransitionTest.drawio" />
     <None Include="ToAndFromNestedStates.drawio" />

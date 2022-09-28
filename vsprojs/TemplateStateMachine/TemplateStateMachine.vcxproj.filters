@@ -9,9 +9,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
@@ -25,6 +22,15 @@
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tsm.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\choicetransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\endtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\initialtransition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
   </ItemGroup>

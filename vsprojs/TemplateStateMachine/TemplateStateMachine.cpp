@@ -16,7 +16,6 @@
 #define IAMWORKSTATION 1
 
 #include "..\..\src\tsm.h"
-#include "..\..\src\choice.h"
 
 #include <iostream>
 
@@ -120,14 +119,6 @@ struct ChoiceGuardManualDummy {
     return true;
   }
 };
-typedef Choice<
-  Triggers::Timeout,
-  StateType,
-  SimulationManual,
-  SimulationRemote,
-  SimulationInit,
-  EmptyAction,
-  ChoiceGuardRemoteDummy> InitChoice;
 
 typedef Transition<Triggers::Timeout, SimulationManual, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardManualDummy, EmptyAction> ToManualFromInit;
 typedef Transition<Triggers::Timeout, SimulationRemote, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardRemoteDummy, EmptyAction> ToRemoteFromInit;
