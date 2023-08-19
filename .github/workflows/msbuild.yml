@@ -40,7 +40,7 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
     - name: Add VSTest to PATH
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action
       id: setup_vstest
 
     - name: Run VSTest
