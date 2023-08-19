@@ -41,7 +41,7 @@ struct Rinsing;
 struct Spinning;
 
 struct IsWashingAction {
-  template<typename T>
+  template<class T>
   void perform(T* activeState) {
     auto washingState = static_cast<Washing*>(activeState);
     washingState->counter_++;
@@ -52,14 +52,14 @@ struct IsWashingAction {
 };
 
 struct IsWashingDone {
-  template<typename T> bool eval(T* activeState) {
+  template<class T> bool eval(T* activeState) {
     auto washingState = static_cast<Washing*>(activeState);
     return washingState->counter_ > washingState->washingLength_;
   }
 };
 
 struct IsRinsingAction {
-  template<typename T>
+  template<class T>
   void perform(T* activeState) {
     auto rinnsingState = static_cast<Rinsing*>(activeState);
     rinnsingState->counter_++;
@@ -70,14 +70,14 @@ struct IsRinsingAction {
 };
 
 struct IsRinsingDone {
-  template<typename T> bool eval(T* activeState) {
+  template<class T> bool eval(T* activeState) {
     auto rinnsingState = static_cast<Rinsing*>(activeState);
     return rinnsingState->counter_ > rinnsingState->rinsingLength_;
   }
 };
 
 struct IsSpinningAction {
-  template<typename T>
+  template<class T>
   void perform(T* activeState) {
     auto spinningState = static_cast<Spinning*>(activeState);
     spinningState->counter_++;
@@ -86,7 +86,7 @@ struct IsSpinningAction {
 };
 
 struct IsSpinningDone {
-  template<typename T> bool eval(T* activeState) {
+  template<class T> bool eval(T* activeState) {
     auto spinningState = static_cast<Spinning*>(activeState);
     return spinningState->counter_ > spinningState->spinningLength_;
   }

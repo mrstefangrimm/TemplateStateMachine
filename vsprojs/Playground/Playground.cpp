@@ -25,13 +25,13 @@ typedef State<VirtualGetTypeIdStateComparator, false> StateType;
 typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
 struct ToSimFromCalibAction {
-  template<typename T>
+  template<class T>
   void perform(T*) {
   }
 };
 
 struct ToSimFromCalibGuard {
-  template<typename T>
+  template<class T>
   bool eval(T* activeState) { return true; }
 };
 
@@ -104,14 +104,14 @@ typedef Statemachine<
   InitTransition> Sm;
 
 struct ChoiceGuardRemoteDummy {
-  template<typename T>
+  template<class T>
   bool eval(T*) {
     // true => SimulationRemote
     return true;
   }
 };
 struct ChoiceGuardManualDummy {
-  template<typename T>
+  template<class T>
   bool eval(T*) {
     // true => SimulationManual
     return true;

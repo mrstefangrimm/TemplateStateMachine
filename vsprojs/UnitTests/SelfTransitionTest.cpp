@@ -35,14 +35,14 @@ namespace UT {
       typedef State<MemoryAddressComparator, true> StateType;
       typedef SingletonCreatorFake<StateType> StateTypeCreationPolicyType;
       typedef Recorder<sizeof(__FILE__) + __LINE__> RecorderType;
-      template<typename Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
 
       struct InitialStateFake : StateType {
         static const char* name;
       };
       const char* InitialStateFake::name = "Initial";
 
-      template<typename T>
+      template<class T>
       struct EmptyStateFake : T {
         static const char* name;
 
@@ -57,7 +57,7 @@ namespace UT {
         template<class Event>
         bool _doit() { return false; }
       };
-      template<typename T> const char* EmptyStateFake<T>::name = "Final";
+      template<class T> const char* EmptyStateFake<T>::name = "Final";
 
       namespace Trigger
       {

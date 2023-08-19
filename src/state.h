@@ -25,14 +25,14 @@ struct MemoryAddressComparator;
 struct VirtualGetTypeIdStateComparator;
 struct RttiComparator;
 
-template<typename Comparator, bool Singleton>
+template<class Comparator, bool Singleton>
 struct State {
 
   bool equals(const State& other) const {
     return Comparator::areEqual(*this, other);
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     return Comparator::template hasType<T>(*this);
   }
@@ -45,7 +45,7 @@ struct State<MemoryAddressComparator, true> {
     return this == &other;
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     typedef typename T::CreatorType Factory;
     T* other = Factory::create();
@@ -67,7 +67,7 @@ struct State<VirtualGetTypeIdStateComparator, false> {
     return derived->getTypeId() == other.getTypeId();
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     typedef typename T::CreatorType Factory;
     T* other = Factory::create();
@@ -92,14 +92,14 @@ public:
     return typeid(*this) == typeid(other);
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     return typeid(*this) == typeid(T);
   }
 };
 #endif
 
-template<typename T>
+template<class T>
 struct AnyState : T {
   typedef AnyState CreatorType;
   typedef AnyState ObjectType;
@@ -110,7 +110,7 @@ struct AnyState : T {
   static void destroy(AnyState*) {}
 };
 
-template<typename Derived, typename Basetype>
+template<class Derived, class Basetype>
 class BasicState : public Basetype {
 public:
   template<class Event>
@@ -130,7 +130,7 @@ public:
   }
 };
 
-template<typename Derived, typename Basetype, typename Statemachine>
+template<class Derived, class Basetype, class Statemachine>
 class SubstatesHolderState : public Basetype {
 public:
   template<class Event>
@@ -155,7 +155,7 @@ private:
   Statemachine subStatemachine_;
 };
 
-template<typename Comparator, bool Singleton>
+template<class Comparator, bool Singleton>
 bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator, Singleton>& rhs) {
   return lhs.equals(rhs);
 }
@@ -163,7 +163,7 @@ bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator,
 /**
 * When leaving, the object not destroyed. Make sure you reset the state's state.
 */
-template<typename T>
+template<class T>
 struct SingletonCreator {
   typedef SingletonCreator<T> CreatorType;
   typedef T ObjectType;
@@ -176,12 +176,12 @@ struct SingletonCreator {
 private:
   static T* instance;
 };
-template<typename T> T* SingletonCreator<T>::instance = new T;
+template<class T> T* SingletonCreator<T>::instance = new T;
 
 /**
 * When leaving, the object is destroyed and the state's state is lost.
 */
-template<typename T, bool implementsCreate = true>
+template<class T, bool implementsCreate = true>
 struct FactoryCreator {
   typedef FactoryCreator<T, true> CreatorType;
   typedef T ObjectType;
@@ -194,7 +194,7 @@ struct FactoryCreator {
   }
 };
 // Specialization
-template<typename T>
+template<class T>
 struct FactoryCreator<T, false> {
   typedef FactoryCreator<T, false> CreatorType;
   typedef T ObjectType;

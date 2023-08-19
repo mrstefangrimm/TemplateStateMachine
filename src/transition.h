@@ -21,7 +21,7 @@ namespace tsmlib {
 
 using namespace LokiLight;
 
-template<typename T>
+template<class T>
 struct DispatchResult {
   static DispatchResult null;
 
@@ -33,9 +33,9 @@ struct DispatchResult {
   bool consumed;
   T* activeState;
 };
-template<typename T> DispatchResult<T> DispatchResult<T>::null(false, nullptr);
+template<class T> DispatchResult<T> DispatchResult<T>::null(false, nullptr);
 
-template<typename T>
+template<class T>
 struct EmptyState : T {
   typedef EmptyState CreatorType;
   typedef EmptyState ObjectType;
@@ -57,13 +57,13 @@ struct EmptyState : T {
 
 //Provides Action interface and does nothing.
 struct NoAction {
-  template<typename T>
+  template<class T>
   void perform(T*) {}
 };
 
 //Provides Guard interface and returns true.
 struct NoGuard {
-  template<typename T>
+  template<class T>
   bool eval(T*) {
     return true;
   }

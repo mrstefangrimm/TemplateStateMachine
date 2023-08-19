@@ -29,24 +29,24 @@ namespace UT {
 
     namespace StateComparatorTestsImpl {
 
-      template<typename T>
+      template<class T>
       struct TestStateA : T, FactoryCreator<TestStateA<T>> {
         typedef typename FactoryCreator<TestStateA> CreatorType;
         uint8_t getTypeId() const { return 1; }
       };
 
-      template<typename T>
+      template<class T>
       struct TestStateB : T, FactoryCreator<TestStateB<T>> {
         typedef typename FactoryCreator<TestStateB<T>> CreatorType;
         uint8_t getTypeId() const { return 2; }
       };
 
-      template<typename T>
+      template<class T>
       struct TestStateSingletonA : T, SingletonCreator<TestStateSingletonA<T>> {
         typedef typename SingletonCreator<TestStateSingletonA<T>> CreatorType;
       };
 
-      template<typename T>
+      template<class T>
       struct TestStateSingletonB : T, SingletonCreator<TestStateSingletonB<T>> {
         typedef typename SingletonCreator<TestStateSingletonB<T>> CreatorType;
       };
@@ -59,7 +59,7 @@ namespace UT {
           return isEqual;
         }
 
-        template<typename T>
+        template<class T>
         static bool hasType(const State<TestComparator, false>& me) {
           return isEqual;
         }

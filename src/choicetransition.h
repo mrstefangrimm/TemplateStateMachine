@@ -23,12 +23,12 @@ namespace impl {
 
 template<
   class Event,
-  typename To_true,
-  typename To_false,
-  typename From,
-  typename CreationPolicy,
-  typename Guard,
-  typename Action,
+  class To_true,
+  class To_false,
+  class From,
+  class CreationPolicy,
+  class Guard,
+  class Action,
   bool IsExitingTransition>
 struct ChoiceTransitionBase {
 
@@ -64,7 +64,7 @@ struct ChoiceTransitionBase {
   }
 
 private:
-  template<typename To>
+  template<class To>
   DispatchResult<StateType> execute(StateType* activeState) {
 
     typedef typename To::CreatorType ToFactory;
@@ -94,10 +94,10 @@ private:
 
 }
 
-template<class Event, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
+template<class Event, class To_true, class To_false, class From, class CreationPolicy, class Guard, class Action>
 using ChoiceTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, From, CreationPolicy, Guard, Action, false>;
 
-template<class Event, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
+template<class Event, class To_true, class To_false, class From, class CreationPolicy, class Guard, class Action>
 using ChoiceExitTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, From, CreationPolicy, Guard, Action, true>;
 
 }

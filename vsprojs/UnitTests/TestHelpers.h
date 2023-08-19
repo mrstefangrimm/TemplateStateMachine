@@ -12,13 +12,13 @@ namespace UnitTests {
     using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
 
-    template<typename To, typename From>
+    template<class To, class From>
     struct ActionStub {
       static int calls;
-      template<typename State>
+      template<class State>
       void perform(State*) { calls++; }
     };
-    template<typename To, typename From> int ActionStub<To, From>::calls = 0;
+    template<class To, class From> int ActionStub<To, From>::calls = 0;
 
     template<size_t TestId>
     class Recorder {
@@ -50,12 +50,12 @@ namespace UnitTests {
     template<size_t TestId> int Recorder<TestId>::checkedPosition_;
     template<size_t TestId> vector<string> Recorder<TestId>::records_;
 
-    template<typename To, typename From, typename Recorder>
+    template<class To, class From, class Recorder>
     class ActionSpy {
     public:
       static int calls;
 
-      template<typename State>
+      template<class State>
       void perform(State*) {
         calls++;
         ostringstream buf;
@@ -63,13 +63,13 @@ namespace UnitTests {
         Recorder::add(buf.str());
       }
     };
-    template<typename To, typename From, typename Recorder> int ActionSpy<To, From, Recorder>::calls = 0;
+    template<class To, class From, class Recorder> int ActionSpy<To, From, Recorder>::calls = 0;
 
-    template<typename StateType, typename To, typename From>
+    template<class StateType, class To, class From>
     struct GuardDummy {
       static int calls;
       static bool CheckReturnValue;
-      template<typename T>
+      template<class T>
       bool eval(T* activeState) {
         if (!is_same < From, AnyState<StateType>>().value) {
           From* from = From::CreatorType::create();
@@ -80,16 +80,16 @@ namespace UnitTests {
         return CheckReturnValue;
       }
     };
-    template<typename StateType, typename To, typename From> int GuardDummy<StateType, To, From>::calls = 0;
-    template<typename StateType, typename To, typename From> bool GuardDummy<StateType, To, From>::CheckReturnValue = true;
+    template<class StateType, class To, class From> int GuardDummy<StateType, To, From>::calls = 0;
+    template<class StateType, class To, class From> bool GuardDummy<StateType, To, From>::CheckReturnValue = true;
 
-    template<typename StateType>
+    template<class StateType>
     struct InitialStateNamedFake : StateType {
       static const char* name;
     };
-    template<typename StateType> const char* InitialStateNamedFake<StateType>::name = "Initial";
+    template<class StateType> const char* InitialStateNamedFake<StateType>::name = "Initial";
 
-    template<typename T>
+    template<class T>
     struct FactoryCreatorFake {
       typedef FactoryCreatorFake<T> CreatorType;
       typedef T ObjectType;
@@ -102,10 +102,10 @@ namespace UnitTests {
       static T* create() { createCalls++;  return new T; }
       static void destroy(T* state) { deleteCalls++;  delete state; }
     };
-    template<typename T> int FactoryCreatorFake<T>::createCalls = 0;
-    template<typename T> int FactoryCreatorFake<T>::deleteCalls = 0;
+    template<class T> int FactoryCreatorFake<T>::createCalls = 0;
+    template<class T> int FactoryCreatorFake<T>::deleteCalls = 0;
 
-    template<typename T>
+    template<class T>
     struct SingletonCreatorFake {
       typedef SingletonCreatorFake<T> CreatorType;
       typedef T ObjectType;
@@ -121,8 +121,8 @@ namespace UnitTests {
     private:
       static T* instance;
     };
-    template<typename T> int SingletonCreatorFake<T>::createCalls = 0;
-    template<typename T> int SingletonCreatorFake<T>::deleteCalls = 0;
-    template<typename T> T* SingletonCreatorFake<T>::instance = new T;
+    template<class T> int SingletonCreatorFake<T>::createCalls = 0;
+    template<class T> int SingletonCreatorFake<T>::deleteCalls = 0;
+    template<class T> T* SingletonCreatorFake<T>::instance = new T;
   }
 }

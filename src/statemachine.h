@@ -19,7 +19,7 @@
 
 namespace tsmlib {
 
-template<typename Transitions, typename Initialtransition>
+template<class Transitions, class Initialtransition>
 class Statemachine {
 public:
   typedef typename Initialtransition::StateType StateType;
@@ -164,7 +164,7 @@ public:
     }
   };
 
-  template<typename T, class Event, int Index>
+  template<class T, class Event, int Index>
   struct Initializer {
     static DispatchResult<StateType> init() {
       typedef typename TypeAt<T, Index>::Result CurrentTransition;
@@ -179,7 +179,7 @@ public:
     }
   };
   // Specialization
-  template<typename T, class Event>
+  template<class T, class Event>
   struct Initializer<T, Event, 0> {
     static DispatchResult<StateType> init() {
       // End of recursion.
@@ -194,7 +194,7 @@ public:
     }
   };
 
-  template<typename T, int Index>
+  template<class T, int Index>
   struct Finalizer {
     static DispatchResult<StateType> end(StateType* activeState) {
       typedef typename TypeAt<T, Index>::Result CurrentTransition;
@@ -213,7 +213,7 @@ public:
     }
   };
   // Specialization
-  template<typename T>
+  template<class T>
   struct Finalizer<T, 0> {
     static DispatchResult<StateType> end(StateType* activeState) {
       // End of recursion.

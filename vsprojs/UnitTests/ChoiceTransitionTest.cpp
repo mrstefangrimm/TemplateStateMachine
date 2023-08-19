@@ -35,11 +35,11 @@ namespace UT {
       typedef State<VirtualGetTypeIdStateComparator, false> StateType;
       typedef FactoryCreatorFake<StateType> StateTypeCreationPolicyType;
       typedef Recorder<sizeof(__FILE__) + __LINE__> RecorderType;
-      template<typename Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
 
-      template<typename From>
+      template<class From>
       struct ActionChoiceRecordingSpy {
-        template<typename T>
+        template<class T>
         void perform(T*) {
           ostringstream buf;
           buf << "?<-" << From::name;
@@ -95,7 +95,7 @@ namespace UT {
 
       struct ChoiceGuardStub {
         static bool ReturnValue;
-        template<typename T>
+        template<class T>
         bool eval(T*) {
           return ReturnValue;
         }
@@ -103,7 +103,7 @@ namespace UT {
       bool ChoiceGuardStub::ReturnValue = true;
 
       struct CountTriggerGuardA {
-        template<typename T>
+        template<class T>
         bool eval(T* state) {
           return static_cast<A*>(state)->counter < 3;
         }

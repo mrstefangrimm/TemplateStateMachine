@@ -18,7 +18,7 @@
 
 namespace tsmlib {
 
-template<typename Me, typename CreationPolicy>
+template<class Me, class CreationPolicy>
 struct FinalTransition {
 
   enum { E = false };
@@ -40,7 +40,7 @@ struct FinalTransition {
   }
 };
 
-template<class Event, typename From, typename CreationPolicy, typename Guard, typename Action>
+template<class Event, class From, class CreationPolicy, class Guard, class Action>
 struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
   FinalTransitionExplicit() {
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.

@@ -19,7 +19,7 @@
 
 namespace tsmlib {
 
-template<typename To, typename CreationPolicy, typename Action>
+template<class To, class CreationPolicy, class Action>
 struct InitialTransition {
 
   enum { E = true };

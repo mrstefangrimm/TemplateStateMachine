@@ -35,12 +35,12 @@ namespace UT {
       typedef State<VirtualGetTypeIdStateComparator, false> StateType;
       typedef FactoryCreatorFake<StateType> StateTypeCreationPolicyType;
       typedef Recorder<sizeof(__FILE__) + __LINE__> RecorderType;
-      template<typename Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
-      template<typename Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
+      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, FactoryCreatorFake<Derived> {};
 
-      template<typename From>
+      template<class From>
       struct ActionChoiceRecordingSpy {
-        template<typename T>
+        template<class T>
         void perform(T*) {
           ostringstream buf;
           buf << "?<-" << From::name;
@@ -85,14 +85,14 @@ namespace UT {
       const char* BA::name = "BA";
 
       struct GotoBCountGuardA {
-        template<typename T>
+        template<class T>
         bool eval(T* state) {
           return static_cast<A*>(state)->counter > 2;
         }
       };
 
       struct GotoACountGuardBA {
-        template<typename T>
+        template<class T>
         bool eval(T* state) {
           return static_cast<BA*>(state)->counter > 2;
         }
