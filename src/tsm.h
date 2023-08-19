@@ -11,9 +11,26 @@ struct is_same<T, T> {
   enum { value = 1 };
 };
 
-#define ISMINIMAL true
+// From stackoverflow: https://stackoverflow.com/questions/2910979/how-does-is-base-of-work
+typedef char (&yes)[1];
+typedef char (&no)[2];
 
-#elif defined (IAMWORKSTATION)
+template<typename B, typename D>
+struct Host {
+  operator B*() const;
+  operator D*();
+};
+
+template<typename B, typename D>
+struct is_base_of {
+  template<typename T>
+  static yes check(D*, T);
+  static no check(B*, int);
+
+  static const bool value = sizeof(check(Host<B, D>(), int())) == sizeof(yes);
+};
+
+#elif defined(IAMWORKSTATION)
 
 #include <stdint.h>
 #include <typeinfo>
@@ -24,10 +41,10 @@ using namespace std;
 #error define either IAMARDUINO or IAMWORKSTATION
 #endif
 
-#include "templatemeta.h"
+#include "lokilight.h"
 #include "state.h"
 #include "statemachine.h"
 #include "transition.h"
 #include "choicetransition.h"
 #include "initialtransition.h"
-#include "endtransition.h"
+#include "finaltransition.h"

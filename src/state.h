@@ -1,6 +1,6 @@
 #pragma once
 /*
-  Copyright 2022 Stefan Grimm
+  Copyright 2022-2023 Stefan Grimm
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,76 +15,89 @@
    limitations under the License.
 */
 
-#include "templatemeta.h"
+#include "lokilight.h"
 
 namespace tsmlib {
 
-using namespace Loki;
+using namespace LokiLight;
+// Pre-defined comparators
+struct MemoryAddressComparator;
+struct VirtualGetTypeIdStateComparator;
+struct RttiComparator;
 
-template<typename Derived, typename Comperator>
-struct _StateBase {
-  bool equals(const Derived& other) const {
-    return Comperator::areEqual(*static_cast<const Derived*>(this), other);
-  }
-
-  template<typename T>
-  bool typeOf() {
-    return Comperator::template hasType<T>(*static_cast<const Derived*>(this));
-  }
-};
-
-#if defined (IAMWORKSTATION)
-
-// TODO: Typeid only works with `virtual void vvfunc() {}` with the Microsoft compiler.
-
-template<typename Derived>
-struct _StateBase<Derived, struct TypeidStateComperator> {
-    bool equals(const Derived& other) const {
-      auto derived = dynamic_cast<const Derived*>(this);
-      return typeid(*derived) == typeid(other);
-    }
-
-    template<typename T>
-    bool typeOf() {
-      auto derived = dynamic_cast<const Derived*>(this);
-      return typeid(*derived) == typeid(T);
-    }
-    //Microsoft typeid requires:
-    virtual void vvfunc() {}
-  };
-
-#endif
-
-template<typename Comperator, bool Singleton>
+template<typename Comparator, bool Singleton>
 struct State {
-  bool equals(const State& other) const {
-    return Comperator::areEqual(*this, other);
-  }
-  template<typename T>
-  bool typeOf() {
-    return Comperator::template hasType<T>(this);
-  }
-#ifndef DISABLENESTEDSTATES
-  virtual void _vexit() = 0;
 
-  template<uint8_t N> void _exit() { _vexit(); }
-#else
-  template<uint8_t N> void _exit() {}
-#endif
+  bool equals(const State& other) const {
+    return Comparator::areEqual(*this, other);
+  }
+
+  template<typename T>
+  bool typeOf() const {
+    return Comparator::template hasType<T>(*this);
+  }
 };
-// specialization of State class.
-template<typename Comperator>
-struct State<Comperator, false> : _StateBase<State<Comperator, false>, Comperator> {
+// Specializations of State class. Non-singletons need some type-id method for comparison.
+template<>
+struct State<MemoryAddressComparator, true> {
+
+  bool equals(const State<MemoryAddressComparator, true>& other) const {
+    return this == &other;
+  }
+
+  template<typename T>
+  bool typeOf() const {
+    typedef typename T::CreatorType Factory;
+    T* other = Factory::create();
+    // other is 0 for AnyState
+    bool sameType = other != 0 ? this->equals(*other) : true;
+    Factory::destroy(other);
+
+    return sameType;
+  }
+};
+
+template<>
+struct State<VirtualGetTypeIdStateComparator, false> {
+
   virtual uint8_t getTypeId() const = 0;
 
-#ifndef DISABLE_NESTED_STATES
-  virtual void _vexit() = 0;
-  
-  template<uint8_t N> void _exit() { _vexit(); }
-#else
-  template<uint8_t N> void _exit() {}
-#endif
+  bool equals(const State<VirtualGetTypeIdStateComparator, false>& other) const {
+    auto derived = static_cast<const State<VirtualGetTypeIdStateComparator, false>*>(this);
+    return derived->getTypeId() == other.getTypeId();
+  }
+
+  template<typename T>
+  bool typeOf() const {
+    typedef typename T::CreatorType Factory;
+    T* other = Factory::create();
+    // other is nullptr for AnyState. Rule: AnyState != AnyState
+    if (other == nullptr) return false;
+
+    bool sameType = this->getTypeId() == other->getTypeId();
+    Factory::destroy(other);
+
+    return sameType;
+  }
 };
+
+#if defined(IAMWORKSTATION)
+template<>
+struct State<RttiComparator, false> {
+public:
+  // Google: Why does C++ RTTI require a virtual method table?
+  virtual ~State() {}
+
+  bool equals(const State<RttiComparator, false>& other) const {
+    return typeid(*this) == typeid(other);
+  }
+
+  template<typename T>
+  bool typeOf() const {
+    return typeid(*this) == typeid(T);
+  }
+};
+#endif
 
 template<typename T>
 struct AnyState : T {
@@ -92,97 +105,85 @@ struct AnyState : T {
   typedef AnyState ObjectType;
 
   static AnyState* create() {
-    return 0;
+    return nullptr;
   }
-  static void destroy(AnyState*) { }
+  static void destroy(AnyState*) {}
 };
 
 template<typename Derived, typename Basetype>
 class BasicState : public Basetype {
-  public:
-    template<uint8_t N>
-    bool _entry() {
-      static_cast<Derived*>(this)->entry();
-      return false;
-    }
+public:
+  template<uint8_t N>
+  void _entry() {
+    static_cast<Derived*>(this)->entry();
+  }
 
-    void _vexit() {
-      static_cast<Derived*>(this)->exit();
-    }
+  template<uint8_t N>
+  void _exit() {
+    static_cast<Derived*>(this)->exit();
+  }
 
-    template<uint8_t N>
-    void _exit() {
-      static_cast<Derived*>(this)->exit();
-    }
-
-    template<uint8_t N>
-    Basetype* _doit() {
-      static_cast<Derived*>(this)->template doit<N>();
-      return 0;
-    }
+  template<uint8_t N>
+  bool _doit() {
+    static_cast<Derived*>(this)->template doit<N>();
+    return true;
+  }
 };
-
-#ifndef DISABLENESTEDSTATES
 
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
-  public:
-    template<uint8_t N>
-    bool _entry() {
-      static_cast<Derived*>(this)->entry();
-      subStatemachine_.template _begin<N>();
-      return true;
-    }
+public:
+  template<uint8_t N>
+  void _entry() {
+    static_cast<Derived*>(this)->entry();
+    subStatemachine_.template _begin<N>();
+  }
 
-    void _vexit() {
-      static_cast<Derived*>(this)->exit();
-    }
+  template<uint8_t N>
+  void _exit() {
+    subStatemachine_.template _end<N>();
+    static_cast<Derived*>(this)->exit();
+  }
 
-    template<uint8_t N>
-    void _exit() {
-      subStatemachine_.template _end<N>();
-      static_cast<Derived*>(this)->exit();
-    }
-
-    template<uint8_t N>
-    Basetype* _doit() {
-      // Return if substates consumed the trigger
-      auto result = subStatemachine_.template dispatch<N>();
-      if (result.consumed && result.deferredEntry) {
-        return result.activeState;
-      }
-      return 0;
-    }
+  template<uint8_t N>
+  bool _doit() {
+    auto result = subStatemachine_.template dispatch<N>();
+    return result.consumed;
+  }
 
 private:
-    Statemachine subStatemachine_;
+  Statemachine subStatemachine_;
 };
 
-#endif
-
-template<typename Comperator, bool Singleton>
-bool operator==(const State<Comperator, Singleton>& lhs, const State<Comperator, Singleton>& rhs) {
+template<typename Comparator, bool Singleton>
+bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator, Singleton>& rhs) {
   return lhs.equals(rhs);
 }
 
+/**
+* When leaving, the object not destroyed. Make sure you reset the state's state.
+*/
 template<typename T>
 struct SingletonCreator {
-    typedef SingletonCreator<T> CreatorType;
-    typedef T ObjectType;
+  typedef SingletonCreator<T> CreatorType;
+  typedef T ObjectType;
 
-    static T* create() {
-      return instance;
-    }
-    static void destroy(T* state) { }
+  static T* create() {
+    return instance;
+  }
+  static void destroy(T* state) {}
 
-  private:
-    static T* instance;
+private:
+  static T* instance;
 };
 template<typename T> T* SingletonCreator<T>::instance = new T;
 
+/**
+* When leaving, the object is destroyed and the state's state is lost.
+*/
 template<typename T, bool implementsCreate = true>
-struct FactorCreator {
-  typedef FactorCreator<T, true> CreatorType;
+struct FactoryCreator {
+  typedef FactoryCreator<T, true> CreatorType;
   typedef T ObjectType;
 
   static T* create() {
@@ -192,10 +193,10 @@ struct FactorCreator {
     delete state;
   }
 };
-// Specialication
+// Specialization
 template<typename T>
-struct FactorCreator<T, false> {
-  typedef FactorCreator<T, false> CreatorType;
+struct FactoryCreator<T, false> {
+  typedef FactoryCreator<T, false> CreatorType;
   typedef T ObjectType;
 
   static void* create() {
@@ -203,41 +204,6 @@ struct FactorCreator<T, false> {
   }
   static void destroy(T* state) {
     delete state;
-  }
-};
-
-template<bool Singleton>
-struct MemoryAddressStateComperator {
-  static bool areEqual(const State<MemoryAddressStateComperator, Singleton>& lhs, const State<MemoryAddressStateComperator, Singleton>& rhs) {
-    return &lhs == &rhs;
-  }
-
-  template<typename T>
-  static bool hasType(const State<MemoryAddressStateComperator, Singleton>* me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me->equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
-  }
-};
-
-struct VirtualGetTypeIdStateComperator {
-  static bool areEqual(const State<VirtualGetTypeIdStateComperator, false>& lhs, const State<VirtualGetTypeIdStateComperator, false>& rhs) {
-    return lhs.getTypeId() == rhs.getTypeId();
-  }
-
-  template<typename T>
-  static bool hasType(const State<VirtualGetTypeIdStateComperator, false>& me) {
-    typedef typename T::CreatorType Factory;
-    auto other = Factory::create();
-    // fromState is 0 for AnyState
-    bool sameType = other != 0 ? me.equals(*other) : true;
-    Factory::destroy(other);
-
-    return sameType;
   }
 };
 

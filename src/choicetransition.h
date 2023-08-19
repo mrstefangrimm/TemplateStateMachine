@@ -1,6 +1,6 @@
 #pragma once
 /*
-  Copyright 2022 Stefan Grimm
+  Copyright 2022-2023 Stefan Grimm
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,63 +15,89 @@
    limitations under the License.
 */
 #include "state.h"
-#include "templatemeta.h"
+#include "lokilight.h"
 
 namespace tsmlib {
 
-template<uint8_t Trigger, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Check, typename Action>
-struct ChoiceTransition {
+namespace impl {
 
-    enum { N = Trigger };
-    typedef To_false ToType;
-    typedef From FromType;
-    typedef CreationPolicy CreationPolicyType;
-    typedef typename CreationPolicy::ObjectType StateType;
+template<
+  uint8_t Trigger,
+  typename To_true,
+  typename To_false,
+  typename From,
+  typename CreationPolicy,
+  typename Guard,
+  typename Action,
+  bool IsExitingTransition>
+struct ChoiceTransitionBase {
 
-    ChoiceTransition() {
-      // Choice without guard does not make sense; the choice is either to go the the state To_true or To_false.
-      CompileTimeError < !is_same<Check, OkGuard>().value > ();
-      // Choice transition
-      CompileTimeError < !is_same<To_false, EmptyState<typename CreationPolicy::ObjectType>>().value > ();
+  enum { N = Trigger };
+  enum { E = false };
+  enum { X = IsExitingTransition };
+
+  typedef To_false ToType;
+  typedef From FromType;
+  typedef CreationPolicy CreationPolicyType;
+  typedef typename CreationPolicy::ObjectType StateType;
+
+  ChoiceTransitionBase() {
+    // Choice without guard does not make sense; the choice is either to go the the state To_true or To_false.
+    CompileTimeError< !is_same<Guard, NoGuard>().value >();
+    // Choice transition
+    CompileTimeError< !is_same<To_true, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+    CompileTimeError< !is_same<From, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+  }
+
+  DispatchResult<StateType> dispatch(StateType* activeState) {
+
+    typedef typename To_true::CreatorType ToFactory;
+    typedef typename From::CreatorType FromFactory;
+
+    Action().perform(activeState);
+
+    if (Guard().eval(activeState)) {
+      return execute< To_true >(activeState);
+    } else {
+      return execute< To_false >(activeState);
+    }
+  }
+
+private:
+  template<typename To>
+  DispatchResult<StateType> execute(StateType* activeState) {
+
+    typedef typename To::CreatorType ToFactory;
+    typedef typename From::CreatorType FromFactory;
+
+    // Self transition
+    if (is_same<To, From>().value) {
+      static_cast<To*>(activeState)->template _doit<Trigger>();
+      return DispatchResult<StateType>(true, activeState);
     }
 
-    DispatchResult<StateType> dispatch(StateType* activeState) {
-
-      typedef typename To_true::CreatorType ToFactory;
-      typedef typename From::CreatorType FromFactory;
-
-      Action().perform(activeState);
-
-      if (Check().eval(activeState)) {
-        return execute< To_true >(activeState);
-      }
-      else {
-        return execute< To_false >(activeState);
-      }
+    if (X) {
+      return DispatchResult<StateType>(false, activeState);
     }
 
-  private:
-    template<typename To>
-    DispatchResult<StateType> execute(StateType* activeState) {
+    static_cast<From*>(activeState)->template _exit<Trigger>();
+    FromFactory::destroy(static_cast<From*>(activeState));
 
-      typedef typename To::CreatorType ToFactory;
-      typedef typename From::CreatorType FromFactory;
-
-      // Self transition
-      if (is_same<To, From>().value) {
-        static_cast<To*>(activeState)->template _doit<Trigger>();
-        return DispatchResult<StateType>(true, activeState, false);
-      }
-
-      static_cast<From*>(activeState)->template _exit<Trigger>();
-      FromFactory::destroy(static_cast<From*>(activeState));
-
-      To* toState = ToFactory::create();
-      bool cosumedBySubstate = toState->template _entry<Trigger>();
-      if (!cosumedBySubstate) {
-        toState->template _doit<Trigger>();
-      }
-      return DispatchResult<StateType>(true, toState, false);
+    To* toState = ToFactory::create();
+    toState->template _entry<Trigger>();
+    if (is_base_of<BasicState<To, StateType>, To>::value) {
+      toState->template _doit<Trigger>();
     }
+    return DispatchResult<StateType>(true, toState);
+  }
 };
+
+}
+
+template<uint8_t Trigger, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
+using ChoiceTransition = impl::ChoiceTransitionBase<Trigger, To_true, To_false, From, CreationPolicy, Guard, Action, false>;
+
+template<uint8_t Trigger, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
+using ChoiceExitTransition = impl::ChoiceTransitionBase<Trigger, To_true, To_false, From, CreationPolicy, Guard, Action, true>;
+
 }

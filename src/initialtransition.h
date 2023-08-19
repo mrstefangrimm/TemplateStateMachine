@@ -15,7 +15,7 @@
    limitations under the License.
 */
 #include "state.h"
-#include "templatemeta.h"
+#include "lokilight.h"
 
 namespace tsmlib {
 
@@ -39,8 +39,8 @@ struct InitialTransition {
 
     Action().perform(activeState);
     To* toState = ToFactory::create();
-    bool cosumedBySubstate = toState->template _entry<N>();
-    if (!cosumedBySubstate) {
+    toState->template _entry<N>();
+    if (is_base_of<BasicState<To, StateType>, To>::value) {
       toState->template _doit<N>();
     }
     return DispatchResult<StateType>(true, toState);

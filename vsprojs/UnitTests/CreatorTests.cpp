@@ -1,5 +1,5 @@
 /*
-  Copyright 2022 Stefan Grimm
+  Copyright 2022-2023 Stefan Grimm
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,23 +18,26 @@
 #include "CppUnitTest.h"
 
 #include "..\..\src\state.h"
-#include "..\..\src\templatemeta.h"
+#include "..\..\src\lokilight.h"
 
-namespace UnitTests {
-
-  namespace StateCreation {
+namespace UT {
+  namespace Classes {
 
     using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
 
-    struct TestObject { };
+    namespace CreatorTestsImpl {
+      struct TestObject { };
+    }
 
+    // Tests singleton and factory creators
     TEST_CLASS(CreatorTests)
     {
     public:
 
       TEST_METHOD(Create_SingletonCreator_PointsToSameObject)
       {
+        using namespace CreatorTestsImpl;
         TestObject* obj1 = SingletonCreator<TestObject>::create();
         TestObject* obj2 = SingletonCreator<TestObject>::create();
 
@@ -46,13 +49,14 @@ namespace UnitTests {
 
       TEST_METHOD(Create_FactoryCreator_PointsToDifferentObjects)
       {
-        TestObject* obj1 = FactorCreator<TestObject>::create();
-        TestObject* obj2 = FactorCreator<TestObject>::create();
+        using namespace CreatorTestsImpl;
+        TestObject* obj1 = FactoryCreator<TestObject>::create();
+        TestObject* obj2 = FactoryCreator<TestObject>::create();
 
         Assert::IsFalse(obj1 == obj2);
 
-        FactorCreator<TestObject>::destroy(obj1);
-        FactorCreator<TestObject>::destroy(obj2);
+        FactoryCreator<TestObject>::destroy(obj1);
+        FactoryCreator<TestObject>::destroy(obj2);
       }
     };
   }

@@ -22,7 +22,7 @@
 
 using namespace std;
 
-enum Triggers {
+enum Trigger {
   TIMEOUT,
 };
 

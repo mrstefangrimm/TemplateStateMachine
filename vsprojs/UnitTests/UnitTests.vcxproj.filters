@@ -1,33 +1,61 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="StateComperatorTests.cpp" />
-    <ClCompile Include="CreatorTests.cpp" />
-    <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
-    <ClCompile Include="StatemachineOnOffEntryDoExitTest.cpp" />
-    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
-    <ClCompile Include="StatemachineOnOffCallSequence.cpp" />
-    <ClCompile Include="ChoiceTests.cpp" />
-    <ClCompile Include="TransitionTriggerExecutorTest.cpp" />
-    <ClCompile Include="SubstatemachineOnOffInitialAndFinalTransitions.cpp" />
-    <ClCompile Include="SubStatemachineOnOffCallSequence.cpp" />
-    <ClCompile Include="ToAndFromNestedStatesTest.cpp" />
-    <ClCompile Include="ChoiceTransitionTest.cpp" />
-    <ClCompile Include="InitialAndFinalTransitionTest.cpp" />
-    <ClCompile Include="SelfTransitionTest.cpp" />
+    <ClCompile Include="CreatorTests.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="StateComparatorTests.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TriggerExecutorTest.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ChoiceTransitionTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="InitFinishTransitionTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="SelfTransitionTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineOnOffCallSequenceTest.cpp">
+      <Filter>StatemachineOnOff</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp">
+      <Filter>StatemachineOnOff</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineOnOffEntryCallsExitTest.cpp">
+      <Filter>StatemachineOnOff</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp">
+      <Filter>StatemachineOnOff</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineTest.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SubstatemachineTest.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="InitFinishTransitionSubstateTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="DispatchSameEventTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="DispatchSameEventSubstateTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />
-    <ClInclude Include="..\..\src\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\statemachine.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\templatemeta.h">
+    <ClInclude Include="..\..\src\lokilight.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\transition.h">
@@ -39,7 +67,7 @@
     <ClInclude Include="..\..\src\choicetransition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\endtransition.h">
+    <ClInclude Include="..\..\src\finaltransition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\initialtransition.h">
@@ -50,11 +78,14 @@
     <Filter Include="tsmlib">
       <UniqueIdentifier>{a7938580-3b40-40d6-8f03-72887e1f19a6}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ToAndFromNestedStates.drawio" />
-    <None Include="ChoiceTransitionTest.drawio" />
-    <None Include="InitialAndFinalTransitionTest.drawio" />
-    <None Include="SelfTransitionTest.drawio" />
+    <Filter Include="Classes">
+      <UniqueIdentifier>{63251c57-2fb4-45f7-b0ee-955d2f93ac34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StatemachineOnOff">
+      <UniqueIdentifier>{b5e32e8b-e4fd-4ee6-a639-2e8fbeb51fad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transitions">
+      <UniqueIdentifier>{d099550d-fb5b-4535-b2cc-a5e2f50fac28}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

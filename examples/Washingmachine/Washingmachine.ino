@@ -1,5 +1,5 @@
 /*
-  Copyright 2022 Stefan Grimm
+  Copyright 2022-2023 Stefan Grimm
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,69 +22,22 @@ using namespace tsmlib;
 
 int ledState = LOW;
 void blink() {
- BSP_Execute(digitalWrite(LED_BUILTIN, ledState);)
- ledState = ledState == LOW ? HIGH : LOW;
+  BSP_Execute(digitalWrite(LED_BUILTIN, ledState));
+  ledState = ledState == LOW ? HIGH : LOW;
 }
 
-typedef State<MemoryAddressStateComperator<true>, true> StateType;
+typedef State<MemoryAddressComparator, true> StateType;
 typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
-enum Triggers {
+enum Trigger {
   TIMEOUT,
 };
 
-struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<Loading> {
-  void entry() {
-    BSP_Execute(digitalWrite(LED_BUILTIN, LOW);)
-      BSP_Execute(Serial.println(F("Loading"));)
-      BSP_Execute(Serial.println(F("  Door open."));)
-  }
-  void exit() {
-    BSP_Execute(Serial.println(F("  Door closed."));)
-  }
-  template<uint8_t N>
-  void doit() { }
-};
-
-struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<Washing> {
-  void entry() {
-    BSP_Execute(Serial.println(F("  Washing"));)
-    counter_ = 0;
-  }
-  void exit() { }
-  template<uint8_t N>
-  void doit() {
-  }
-
-  uint8_t counter_ = 0;
-  const uint8_t washingLength_ = 50;
-};
-
-struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
-  void entry() {
-    BSP_Execute(Serial.println(F("  Rinsing"));)
-    counter_ = 0;
-  }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
-
-  uint8_t counter_ = 0;
-  const uint8_t rinsingLength_ = 30;
-};
-
-struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreator<Spinning> {
-  void entry() {
-    BSP_Execute(Serial.println(F("  Spinning"));)
-    counter_ = 0;
-  }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
-
-  uint8_t counter_ = 0;
-  const uint8_t spinningLength_ = 40;
-};
+struct Loading;
+struct Running;
+struct Washing;
+struct Rinsing;
+struct Spinning;
 
 struct IsWashingAction {
   template<typename T>
@@ -92,10 +45,11 @@ struct IsWashingAction {
     auto washingState = static_cast<Washing*>(activeState);
     washingState->counter_++;
     if (washingState->counter_ % 4 == 0) {
-      BSP_Execute(blink();)
+      BSP_Execute(blink());
     }
   }
 };
+
 struct IsWashingDone {
   template<typename T> bool eval(T* activeState) {
     auto washingState = static_cast<Washing*>(activeState);
@@ -109,10 +63,11 @@ struct IsRinsingAction {
     auto rinnsingState = static_cast<Rinsing*>(activeState);
     rinnsingState->counter_++;
     if (rinnsingState->counter_ % 2 == 0) {
-      BSP_Execute(blink();)
+      BSP_Execute(blink());
     }
   }
 };
+
 struct IsRinsingDone {
   template<typename T> bool eval(T* activeState) {
     auto rinnsingState = static_cast<Rinsing*>(activeState);
@@ -125,9 +80,10 @@ struct IsSpinningAction {
   void perform(T* activeState) {
     auto spinningState = static_cast<Spinning*>(activeState);
     spinningState->counter_++;
-    BSP_Execute(blink();)
+    BSP_Execute(blink());
   }
 };
+
 struct IsSpinningDone {
   template<typename T> bool eval(T* activeState) {
     auto spinningState = static_cast<Spinning*>(activeState);
@@ -135,53 +91,105 @@ struct IsSpinningDone {
   }
 };
 
-typedef Transition<Triggers::TIMEOUT, struct Running, Loading, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToRunningFromLoading;
-typedef Declaration<Triggers::TIMEOUT, struct Running, StateTypeCreationPolicyType> TimeoutDeclaration;
-typedef
-Typelist<ToRunningFromLoading,
-  Typelist<TimeoutDeclaration,
-  NullType>> TransitionList;
+typedef ChoiceTransition<Trigger::TIMEOUT, Rinsing, Washing, Washing, StateTypeCreationPolicyType, IsWashingDone, IsWashingAction> ToRinsingFromWashing;
+typedef ChoiceTransition<Trigger::TIMEOUT, Spinning, Rinsing, Rinsing, StateTypeCreationPolicyType, IsRinsingDone, IsRinsingAction> ToSpinningFromRinsing;
+typedef ChoiceExitTransition<Trigger::TIMEOUT, Loading, Spinning, Spinning, StateTypeCreationPolicyType, IsSpinningDone, IsSpinningAction> ToLoadingFromSpinning;
+typedef Typelist< ToRinsingFromWashing,
+                  Typelist< ToSpinningFromRinsing,
+                            Typelist< ToLoadingFromSpinning,
+                                      NullType>>>
+  RunningTransitionList;
 
-typedef Transition<Triggers::TIMEOUT, Rinsing, Washing, StateTypeCreationPolicyType, IsWashingDone, IsWashingAction> ToRinsingFromWashing;
-typedef Transition<Triggers::TIMEOUT, Spinning, Rinsing, StateTypeCreationPolicyType, IsRinsingDone, IsRinsingAction> ToSpinningFromRinsing;
-typedef ExitTransition<Triggers::TIMEOUT, Loading, Spinning, StateTypeCreationPolicyType, IsSpinningDone, IsSpinningAction> ToLoadingFromSpinning;
-typedef
-Typelist<ToRunningFromLoading,
-  Typelist< ToRinsingFromWashing,
-  Typelist< ToSpinningFromRinsing,
-  Typelist< ToLoadingFromSpinning,
-  NullType>>>> RunningTransitionList;
-
-typedef InitialTransition<Loading, StateTypeCreationPolicyType, EmptyAction> InitTransition;
-typedef Statemachine <
-  TransitionList,
-  InitTransition,
-  NullEndTransition<StateTypeCreationPolicyType>> Sm;
-
-typedef InitialTransition<Washing, StateTypeCreationPolicyType, EmptyAction> RunningInitTransition;
-typedef Statemachine <
+typedef InitialTransition<Washing, StateTypeCreationPolicyType, NoAction> RunningInitTransition;
+typedef Statemachine<
   RunningTransitionList,
-  RunningInitTransition,
-  NullEndTransition<StateTypeCreationPolicyType>> RunningSm;
+  RunningInitTransition>
+  RunningSm;
+
+typedef Transition<Trigger::TIMEOUT, Running, Loading, StateTypeCreationPolicyType, NoGuard, NoAction> ToRunningFromLoading;
+typedef ExitDeclaration<Trigger::TIMEOUT, Loading, Running, StateTypeCreationPolicyType> TimeoutDeclaration;
+typedef Typelist<ToRunningFromLoading,
+                 Typelist<TimeoutDeclaration,
+                          NullType>>
+  WashingmachineTransitionList;
+
+typedef InitialTransition<Loading, StateTypeCreationPolicyType, NoAction> InitTransition;
+typedef Statemachine<
+  WashingmachineTransitionList,
+  InitTransition>
+  WashingmachineSm;
+
+struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<Loading> {
+  void entry() {
+    BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
+    BSP_Execute(Serial.println(F("Loading")));
+    BSP_Execute(Serial.println(F("  Door open.")));
+  }
+  void exit() {
+    BSP_Execute(Serial.println(F("  Door closed.")));
+  }
+  template<uint8_t N>
+  void doit() {}
+};
 
 struct Running : public SubstatesHolderState<Running, StateType, RunningSm>, public SingletonCreator<Running> {
   void entry() {
-    BSP_Execute(Serial.println(F("Running"));)
+    BSP_Execute(Serial.println(F("Running")));
   }
-  void exit() { }
+  void exit() {}
   template<uint8_t N>
-  void doit() { }
+  void doit() {}
 };
 
-Sm statemachine;
+struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<Washing> {
+  void entry() {
+    BSP_Execute(Serial.println(F("  Washing")));
+    counter_ = 0;
+  }
+  void exit() {}
+  template<uint8_t N>
+  void doit() {
+  }
+
+  uint8_t counter_ = 0;
+  const uint8_t washingLength_ = 50;
+};
+
+struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
+  void entry() {
+    BSP_Execute(Serial.println(F("  Rinsing")));
+    counter_ = 0;
+  }
+  void exit() {}
+  template<uint8_t N>
+  void doit() {}
+
+  uint8_t counter_ = 0;
+  const uint8_t rinsingLength_ = 30;
+};
+
+struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreator<Spinning> {
+  void entry() {
+    BSP_Execute(Serial.println(F("  Spinning")));
+    counter_ = 0;
+  }
+  void exit() {}
+  template<uint8_t N>
+  void doit() {}
+
+  uint8_t counter_ = 0;
+  const uint8_t spinningLength_ = 40;
+};
+
+WashingmachineSm statemachine;
 
 void setup() {
-  BSP_Execute(Serial.begin(9600);)
-  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT);)
+  BSP_Execute(Serial.begin(9600));
+  BSP_Execute(pinMode(LED_BUILTIN, OUTPUT));
   statemachine.begin();
 }
 
 void loop() {
-  statemachine.dispatch<Triggers::TIMEOUT>();
-  BSP_Execute(delay(100);)
+  statemachine.dispatch<Trigger::TIMEOUT>();
+  BSP_Execute(delay(100));
 }

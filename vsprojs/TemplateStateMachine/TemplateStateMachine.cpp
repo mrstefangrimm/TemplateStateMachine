@@ -16,15 +16,13 @@
 #define IAMWORKSTATION 1
 
 #include "..\..\src\tsm.h"
-#include "..\..\src\choice.h"
 
 #include <iostream>
 
 using namespace tsmlib;
-using namespace Loki;
 
-typedef State<VirtualGetTypeIdStateComperator, false> StateType;
-typedef FactorCreator<StateType, false> StateTypeCreationPolicyType;
+typedef State<VirtualGetTypeIdStateComparator, false> StateType;
+typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
 struct ToSimFromCalibAction {
   template<typename T>
@@ -37,7 +35,7 @@ struct ToSimFromCalibGuard {
   bool eval(T* activeState) { return true; }
 };
 
-enum Triggers {
+enum Trigger {
   On,
   Calibrate,
   Positionstream,
@@ -47,41 +45,42 @@ enum Triggers {
   OutofSimulation,
 };
 
-struct SimulationInit : StateType, FactorCreator<SimulationInit> {
+struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
-  template<uint8_t T> bool _entry() { return false; }
-  void _vexit() {}
-  template<uint8_t N> StateType* _doit() { return 0; }
+  void entry() { }
+  void exit() { }
+  template<uint8_t N>
+  void doit() { }
 };
 
-struct SimulationManual : StateType, FactorCreator<SimulationManual> {
+struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
-  template<uint8_t T>
-  bool _entry() { return false; }
-  void _vexit() {}
-  template<uint8_t N> StateType* _doit() { return 0; }
+  void entry() { }
+  void exit() { }
+  template<uint8_t N>
+  void doit() { }
 };
 
-struct SimulationRemote : StateType, FactorCreator<SimulationRemote> {
+struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
-  template<uint8_t T>
-  bool _entry() { return false; }
-  void _vexit() {}
-  template<uint8_t N> StateType* _doit() { return 0; }
+  void entry() { }
+  void exit() { }
+  template<uint8_t N>
+  void doit() { }
 };
 
 struct Simulation;
 struct Calibration;
 
-typedef Transition<Triggers::On, Simulation, Calibration, StateTypeCreationPolicyType, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
-typedef Transition<Triggers::Calibrate, Calibration, Simulation, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToCalibToSim;
-typedef SelfTransition<Triggers::Positionstream, Simulation, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToSimFromSimPositionStream;
-typedef SelfTransition<Triggers::Positionstream, Calibration, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToCalibFromCalibPositionStream;
+typedef Transition<Trigger::On, Simulation, Calibration, StateTypeCreationPolicyType, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
+typedef Transition<Trigger::Calibrate, Calibration, Simulation, StateTypeCreationPolicyType, NoGuard, NoAction> ToCalibToSim;
+typedef SelfTransition<Trigger::Positionstream, Simulation, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToSimFromSimPositionStream;
+typedef SelfTransition<Trigger::Positionstream, Calibration, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToCalibFromCalibPositionStream;
 
-typedef Declaration<Triggers::Timeout, Simulation, StateTypeCreationPolicyType> ToSimFromSimTimeout;
-typedef Declaration<Triggers::Remote, Simulation, StateTypeCreationPolicyType> ToSimFromSimRemote;
-typedef Declaration<Triggers::Manual, Simulation, StateTypeCreationPolicyType> ToSimFromSimManual;
-typedef ExitDeclaration<Triggers::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType, OkGuard> ToCalibFromSimManual;
+typedef Declaration<Trigger::Timeout, Simulation, StateTypeCreationPolicyType> ToSimFromSimTimeout;
+typedef Declaration<Trigger::Remote, Simulation, StateTypeCreationPolicyType> ToSimFromSimRemote;
+typedef Declaration<Trigger::Manual, Simulation, StateTypeCreationPolicyType> ToSimFromSimManual;
+typedef ExitDeclaration<Trigger::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType> ToCalibFromSimManual;
 
 typedef
 Typelist<ToSimFromCalib,
@@ -99,12 +98,10 @@ Typelist< Simulation,
   Typelist< Calibration,
   NullType>> StateList;
 
-typedef InitialTransition<Simulation, StateTypeCreationPolicyType, EmptyAction> InitTransition;
+typedef InitialTransition<Simulation, StateTypeCreationPolicyType, NoAction> InitTransition;
 typedef Statemachine<
   TransitionList,
-  //StateList,
-  InitTransition,
-  NullEndTransition<StateTypeCreationPolicyType>> Sm;
+  InitTransition> Sm;
 
 struct ChoiceGuardRemoteDummy {
   template<typename T>
@@ -120,20 +117,12 @@ struct ChoiceGuardManualDummy {
     return true;
   }
 };
-typedef Choice<
-  Triggers::Timeout,
-  StateType,
-  SimulationManual,
-  SimulationRemote,
-  SimulationInit,
-  EmptyAction,
-  ChoiceGuardRemoteDummy> InitChoice;
 
-typedef Transition<Triggers::Timeout, SimulationManual, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardManualDummy, EmptyAction> ToManualFromInit;
-typedef Transition<Triggers::Timeout, SimulationRemote, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardRemoteDummy, EmptyAction> ToRemoteFromInit;
-typedef Transition<Triggers::Remote, SimulationRemote, SimulationManual, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToRemoteFromManual;
-typedef Transition<Triggers::Manual, SimulationManual, SimulationRemote, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToManualFromRemote;
-typedef Transition<Triggers::OutofSimulation, Calibration, SimulationManual, StateTypeCreationPolicyType, OkGuard, EmptyAction> ToCalibrationFromManual;
+typedef Transition<Trigger::Timeout, SimulationManual, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardManualDummy, NoAction> ToManualFromInit;
+typedef Transition<Trigger::Timeout, SimulationRemote, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardRemoteDummy, NoAction> ToRemoteFromInit;
+typedef Transition<Trigger::Remote, SimulationRemote, SimulationManual, StateTypeCreationPolicyType, NoGuard, NoAction> ToRemoteFromManual;
+typedef Transition<Trigger::Manual, SimulationManual, SimulationRemote, StateTypeCreationPolicyType, NoGuard, NoAction> ToManualFromRemote;
+typedef Transition<Trigger::OutofSimulation, Calibration, SimulationManual, StateTypeCreationPolicyType, NoGuard, NoAction> ToCalibrationFromManual;
 
 typedef
 Typelist <
@@ -150,11 +139,10 @@ Typelist< SimulationInit,
   Typelist<SimulationRemote,
   NullType>>> SimulationStateList;
 
-typedef InitialTransition<SimulationInit, StateTypeCreationPolicyType, EmptyAction> SimulationSubstatesInitTransition;
+typedef InitialTransition<SimulationInit, StateTypeCreationPolicyType, NoAction> SimulationSubstatesInitTransition;
 typedef Statemachine<
   SimulationTransitionList,
-  SimulationSubstatesInitTransition,
-  NullEndTransition<StateTypeCreationPolicyType>> SimulationSubstatemachine;
+  SimulationSubstatesInitTransition> SimulationSubstatemachine;
 
 struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>, SingletonCreator<Simulation> {
   uint8_t getTypeId() const override { return 1; }
@@ -168,7 +156,7 @@ private:
   }
   template<uint8_t N>
   void doit() {
-    if (N == Triggers::Positionstream) {
+    if (N == Trigger::Positionstream) {
       isPositionStreamActive_ = !isPositionStreamActive_;
     }
   }
@@ -177,7 +165,7 @@ private:
   bool isPositionStreamActive_ = false;
 };
 
-struct Calibration : BasicState<Calibration, StateType>, FactorCreator<Calibration> {
+struct Calibration : BasicState<Calibration, StateType>, FactoryCreator<Calibration> {
   uint8_t getTypeId() const override { return 2; }
 
 private:
@@ -220,19 +208,19 @@ int main()
   auto result = stateMachine.begin();
   // Active state: Simulation/Init, Position stream inactive
 
-  result = stateMachine.dispatch<Triggers::Positionstream>();
+  result = stateMachine.dispatch<Trigger::Positionstream>();
   // Active state: Simulation/Init, Position stream active
 
-  result = stateMachine.dispatch<Triggers::Timeout>();
+  result = stateMachine.dispatch<Trigger::Timeout>();
   // Active state: Simulation/Remote, ChoiceGuardRemoteDummy returned true
 
-  result = stateMachine.dispatch<Triggers::Manual>();
+  result = stateMachine.dispatch<Trigger::Manual>();
   // Active state: Simulation/Manual
 
-  result = stateMachine.dispatch<Triggers::OutofSimulation>();
+  result = stateMachine.dispatch<Trigger::OutofSimulation>();
 
   //stateMachine.end();
 
-  result = stateMachine.dispatch<Triggers::Calibrate>();
+  result = stateMachine.dispatch<Trigger::Calibrate>();
   // Active state: Calibration
 }
