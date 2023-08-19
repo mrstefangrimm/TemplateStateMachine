@@ -45,12 +45,13 @@ namespace UT {
       typedef GuardDummy<StateType, struct OnState, struct OnState> ToOnFromOnGuardDummy;
       typedef GuardDummy<StateType, struct OffState, struct OffState> ToOffFromOffGuardDummy;
 
-      enum Trigger {
-        On,
-        Off,
-        OnToOn,
-        OffToOff
-      };
+      namespace Trigger
+      {
+        struct On;
+        struct Off;
+        struct OnToOn;
+        struct OffToOff;
+      }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
         uint8_t getTypeId() const override { return 1; }
@@ -59,7 +60,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { }
         void exit() { }
-        template<uint8_t N>
+        template<class Event>
         void doit() { }
       };
 
@@ -70,7 +71,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { }
         void exit() { }
-        template<uint8_t N>
+        template<class Event>
         void doit() { }
       };
 

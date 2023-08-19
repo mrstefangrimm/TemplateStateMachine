@@ -113,19 +113,19 @@ struct AnyState : T {
 template<typename Derived, typename Basetype>
 class BasicState : public Basetype {
 public:
-  template<uint8_t N>
+  template<class Event>
   void _entry() {
     static_cast<Derived*>(this)->entry();
   }
 
-  template<uint8_t N>
+  template<class event>
   void _exit() {
     static_cast<Derived*>(this)->exit();
   }
 
-  template<uint8_t N>
+  template<class Event>
   bool _doit() {
-    static_cast<Derived*>(this)->template doit<N>();
+    static_cast<Derived*>(this)->template doit<Event>();
     return true;
   }
 };
@@ -133,21 +133,21 @@ public:
 template<typename Derived, typename Basetype, typename Statemachine>
 class SubstatesHolderState : public Basetype {
 public:
-  template<uint8_t N>
+  template<class Event>
   void _entry() {
     static_cast<Derived*>(this)->entry();
-    subStatemachine_.template _begin<N>();
+    subStatemachine_.template _begin<Event>();
   }
 
-  template<uint8_t N>
+  template<class Event>
   void _exit() {
-    subStatemachine_.template _end<N>();
+    subStatemachine_.template _end<Event>();
     static_cast<Derived*>(this)->exit();
   }
 
-  template<uint8_t N>
+  template<class Event>
   bool _doit() {
-    auto result = subStatemachine_.template dispatch<N>();
+    auto result = subStatemachine_.template dispatch<Event>();
     return result.consumed;
   }
 

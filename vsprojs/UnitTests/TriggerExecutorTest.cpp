@@ -35,12 +35,13 @@ namespace UT {
       typedef State<VirtualGetTypeIdStateComparator, false> StateType;
       typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
-      enum Trigger {
-        On,
-        Off,
-        Timeout,
-        Wrong,
-      };
+      namespace Trigger
+      {
+        struct On;
+        struct Off;
+        struct Timeout;
+        struct Wrong;
+      }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
         static int entryCalls;
@@ -53,7 +54,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OnState::entryCalls = 0;
@@ -71,7 +72,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OffState::entryCalls = 0;

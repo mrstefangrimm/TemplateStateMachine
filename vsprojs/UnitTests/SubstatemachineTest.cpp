@@ -39,12 +39,12 @@ namespace UT {
       typedef ActionStub<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
       typedef ActionStub<EmptyState<StateType>, struct OnState> ToFinalFromOnActionSpy;
 
-      enum Trigger {
-        On,
-        Off,
-        Stop,
-        Start
-      };
+      namespace Trigger {
+        struct On;
+        struct Off;
+        struct Stop;
+        struct Start;
+      }
 
       struct Idle : BasicState<Idle, StateType>, FactoryCreator<Idle> {
         static int entryCalls;
@@ -57,7 +57,7 @@ namespace UT {
         friend class BasicState<Idle, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int Idle::entryCalls = 0;
@@ -75,7 +75,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OnState::entryCalls = 0;
@@ -93,7 +93,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OffState::entryCalls = 0;
@@ -130,7 +130,7 @@ namespace UT {
         friend class SubstatesHolderState<Active, StateType, ActivestateStatemachine>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int Active::entryCalls = 0;

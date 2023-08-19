@@ -53,24 +53,25 @@ namespace UT {
         static EmptyStateFake* create() { return nullptr; }
         static void destroy(EmptyStateFake*) { }
 
-        template<uint8_t N>
+        template<class Event>
         void _entry() { }
-        template<uint8_t N>
+        template<class Event>
         bool _doit() { return false; }
       };
       template<typename T> const char* EmptyStateFake<T>::name = "Final";
 
-      enum Trigger {
-        Next,
-        Count,
-        Check
-      };
+      namespace Trigger
+      {
+        struct Next;
+        struct Count;
+        struct Check;
+      }
 
       struct A : Leaf<A> {
         static const char* name;
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("A::Do"); }
       };
       const char* A::name = "A";
@@ -79,7 +80,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("B::Do"); }
       };
       const char* B::name = "B";
@@ -90,10 +91,10 @@ namespace UT {
 
         void entry() { RecorderType::add("C::Entry"); }
         void exit() { RecorderType::add("C::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() {
           RecorderType::add("C::Do");
-          if (N == Trigger::Count) {
+          if (is_same<Event, Trigger::Count>().value) {
             counter++;
           }
         }

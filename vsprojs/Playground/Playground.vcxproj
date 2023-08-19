@@ -135,15 +135,15 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TemplateStateMachine.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\src\choice.h" />
     <ClInclude Include="..\..\src\state.h" />
     <ClInclude Include="..\..\src\statemachine.h" />
     <ClInclude Include="..\..\src\templatemeta.h" />
     <ClInclude Include="..\..\src\transition.h" />
     <ClInclude Include="..\..\src\tsm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Playground.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

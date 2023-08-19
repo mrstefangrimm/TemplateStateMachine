@@ -53,19 +53,20 @@ namespace UT {
         static EmptyStateFake* create() { return nullptr; }
         static void destroy(EmptyStateFake*) { }
 
-        template<uint8_t N>
+        template<class Event>
         void _entry() { }
-        template<uint8_t N>
+        template<class Event>
         bool _doit() { return false; }
       };
       template<typename T> const char* EmptyStateFake<T>::name = "Final";
 
-      enum Trigger {
-        B_A,
-        B_AA,
-        B_AAB,
-        AAB_AAA,
-      };
+      namespace Trigger
+      {
+        struct B_A;
+        struct B_AA;
+        struct B_AAB;
+        struct AAB_AAA;
+      }
 
       struct A;
       struct B;
@@ -90,7 +91,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("A::Do"); }
       };
       const char* A::name = "A";
@@ -116,7 +117,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("AA::Entry"); }
         void exit() { RecorderType::add("AA::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("AA::Do"); }
       };
       const char* AA::name = "AA";
@@ -125,7 +126,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("AAA::Entry"); }
         void exit() { RecorderType::add("AAA::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("AAA::Do"); }
       };
       const char* AAA::name = "AAA";
@@ -134,7 +135,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("AAB::Entry"); }
         void exit() { RecorderType::add("AAB::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("AAB::Do"); }
       };
       const char* AAB::name = "AAB";
@@ -143,7 +144,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("B::Do"); }
       };
       const char* B::name = "B";
@@ -238,7 +239,7 @@ namespace UT {
         sm.begin();
 
         RecorderType::reset();
-        sm.dispatch<B_A>();
+        sm.dispatch<Trigger::B_A>();
 
         RecorderType::check({
           "B<-A",
@@ -263,7 +264,7 @@ namespace UT {
         sm.begin();
 
         RecorderType::reset();
-        sm.dispatch<B_AA>();
+        sm.dispatch<Trigger::B_AA>();
 
         //vector<string>* localRecorder = &RecorderType::records_;
 

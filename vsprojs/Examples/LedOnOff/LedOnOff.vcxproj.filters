@@ -13,5 +13,26 @@
     <ClInclude Include="..\..\..\src\tsm.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\choicetransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\finaltransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\initialtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\lokilight.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\state.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\statemachine.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

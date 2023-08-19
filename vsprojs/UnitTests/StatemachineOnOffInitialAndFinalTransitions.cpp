@@ -38,11 +38,12 @@ namespace UT {
       typedef State<VirtualGetTypeIdStateComparator, false> StateType;
       typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
-      enum Trigger {
-        On,
-        Off,
-        Goodbye,
-      };
+      namespace Trigger
+      {
+        struct On;
+        struct Off;
+        struct Goodbye;
+      }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
         static int entryCalls;
@@ -55,7 +56,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OnState::entryCalls = 0;
@@ -73,7 +74,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<uint8_t N>
+        template<class Event>
         void doit() { doitCalls++; }
       };
       int OffState::entryCalls = 0;
@@ -142,7 +143,7 @@ namespace UT {
 
         typedef ActionStub<struct EmptyState<StateType>, struct AnyState<StateType>> ToOffFromInitActionSpy;
         // This is wrong: Use InitialTransition to avoid that "begin" fails.
-        typedef Transition<0, OffState, OffState, StateTypeCreationPolicyType, ToOffFromInitGuardDummy, ToOffFromInitActionSpy> WrongToInitTransition;
+        typedef Transition<NullType, OffState, OffState, StateTypeCreationPolicyType, ToOffFromInitGuardDummy, ToOffFromInitActionSpy> WrongToInitTransition;
 
         typedef Statemachine<
           TransitionList,

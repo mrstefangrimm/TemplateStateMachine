@@ -29,9 +29,9 @@ void blink() {
 typedef State<MemoryAddressComparator, true> StateType;
 typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
-enum Trigger {
-  TIMEOUT,
-};
+namespace Trigger {
+struct Timeout;
+}
 
 struct Loading;
 struct Running;
@@ -91,9 +91,9 @@ struct IsSpinningDone {
   }
 };
 
-typedef ChoiceTransition<Trigger::TIMEOUT, Rinsing, Washing, Washing, StateTypeCreationPolicyType, IsWashingDone, IsWashingAction> ToRinsingFromWashing;
-typedef ChoiceTransition<Trigger::TIMEOUT, Spinning, Rinsing, Rinsing, StateTypeCreationPolicyType, IsRinsingDone, IsRinsingAction> ToSpinningFromRinsing;
-typedef ChoiceExitTransition<Trigger::TIMEOUT, Loading, Spinning, Spinning, StateTypeCreationPolicyType, IsSpinningDone, IsSpinningAction> ToLoadingFromSpinning;
+typedef ChoiceTransition<Trigger::Timeout, Rinsing, Washing, Washing, StateTypeCreationPolicyType, IsWashingDone, IsWashingAction> ToRinsingFromWashing;
+typedef ChoiceTransition<Trigger::Timeout, Spinning, Rinsing, Rinsing, StateTypeCreationPolicyType, IsRinsingDone, IsRinsingAction> ToSpinningFromRinsing;
+typedef ChoiceExitTransition<Trigger::Timeout, Loading, Spinning, Spinning, StateTypeCreationPolicyType, IsSpinningDone, IsSpinningAction> ToLoadingFromSpinning;
 typedef Typelist< ToRinsingFromWashing,
                   Typelist< ToSpinningFromRinsing,
                             Typelist< ToLoadingFromSpinning,
@@ -106,8 +106,8 @@ typedef Statemachine<
   RunningInitTransition>
   RunningSm;
 
-typedef Transition<Trigger::TIMEOUT, Running, Loading, StateTypeCreationPolicyType, NoGuard, NoAction> ToRunningFromLoading;
-typedef ExitDeclaration<Trigger::TIMEOUT, Loading, Running, StateTypeCreationPolicyType> TimeoutDeclaration;
+typedef Transition<Trigger::Timeout, Running, Loading, StateTypeCreationPolicyType, NoGuard, NoAction> ToRunningFromLoading;
+typedef ExitDeclaration<Trigger::Timeout, Loading, Running, StateTypeCreationPolicyType> TimeoutDeclaration;
 typedef Typelist<ToRunningFromLoading,
                  Typelist<TimeoutDeclaration,
                           NullType>>
@@ -128,7 +128,7 @@ struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<
   void exit() {
     BSP_Execute(Serial.println(F("  Door closed.")));
   }
-  template<uint8_t N>
+  template<class Event>
   void doit() {}
 };
 
@@ -137,7 +137,7 @@ struct Running : public SubstatesHolderState<Running, StateType, RunningSm>, pub
     BSP_Execute(Serial.println(F("Running")));
   }
   void exit() {}
-  template<uint8_t N>
+  template<class Event>
   void doit() {}
 };
 
@@ -147,7 +147,7 @@ struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<
     counter_ = 0;
   }
   void exit() {}
-  template<uint8_t N>
+  template<class Event>
   void doit() {
   }
 
@@ -161,7 +161,7 @@ struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<
     counter_ = 0;
   }
   void exit() {}
-  template<uint8_t N>
+  template<class Event>
   void doit() {}
 
   uint8_t counter_ = 0;
@@ -174,7 +174,7 @@ struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreato
     counter_ = 0;
   }
   void exit() {}
-  template<uint8_t N>
+  template<class Event>
   void doit() {}
 
   uint8_t counter_ = 0;
@@ -190,6 +190,6 @@ void setup() {
 }
 
 void loop() {
-  statemachine.dispatch<Trigger::TIMEOUT>();
+  statemachine.dispatch<Trigger::Timeout>();
   BSP_Execute(delay(100));
 }

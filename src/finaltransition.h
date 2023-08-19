@@ -21,10 +21,10 @@ namespace tsmlib {
 template<typename Me, typename CreationPolicy>
 struct FinalTransition {
 
-  enum { N = -1 };
   enum { E = false };
   enum { X = true };
 
+  typedef NullType EventType;
   typedef typename CreationPolicy::ObjectType StateType;
   typedef Me FromType;
 
@@ -32,7 +32,7 @@ struct FinalTransition {
     typedef typename Me::CreatorType FromFactory;
     typedef typename CreationPolicy::CreatorType Creator;
 
-    static_cast<Me*>(activeState)->template _exit<N>();
+    static_cast<Me*>(activeState)->template _exit<EventType>();
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 
@@ -40,8 +40,8 @@ struct FinalTransition {
   }
 };
 
-template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
-struct FinalTransitionExplicit : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
+template<class Event, typename From, typename CreationPolicy, typename Guard, typename Action>
+struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
   FinalTransitionExplicit() {
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.
     CompileTimeError< !is_same<Guard, NoGuard>().value >();

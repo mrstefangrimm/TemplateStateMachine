@@ -30,9 +30,9 @@ using namespace std;
 typedef State<MemoryAddressComparator, true> StateType;
 typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
 
-enum Trigger {
-  TIMEOUT,
-};
+namespace Trigger {
+  struct Timeout;
+}
 
 class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn> {
   friend class BasicState<LedOn, StateType>;
@@ -40,7 +40,7 @@ class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
   }
   void exit() {}
-  template<uint8_t N>
+  template<class Event>
   void doit() {}
 };
 
@@ -51,12 +51,12 @@ class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<Led
     BSP_Execute(Serial.println(freeMemory()));
   }
   void exit() {}
-  template<uint8_t N>
+  template<class event>
   void doit() {}
 };
 
-typedef Transition<Trigger::TIMEOUT, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOff;
-typedef Transition<Trigger::TIMEOUT, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOn;
+typedef Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOff;
+typedef Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOn;
 
 typedef Typelist<ToOnFromOff,
   Typelist<ToOffFromOn,
@@ -78,9 +78,9 @@ void setup() {
 }
 
 void loop() {
-  statemachine.dispatch<Trigger::TIMEOUT>();
+  statemachine.dispatch<Trigger::Timeout>();
   BSP_Execute(delay(1000));
-  statemachine.dispatch<Trigger::TIMEOUT>();
+  statemachine.dispatch<Trigger::Timeout>();
   BSP_Execute(delay(1000));
 }
 

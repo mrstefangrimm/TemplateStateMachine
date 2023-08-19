@@ -48,9 +48,10 @@ namespace UT {
         }
       };
 
-      enum Trigger {
-        Count
-      };
+      namespace Trigger
+      {
+        struct Count;
+      }
 
       struct A : Leaf<A> {
         static const char* name;
@@ -58,7 +59,7 @@ namespace UT {
 
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() {
           RecorderType::add("A::Do");
           counter++;
@@ -73,7 +74,7 @@ namespace UT {
         
         void entry() { RecorderType::add("BA::Entry"); }
         void exit() { RecorderType::add("BA::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() {
           RecorderType::add("BA::Do");
           counter++;
@@ -114,7 +115,7 @@ namespace UT {
 
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() {
           RecorderType::add("B::Do");
         }

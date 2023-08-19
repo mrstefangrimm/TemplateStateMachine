@@ -35,21 +35,21 @@ struct ToSimFromCalibGuard {
   bool eval(T* activeState) { return true; }
 };
 
-enum Trigger {
-  On,
-  Calibrate,
-  Positionstream,
-  Timeout,
-  Remote,
-  Manual,
-  OutofSimulation,
-};
+namespace Trigger {
+  struct On;
+  struct Calibrate;
+  struct Positionstream;
+  struct Timeout;
+  struct Remote;
+  struct Manual;
+  struct OutofSimulation;
+}
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
   void entry() { }
   void exit() { }
-  template<uint8_t N>
+  template<class Event>
   void doit() { }
 };
 
@@ -57,7 +57,7 @@ struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreato
   uint8_t getTypeId() const override { return 11; }
   void entry() { }
   void exit() { }
-  template<uint8_t N>
+  template<class Event>
   void doit() { }
 };
 
@@ -65,7 +65,7 @@ struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreato
   uint8_t getTypeId() const override { return 12; }
   void entry() { }
   void exit() { }
-  template<uint8_t N>
+  template<class Event>
   void doit() { }
 };
 
@@ -154,9 +154,9 @@ private:
   }
   void exit() {
   }
-  template<uint8_t N>
+  template<class Event>
   void doit() {
-    if (N == Trigger::Positionstream) {
+    if (is_same<Event, Trigger::Positionstream>().value) {
       isPositionStreamActive_ = !isPositionStreamActive_;
     }
   }
@@ -172,7 +172,7 @@ private:
   friend class BasicState<Calibration, StateType>;
   void entry() { }
   void exit() { }
-  template<uint8_t N>
+  template<class Event>
   void doit() {
   }
 };

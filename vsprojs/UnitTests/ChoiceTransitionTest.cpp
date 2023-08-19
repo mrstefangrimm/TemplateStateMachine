@@ -47,11 +47,12 @@ namespace UT {
         }
       };
 
-      enum Trigger {
-        Choice_B_C,
-        Choice_A_B,
-        Count
-      };
+      namespace Trigger
+      {
+        struct Choice_B_C;
+        struct Choice_A_B;
+        struct Count;
+      }
 
       struct A : Leaf<A> {
         static const char* name;
@@ -59,10 +60,10 @@ namespace UT {
 
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() {
           RecorderType::add("A::Do");
-          if (N == Trigger::Count) {
+          if (is_same<Event, Trigger::Count>().value) {
             counter++;
           }
         }
@@ -74,7 +75,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("B::Do"); }
 
         uint8_t getTypeId() const override { return 2; };
@@ -85,7 +86,7 @@ namespace UT {
         static const char* name;
         void entry() { RecorderType::add("C::Entry"); }
         void exit() { RecorderType::add("C::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("C::Do"); }
 
         uint8_t getTypeId() const override { return 3; };

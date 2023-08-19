@@ -54,18 +54,18 @@ namespace UT {
         friend class BasicState<FinalStateFake, StateType>;
         void entry() { }
         void exit() { }
-        template<uint8_t N>
+        template<class Event>
         void doit() { }
       };
       const char* FinalStateFake::name = "Final";
 
-      enum Trigger {
-        On,
-        Off,
-        OnToOn,
-        OffToOff,
-        OffToFinal
-      };
+      namespace Trigger {
+        struct On;
+        struct Off;
+        struct OnToOn;
+        struct OffToOff;
+        struct OffToFinal;
+      }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
         static const char* name;
@@ -75,7 +75,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { RecorderType::add("OnState::Entry"); }
         void exit() { RecorderType::add("OnState::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("OnState::Do"); }
       };
       const char* OnState::name = "OnState";
@@ -88,7 +88,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { RecorderType::add("OffState::Entry"); }
         void exit() { RecorderType::add("OffState::Exit"); }
-        template<uint8_t N>
+        template<class Event>
         void doit() { RecorderType::add("OffState::Do"); }
       };
       const char* OffState::name = "OffState";
