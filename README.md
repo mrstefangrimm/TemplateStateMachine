@@ -1,8 +1,48 @@
+[![MSBuild](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml)
+
 # TemplateStateMachine
 
 
 
-Work in progress. The aim is a statemachine template library with a small RAM footprint.
+Work in progress. The aim is a state machine template library with a small RAM footprint.
+
+
+
+## Intro
+
+If you have two states, "On" and "Off", there is nothing more efficient than a member variable. When the number of states grows and if the states have sub-states, then it is time for a state machine. XX explains in his book xXX<sup>[1]</sup>  how to write a good state machine.  Also worth watching is [Rise of the State Machines](https://www.youtube.com/watch?v=Zb6xcd2as6o) by Kris Jusiak. I leave it by that because I would otherwise just repeat the experts voices.
+
+
+
+While I was thinking how I could use C++ templates to generate a state machine for me, the [SML](https://github.com/boost-ext/sml) was released. Bummer, they  did a great job. You can stop reading here.
+
+
+
+
+
+## Features
+
+### Compatibility
+
+The TSM is compatible the current Arduino tool chain that comes with the Arduino IDE.
+
+### UML state machine
+
+The states have the methods "entry", "exit" and "do".  States can have sub-states. Transitions have an "action" and a "guard". The state machine has the method "begin" that triggers an initial transition and the method <code>end</code> that calls exit on the current state and its substates.
+
+### Interchangeable memory model
+
+States can be singletons, this is how most implementations work. States can be dynamically created when entered and deleted when exited. Because of memory fragmentation this is not often done.
+
+
+
+
+
+
+
+  
+
+
 
 
 
