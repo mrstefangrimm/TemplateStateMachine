@@ -15,8 +15,15 @@ namespace UnitTests {
     template<class To, class From>
     struct ActionStub {
       static int calls;
+
       template<class State>
       void perform(State*) { calls++; }
+
+      template<class StateType, class EventType>
+      void perform(StateType* activeState, const EventType& ev) { calls++; }
+
+      void perform() { calls++; }
+
     };
     template<class To, class From> int ActionStub<To, From>::calls = 0;
 
@@ -62,6 +69,21 @@ namespace UnitTests {
         buf << To::name << "<-" << From::name;
         Recorder::add(buf.str());
       }
+
+      template<class StateType, class EventType>
+      void perform(StateType* activeState, const EventType& ev) {
+        calls++;
+        ostringstream buf;
+        buf << To::name << "<-" << From::name;
+        Recorder::add(buf.str());
+      }
+
+      void perform() {
+        calls++;
+        ostringstream buf;
+        buf << To::name << "<-" << From::name;
+        Recorder::add(buf.str());
+      }
     };
     template<class To, class From, class Recorder> int ActionSpy<To, From, Recorder>::calls = 0;
 
@@ -69,8 +91,20 @@ namespace UnitTests {
     struct GuardDummy {
       static int calls;
       static bool CheckReturnValue;
+
       template<class T>
       bool eval(T* activeState) {
+        if (!is_same < From, AnyState<StateType>>().value) {
+          From* from = From::CreatorType::create();
+          Assert::IsTrue(activeState->equals(*from));
+          From::CreatorType::destroy(from);
+        }
+        calls++;
+        return CheckReturnValue;
+      }
+
+      template<class StateType, class EventType>
+      bool eval(StateType* activeState, const EventType&) {
         if (!is_same < From, AnyState<StateType>>().value) {
           From* from = From::CreatorType::create();
           Assert::IsTrue(activeState->equals(*from));

@@ -46,5 +46,19 @@ struct InitialTransition {
     }
     return DispatchResult<StateType>(true, toState);
   }
+
+  DispatchResult<StateType> dispatch() {
+    typedef typename To::CreatorType ToFactory;
+
+    Action().perform();
+    To* toState = ToFactory::create();
+    toState->template _entry<EventType>();
+    if (is_base_of<BasicState<To, StateType>, To>::value) {
+
+      EventType ev{};
+      toState->template _doit<EventType>(ev);
+    }
+    return DispatchResult<StateType>(true, toState);
+  }
 };
 }

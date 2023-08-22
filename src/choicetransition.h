@@ -63,6 +63,20 @@ struct ChoiceTransitionBase {
     }
   }
 
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
+
+    typedef typename To_true::CreatorType ToFactory;
+    typedef typename From::CreatorType FromFactory;
+
+    Action().perform(activeState, *ev);
+
+    if (Guard().eval(activeState, *ev)) {
+      return execute< To_true >(activeState, ev);
+    } else {
+      return execute< To_false >(activeState, ev);
+    }
+  }
+
 private:
   template<class To>
   DispatchResult<StateType> execute(StateType* activeState) {
@@ -87,6 +101,33 @@ private:
     toState->template _entry<EventType>();
     if (is_base_of<BasicState<To, StateType>, To>::value) {
       toState->template _doit<EventType>();
+    }
+    return DispatchResult<StateType>(true, toState);
+  }
+
+  template<class To>
+  DispatchResult<StateType> execute(StateType* activeState, const EventType* ev) {
+
+    typedef typename To::CreatorType ToFactory;
+    typedef typename From::CreatorType FromFactory;
+
+    // Self transition
+    if (is_same<To, From>().value) {
+      static_cast<To*>(activeState)->_doit(*ev);
+      return DispatchResult<StateType>(true, activeState);
+    }
+
+    if (X) {
+      return DispatchResult<StateType>(false, activeState);
+    }
+
+    static_cast<From*>(activeState)->template _exit<EventType>();
+    FromFactory::destroy(static_cast<From*>(activeState));
+
+    To* toState = ToFactory::create();
+    toState->template _entry<EventType>();
+    if (is_base_of<BasicState<To, StateType>, To>::value) {
+      toState->_doit(*ev);
     }
     return DispatchResult<StateType>(true, toState);
   }

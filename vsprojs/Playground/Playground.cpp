@@ -104,6 +104,13 @@ typedef Statemachine<
   InitTransition> Sm;
 
 struct ChoiceGuardRemoteDummy {
+
+  template<class StateType, class EventType>
+  bool eval(StateType*, const EventType&) {
+    // true => SimulationRemote
+    return true;
+  }
+
   template<class T>
   bool eval(T*) {
     // true => SimulationRemote
@@ -111,6 +118,13 @@ struct ChoiceGuardRemoteDummy {
   }
 };
 struct ChoiceGuardManualDummy {
+
+  template<class StateType, class EventType>
+  bool eval(StateType*, const EventType&) {
+    // true => SimulationManual
+    return true;
+  }
+
   template<class T>
   bool eval(T*) {
     // true => SimulationManual

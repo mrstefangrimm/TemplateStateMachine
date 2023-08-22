@@ -25,7 +25,7 @@ public:
   typedef typename Initialtransition::StateType StateType;
 
   DispatchResult<StateType> begin() {
-    const auto result = Initialtransition().dispatch(nullptr);
+    const auto result = Initialtransition().dispatch();
     if (result.consumed) {
       activeState_ = result.activeState;
     }
@@ -36,8 +36,8 @@ public:
   template<class Event>
   DispatchResult<StateType> _begin() {
 
-    // Transitions can have initaltransitions (for a higher-level state to a substate).
-    // The default Initialtransition is added to the front and is therefore executed when no other was found.
+    // Transitions can have initial transitions (for a higher-level state to a sub-state).
+    // The default initial transition is added to the front and is therefore executed when no other was found.
     const int size = Length<Transitions>::value;
     const auto result = Initializer< Transitions, Event, size - 1 >::init();
     if (result.consumed) {
@@ -85,12 +85,27 @@ public:
     return DispatchResult<StateType>(true, activeState_);
   }
 
+  template<class Event>
+  DispatchResult<StateType> dispatch(const Event& ev) {
+
+    if (activeState_ == nullptr) return DispatchResult<StateType>::null;
+
+    const int size = Length<Transitions>::value;
+    auto result = TriggerExecutor< Event, size - 1 >::execute(activeState_, &ev);
+    // Transition not found
+    if (!result.consumed || result.activeState == nullptr) return DispatchResult<StateType>(false, activeState_);
+
+    activeState_ = result.activeState;
+    return DispatchResult<StateType>(true, activeState_);
+  }
+
 private:
   StateType* activeState_ = 0;
 
 public:
   template<class Event, int Index>
   struct TriggerExecutor {
+
     static DispatchResult<StateType> execute(StateType* activeState) {
       // Finds last element in the list that meets the conditions.
       typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
@@ -105,6 +120,23 @@ public:
       }
       // Recursion
       return TriggerExecutor< Event, Index - 1 >::execute(activeState);
+    }
+
+    static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
+      // Finds last element in the list that meets the conditions.
+      typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
+      typedef typename CurrentTransition::FromType::ObjectType FromType;
+
+      const bool hasSameFromState = activeState->template typeOf<FromType>();
+
+      const bool conditionMet = is_same<typename CurrentTransition::EventType, Event>().value && hasSameFromState;
+      if (conditionMet) {
+        const typename CurrentTransition::EventType* currentTransitionEvent = reinterpret_cast<const CurrentTransition::EventType*>(ev);
+        auto result = CurrentTransition().dispatch(activeState, currentTransitionEvent);
+        return result;
+      }
+      // Recursion
+      return TriggerExecutor< Event, Index - 1 >::execute(activeState, ev);
     }
 
     static void entry(StateType* entryState) {
@@ -132,7 +164,23 @@ public:
   // Specialization
   template<class Event>
   struct TriggerExecutor<Event, 0> {
+
     static DispatchResult<StateType> execute(StateType* activeState) {
+      // End of recursion.
+      typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
+      typedef typename FirstTransition::FromType::ObjectType FromType;
+
+      const bool hasSameFromState = activeState->template typeOf<FromType>();
+
+      const bool conditionMet = is_same<typename FirstTransition::EventType, Event>().value&& hasSameFromState;
+      if (conditionMet) {
+        const auto result = FirstTransition().dispatch(activeState);
+        return result;
+      }
+      return DispatchResult<StateType>(false, nullptr);
+    }
+
+    static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
       // End of recursion.
       typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
       typedef typename FirstTransition::FromType::ObjectType FromType;
@@ -141,11 +189,13 @@ public:
 
       const bool conditionMet = is_same<typename FirstTransition::EventType, Event>().value && hasSameFromState;
       if (conditionMet) {
-        const auto result = FirstTransition().dispatch(activeState);
+        const typename FirstTransition::EventType* currentTransitionEvent = reinterpret_cast<const FirstTransition::EventType*>(ev);
+        const auto result = FirstTransition().dispatch(activeState, currentTransitionEvent);
         return result;
       }
       return DispatchResult<StateType>(false, nullptr);
     }
+
     static void entry(StateType* entryState) {
       // End of recursion.
       typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
@@ -166,6 +216,7 @@ public:
 
   template<class T, class Event, int Index>
   struct Initializer {
+
     static DispatchResult<StateType> init() {
       typedef typename TypeAt<T, Index>::Result CurrentTransition;
       if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
@@ -177,10 +228,24 @@ public:
       // Recursion
       return Initializer< T, Event, Index - 1 >::init();
     }
+
+    static DispatchResult<StateType> init(const Event* ev) {
+      typedef typename TypeAt<T, Index>::Result CurrentTransition;
+      if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
+        auto result = CurrentTransition().dispatch(nullptr, ev);
+        if (result.consumed) {
+          return result;
+        }
+      }
+      // Recursion
+      return Initializer< T, Event, Index - 1 >::init(ev);
+    }
   };
+
   // Specialization
   template<class T, class Event>
   struct Initializer<T, Event, 0> {
+
     static DispatchResult<StateType> init() {
       // End of recursion.
       typedef typename TypeAt<T, 0>::Result FirstTransition;
@@ -192,10 +257,23 @@ public:
       }
       return Initialtransition().dispatch(nullptr);
     }
+
+    static DispatchResult<StateType> init(const Event* ev) {
+      // End of recursion.
+      typedef typename TypeAt<T, 0>::Result FirstTransition;
+      if (FirstTransition::E && is_same<typename FirstTransition::EventType, Event>().value) {
+        const auto result = FirstTransition().dispatch(nullptr, ev);
+        if (result.consumed) {
+          return result;
+        }
+      }
+      return Initialtransition().dispatch();
+    }
   };
 
   template<class T, int Index>
   struct Finalizer {
+
     static DispatchResult<StateType> end(StateType* activeState) {
       typedef typename TypeAt<T, Index>::Result CurrentTransition;
       typedef typename CurrentTransition::FromType::ObjectType FromType;
@@ -215,6 +293,7 @@ public:
   // Specialization
   template<class T>
   struct Finalizer<T, 0> {
+
     static DispatchResult<StateType> end(StateType* activeState) {
       // End of recursion.
       typedef typename TypeAt<T, 0>::Result FirstTransition;

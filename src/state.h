@@ -128,6 +128,12 @@ public:
     static_cast<Derived*>(this)->template doit<Event>();
     return true;
   }
+
+  template<class Event>
+  bool _doit(const Event& ev) {
+    static_cast<Derived*>(this)->template doit<Event>();
+    return true;
+  }
 };
 
 template<class Derived, class Basetype, class Statemachine>
@@ -151,6 +157,12 @@ public:
     return result.consumed;
   }
 
+  template<class Event>
+  bool _doit(const Event& ev) {
+    auto result = subStatemachine_.dispatch(ev);
+    return result.consumed;
+  }
+
 private:
   Statemachine subStatemachine_;
 };
@@ -169,14 +181,14 @@ struct SingletonCreator {
   typedef T ObjectType;
 
   static T* create() {
-    return instance;
+    return &instance;
   }
   static void destroy(T* state) {}
 
 private:
-  static T* instance;
+  static T instance;
 };
-template<class T> T* SingletonCreator<T>::instance = new T;
+template<class T> T SingletonCreator<T>::instance;
 
 /**
 * When leaving, the object is destroyed and the state's state is lost.

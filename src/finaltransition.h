@@ -38,13 +38,25 @@ struct FinalTransition {
 
     return DispatchResult<StateType>(true, nullptr);
   }
+
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
+    typedef typename Me::CreatorType FromFactory;
+    typedef typename CreationPolicy::CreatorType Creator;
+
+    static_cast<Me*>(activeState)->template _exit<EventType>();
+
+    FromFactory::destroy(static_cast<Me*>(activeState));
+
+    return DispatchResult<StateType>(true, nullptr);
+  }
 };
 
 template<class Event, class From, class CreationPolicy, class Guard, class Action>
 struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
   FinalTransitionExplicit() {
+    // TODO - Boost SML example is without guard.
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.
-    CompileTimeError< !is_same<Guard, NoGuard>().value >();
+    //CompileTimeError< !is_same<Guard, NoGuard>().value >();
   }
 };
 }

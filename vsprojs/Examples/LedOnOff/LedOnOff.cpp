@@ -15,10 +15,6 @@
 */
 #define IAMWORKSTATION 1
 
-//#define IAMARDUINO 1
-// Defines unint8_t which does not require an include on Arduino.
-#include <stdint.h>
-
 #define BSP_Execute(x) std::cout << #x << std::endl;
 
 #include "..\..\..\src\tsm.h"
@@ -60,14 +56,12 @@ typedef Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType,
 
 typedef Typelist<ToOnFromOff,
   Typelist<ToOffFromOn,
-  NullType>>
-  TransitionList;
+  NullType>> TransitionList;
 
 typedef InitialTransition<LedOff, StateTypeCreationPolicyType, NoAction> InitTransition;
 typedef Statemachine<
   TransitionList,
-  InitTransition >
-  Sm;
+  InitTransition> Sm;
 
 Sm statemachine;
 
