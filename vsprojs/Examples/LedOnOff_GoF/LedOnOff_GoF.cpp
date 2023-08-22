@@ -13,8 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-// Defines unint8_t which does not require an include on Arduino.
-#include <stdint.h>
 
 #define BSP_Execute(x) std::cout << #x << std::endl;
 

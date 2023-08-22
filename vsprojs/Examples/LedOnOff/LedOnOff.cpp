@@ -15,16 +15,16 @@
 */
 #define IAMWORKSTATION 1
 
-#define BSP_Execute(x) std::cout << #x << std::endl;
+#define BSP_Execute(x) std::cout << #x << std::endl
 
-#include "..\..\..\src\tsm.h"
+#include "../../../src/tsm.h"
 #include <iostream>
 
 using namespace tsmlib;
 using namespace std;
 
-typedef State<MemoryAddressComparator, true> StateType;
-typedef SingletonCreator<StateType> StateTypeCreationPolicyType;
+using StateType = State<MemoryAddressComparator, true>;
+using StateTypeCreationPolicyType = SingletonCreator<StateType>;
 
 namespace Trigger {
   struct Timeout;
@@ -51,17 +51,16 @@ class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<Led
   void doit() {}
 };
 
-typedef Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOff;
-typedef Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOn;
+using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction>;
+using ToOffFromOn = Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction>;
 
-typedef Typelist<ToOnFromOff,
+using Transitions = 
+  Typelist<ToOnFromOff,
   Typelist<ToOffFromOn,
-  NullType>> TransitionList;
+  NullType>>;
 
-typedef InitialTransition<LedOff, StateTypeCreationPolicyType, NoAction> InitTransition;
-typedef Statemachine<
-  TransitionList,
-  InitTransition> Sm;
+using InitTransition = InitialTransition<LedOff, StateTypeCreationPolicyType, NoAction>;
+using Sm = Statemachine<Transitions, InitTransition>;
 
 Sm statemachine;
 

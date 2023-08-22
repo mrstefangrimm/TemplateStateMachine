@@ -47,7 +47,7 @@ struct State<MemoryAddressComparator, true> {
 
   template<class T>
   bool typeOf() const {
-    typedef typename T::CreatorType Factory;
+    using Factory = typename T::CreatorType;
     T* other = Factory::create();
     // other is 0 for AnyState
     bool sameType = other != 0 ? this->equals(*other) : true;
@@ -63,13 +63,12 @@ struct State<VirtualGetTypeIdStateComparator, false> {
   virtual uint8_t getTypeId() const = 0;
 
   bool equals(const State<VirtualGetTypeIdStateComparator, false>& other) const {
-    auto derived = static_cast<const State<VirtualGetTypeIdStateComparator, false>*>(this);
-    return derived->getTypeId() == other.getTypeId();
+    return this->getTypeId() == other.getTypeId();
   }
 
   template<class T>
   bool typeOf() const {
-    typedef typename T::CreatorType Factory;
+    using Factory = typename T::CreatorType;
     T* other = Factory::create();
     // other is nullptr for AnyState. Rule: AnyState != AnyState
     if (other == nullptr) return false;
@@ -101,8 +100,8 @@ public:
 
 template<class T>
 struct AnyState : T {
-  typedef AnyState CreatorType;
-  typedef AnyState ObjectType;
+  using CreatorType = AnyState<T>;
+  using ObjectType = AnyState<T>;
 
   static AnyState* create() {
     return nullptr;
@@ -177,8 +176,8 @@ bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator,
 */
 template<class T>
 struct SingletonCreator {
-  typedef SingletonCreator<T> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = SingletonCreator<T>;
+  using ObjectType = T;
 
   static T* create() {
     return &instance;
@@ -195,8 +194,8 @@ template<class T> T SingletonCreator<T>::instance;
 */
 template<class T, bool implementsCreate = true>
 struct FactoryCreator {
-  typedef FactoryCreator<T, true> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = FactoryCreator<T, true>;
+  using ObjectType = T;
 
   static T* create() {
     return new T;
@@ -208,8 +207,8 @@ struct FactoryCreator {
 // Specialization
 template<class T>
 struct FactoryCreator<T, false> {
-  typedef FactoryCreator<T, false> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = FactoryCreator<T, false>;
+  using ObjectType = T;
 
   static void* create() {
     CompileTimeError<true>();

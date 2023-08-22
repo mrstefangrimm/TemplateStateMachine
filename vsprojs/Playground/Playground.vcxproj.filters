@@ -6,16 +6,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\choice.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\statemachine.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\templatemeta.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\transition.h">

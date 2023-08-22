@@ -15,7 +15,7 @@
 */
 #define IAMWORKSTATION 1
 
-#include "..\..\src\tsm.h"
+#include "../../src/tsm.h"
 
 #include <iostream>
 

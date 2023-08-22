@@ -26,17 +26,17 @@ struct InitialTransition {
   enum { X = false };
   enum { R = false };
 
-  typedef NullType EventType;
-  typedef To ToType;
-  typedef CreationPolicy CreationPolicyType;
-  typedef typename CreationPolicy::ObjectType StateType;
-  typedef EmptyState<StateType> FromType;
+  using EventType = NullType;
+  using ToType = To;
+  using CreationPolicyType = CreationPolicy;
+  using StateType = typename CreationPolicy::ObjectType;
+  using FromType = int;
 
   InitialTransition() {
   }
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename To::CreatorType ToFactory;
+    using ToFactory = typename To::CreatorType;
 
     Action().perform(activeState);
     To* toState = ToFactory::create();
@@ -48,7 +48,7 @@ struct InitialTransition {
   }
 
   DispatchResult<StateType> dispatch() {
-    typedef typename To::CreatorType ToFactory;
+    using ToFactory = typename To::CreatorType;
 
     Action().perform();
     To* toState = ToFactory::create();

@@ -1,7 +1,7 @@
 #pragma once
 
 #define IAMWORKSTATION 1
-#include "..\..\src\tsm.h"
+#include "../../src/tsm.h"
 #include <vector>
 
 namespace UnitTests {
@@ -125,8 +125,8 @@ namespace UnitTests {
 
     template<class T>
     struct FactoryCreatorFake {
-      typedef FactoryCreatorFake<T> CreatorType;
-      typedef T ObjectType;
+      using CreatorType = FactoryCreatorFake<T>;
+      using ObjectType = T;
 
       static int createCalls;
       static int deleteCalls;
@@ -141,22 +141,22 @@ namespace UnitTests {
 
     template<class T>
     struct SingletonCreatorFake {
-      typedef SingletonCreatorFake<T> CreatorType;
-      typedef T ObjectType;
+      using CreatorType = SingletonCreatorFake<T>;
+      using ObjectType = T;
 
       static int createCalls;
       static int deleteCalls;
 
       static void reset() { createCalls = 0; deleteCalls = 0; }
 
-      static T* create() { createCalls++;  return instance; }
+      static T* create() { createCalls++;  return &instance; }
       static void destroy(T* state) { deleteCalls++;  }
   
     private:
-      static T* instance;
+      static T instance;
     };
     template<class T> int SingletonCreatorFake<T>::createCalls = 0;
     template<class T> int SingletonCreatorFake<T>::deleteCalls = 0;
-    template<class T> T* SingletonCreatorFake<T>::instance = new T;
+    template<class T> T SingletonCreatorFake<T>::instance;
   }
 }

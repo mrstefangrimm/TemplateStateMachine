@@ -11,7 +11,7 @@ namespace sml = boost::sml;
 // dependencies
 struct sender {
   template<class TMsg>
-  constexpr void send(const TMsg& msg) { std::printf("send: %d\n", msg.id); }
+  constexpr void send(const TMsg& msg) const { std::printf("send: %d\n", msg.id); }
 };
 
 // events

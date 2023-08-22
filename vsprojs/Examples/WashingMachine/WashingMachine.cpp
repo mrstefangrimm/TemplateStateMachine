@@ -15,9 +15,9 @@
 */
 #define IAMWORKSTATION 1
 
-#define BSP_Execute(x) std::cout << #x << std::endl;
+#define BSP_Execute(x) std::cout << #x << std::endl
 
-#include "..\..\..\src\tsm.h"
+#include "../../../src/tsm.h"
 #include <iostream>
 
 using namespace tsmlib;

@@ -24,13 +24,13 @@ struct FinalTransition {
   enum { E = false };
   enum { X = true };
 
-  typedef NullType EventType;
-  typedef typename CreationPolicy::ObjectType StateType;
-  typedef Me FromType;
+  using EventType = NullType;
+  using StateType = typename CreationPolicy::ObjectType;
+  using FromType = Me;
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename Me::CreatorType FromFactory;
-    typedef typename CreationPolicy::CreatorType Creator;
+    using FromFactory = typename Me::CreatorType;
+    using Creator = typename CreationPolicy::CreatorType;
 
     static_cast<Me*>(activeState)->template _exit<EventType>();
 
@@ -40,8 +40,8 @@ struct FinalTransition {
   }
 
   DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
-    typedef typename Me::CreatorType FromFactory;
-    typedef typename CreationPolicy::CreatorType Creator;
+    using FromFactory = typename Me::CreatorType;
+    using Creator = typename CreationPolicy::CreatorType;
 
     static_cast<Me*>(activeState)->template _exit<EventType>();
 

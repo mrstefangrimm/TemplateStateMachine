@@ -22,7 +22,7 @@ namespace tsmlib {
 template<class Transitions, class Initialtransition>
 class Statemachine {
 public:
-  typedef typename Initialtransition::StateType StateType;
+  using StateType = typename Initialtransition::StateType;
 
   DispatchResult<StateType> begin() {
     const auto result = Initialtransition().dispatch();
@@ -108,8 +108,8 @@ public:
 
     static DispatchResult<StateType> execute(StateType* activeState) {
       // Finds last element in the list that meets the conditions.
-      typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
-      typedef typename CurrentTransition::FromType::ObjectType FromType;
+      using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+      using FromType = typename CurrentTransition::FromType::ObjectType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
@@ -124,14 +124,14 @@ public:
 
     static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
       // Finds last element in the list that meets the conditions.
-      typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
-      typedef typename CurrentTransition::FromType::ObjectType FromType;
+      using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+      using FromType = typename CurrentTransition::FromType::ObjectType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
       const bool conditionMet = is_same<typename CurrentTransition::EventType, Event>().value && hasSameFromState;
       if (conditionMet) {
-        const typename CurrentTransition::EventType* currentTransitionEvent = reinterpret_cast<const CurrentTransition::EventType*>(ev);
+        const typename CurrentTransition::EventType* currentTransitionEvent = reinterpret_cast<const typename CurrentTransition::EventType*>(ev);
         auto result = CurrentTransition().dispatch(activeState, currentTransitionEvent);
         return result;
       }
@@ -141,9 +141,9 @@ public:
 
     static void entry(StateType* entryState) {
       // Finds last element in the list that meets the conditions.
-      typedef typename TypeAt<Transitions, Index>::Result CurrentTransition;
-      typedef typename CurrentTransition::ToType::ObjectType ToType;
-      typedef typename CurrentTransition::CreationPolicyType CreationPolicy;
+      using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+      using ToType = typename CurrentTransition::ToType::ObjectType;
+      using CreationPolicy = typename CurrentTransition::CreationPolicyType;
 
       // TODO: Mustn't be a choice transition
       //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
@@ -167,8 +167,8 @@ public:
 
     static DispatchResult<StateType> execute(StateType* activeState) {
       // End of recursion.
-      typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
-      typedef typename FirstTransition::FromType::ObjectType FromType;
+      using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+      using FromType = typename FirstTransition::FromType::ObjectType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
@@ -182,14 +182,14 @@ public:
 
     static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
       // End of recursion.
-      typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
-      typedef typename FirstTransition::FromType::ObjectType FromType;
+      using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+      using FromType = typename FirstTransition::FromType::ObjectType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
       const bool conditionMet = is_same<typename FirstTransition::EventType, Event>().value && hasSameFromState;
       if (conditionMet) {
-        const typename FirstTransition::EventType* currentTransitionEvent = reinterpret_cast<const FirstTransition::EventType*>(ev);
+        const typename FirstTransition::EventType* currentTransitionEvent = reinterpret_cast<const typename FirstTransition::EventType*>(ev);
         const auto result = FirstTransition().dispatch(activeState, currentTransitionEvent);
         return result;
       }
@@ -198,9 +198,9 @@ public:
 
     static void entry(StateType* entryState) {
       // End of recursion.
-      typedef typename TypeAt<Transitions, 0>::Result FirstTransition;
-      typedef typename FirstTransition::ToType::ObjectType ToType;
-      typedef typename FirstTransition::CreationPolicyType CreationPolicy;
+      using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+      using ToType = typename FirstTransition::ToType::ObjectType;
+      using CreationPolicy = typename FirstTransition::CreationPolicyType;
 
       const bool hasSameFromState = entryState->template typeOf<ToType>();
 
@@ -218,7 +218,7 @@ public:
   struct Initializer {
 
     static DispatchResult<StateType> init() {
-      typedef typename TypeAt<T, Index>::Result CurrentTransition;
+      using CurrentTransition = typename TypeAt<T, Index>::Result;
       if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
         auto result = CurrentTransition().dispatch(nullptr);
         if (result.consumed) {
@@ -230,7 +230,7 @@ public:
     }
 
     static DispatchResult<StateType> init(const Event* ev) {
-      typedef typename TypeAt<T, Index>::Result CurrentTransition;
+      using CurrentTransition = typename TypeAt<T, Index>::Result;
       if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
         auto result = CurrentTransition().dispatch(nullptr, ev);
         if (result.consumed) {
@@ -248,7 +248,7 @@ public:
 
     static DispatchResult<StateType> init() {
       // End of recursion.
-      typedef typename TypeAt<T, 0>::Result FirstTransition;
+      using FirstTransition = typename TypeAt<T, 0>::Result;
       if (FirstTransition::E && is_same<typename FirstTransition::EventType, Event>().value) {
         const auto result = FirstTransition().dispatch(nullptr);
         if (result.consumed) {
@@ -260,7 +260,7 @@ public:
 
     static DispatchResult<StateType> init(const Event* ev) {
       // End of recursion.
-      typedef typename TypeAt<T, 0>::Result FirstTransition;
+      using FirstTransition = typename TypeAt<T, 0>::Result;
       if (FirstTransition::E && is_same<typename FirstTransition::EventType, Event>().value) {
         const auto result = FirstTransition().dispatch(nullptr, ev);
         if (result.consumed) {
@@ -275,8 +275,8 @@ public:
   struct Finalizer {
 
     static DispatchResult<StateType> end(StateType* activeState) {
-      typedef typename TypeAt<T, Index>::Result CurrentTransition;
-      typedef typename CurrentTransition::FromType::ObjectType FromType;
+      using CurrentTransition = typename TypeAt<T, Index>::Result;
+      using FromType = typename CurrentTransition::FromType::ObjectType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
       const bool conditionMet = CurrentTransition::X && hasSameFromState;
@@ -296,8 +296,8 @@ public:
 
     static DispatchResult<StateType> end(StateType* activeState) {
       // End of recursion.
-      typedef typename TypeAt<T, 0>::Result FirstTransition;
-      typedef typename FirstTransition::FromType::ObjectType FromType;
+      using FirstTransition = typename TypeAt<T, 0>::Result;
+      using FromType = typename FirstTransition::FromType::ObjectType;
 
       bool hasSameFromState = activeState->template typeOf<FromType>();
 

@@ -37,8 +37,8 @@ template<class T> DispatchResult<T> DispatchResult<T>::null(false, nullptr);
 
 template<class T>
 struct EmptyState : T {
-  typedef EmptyState CreatorType;
-  typedef EmptyState ObjectType;
+  using CreatorType = EmptyState<T>;
+  using ObjectType = EmptyState<T>;
 
   static EmptyState* create() {
     return nullptr;
@@ -100,11 +100,11 @@ struct TransitionBase {
   enum { R = IsReenteringTransition };
   enum { D = IsExitDeclaration };  // top-state exit declaration triggers the exit of the sub-states.
 
-  typedef Event EventType;
-  typedef CreationPolicy CreationPolicyType;
-  typedef To ToType;
-  typedef From FromType;
-  typedef typename CreationPolicy::ObjectType StateType;
+  using EventType = Event;
+  using CreationPolicyType = CreationPolicy;
+  using ToType = To;
+  using FromType = From;
+  using StateType = typename CreationPolicy::ObjectType;
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
     typedef typename From::CreatorType FromFactory;
@@ -151,7 +151,7 @@ struct TransitionBase {
 
         static_cast<From*>(activeState)->template _exit<EventType>();
 
-        typedef typename To::CreatorType ToFactory;
+        using ToFactory = typename To::CreatorType;
         To* toState = ToFactory::create();
         toState->template _entry<EventType>();
         if (is_base_of< BasicState< To, StateType >, To >::value) {
@@ -169,7 +169,7 @@ struct TransitionBase {
 
     static_cast<From*>(activeState)->template _exit<EventType>();
 
-    typedef typename To::CreatorType ToFactory;
+    using ToFactory = typename To::CreatorType;
     To* toState = ToFactory::create();
     toState->template _entry<EventType>();
     if (is_base_of< BasicState< To, StateType >, To >::value) {
@@ -180,7 +180,7 @@ struct TransitionBase {
   }
 
   DispatchResult<StateType> dispatch(StateType* activeState, const Event* ev) {
-    typedef typename From::CreatorType FromFactory;
+    using FromFactory = typename From::CreatorType;
 
     // Ignore the transition if the active state is null.
     if (activeState == nullptr) {
@@ -189,7 +189,7 @@ struct TransitionBase {
 
     // Entering substate transition
     if (E) {
-      typedef typename To::CreatorType ToFactory;
+      using ToFactory = typename To::CreatorType;
       To* toState = ToFactory::create();
       toState->template _entry<EventType>();
       if (is_base_of< BasicState< To, StateType >, To >::value) {
@@ -224,7 +224,7 @@ struct TransitionBase {
 
         static_cast<From*>(activeState)->template _exit<EventType>();
 
-        typedef typename To::CreatorType ToFactory;
+        using ToFactory = typename To::CreatorType;
         To* toState = ToFactory::create();
         toState->template _entry<EventType>();
         if (is_base_of< BasicState< To, StateType >, To >::value) {
@@ -242,7 +242,7 @@ struct TransitionBase {
 
     static_cast<From*>(activeState)->template _exit<EventType>();
 
-    typedef typename To::CreatorType ToFactory;
+    using ToFactory = typename To::CreatorType;
     To* toState = ToFactory::create();
     toState->template _entry<EventType>();
     if (is_base_of< BasicState< To, StateType >, To >::value) {

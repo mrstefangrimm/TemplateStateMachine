@@ -35,11 +35,11 @@ struct ChoiceTransitionBase {
   enum { E = false };
   enum { X = IsExitingTransition };
 
-  typedef Event EventType;
-  typedef To_false ToType;
-  typedef From FromType;
-  typedef CreationPolicy CreationPolicyType;
-  typedef typename CreationPolicy::ObjectType StateType;
+  using EventType = Event;
+  using ToType = To_false;
+  using FromType = From;
+  using CreationPolicyType = CreationPolicy;
+  using StateType = typename CreationPolicy::ObjectType;
 
   ChoiceTransitionBase() {
     // Choice without guard does not make sense; the choice is either to go the the state To_true or To_false.
@@ -51,8 +51,8 @@ struct ChoiceTransitionBase {
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
 
-    typedef typename To_true::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To_true::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
     Action().perform(activeState);
 
@@ -65,8 +65,8 @@ struct ChoiceTransitionBase {
 
   DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
 
-    typedef typename To_true::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To_true::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
     Action().perform(activeState, *ev);
 
@@ -81,8 +81,8 @@ private:
   template<class To>
   DispatchResult<StateType> execute(StateType* activeState) {
 
-    typedef typename To::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
     // Self transition
     if (is_same<To, From>().value) {
@@ -108,8 +108,8 @@ private:
   template<class To>
   DispatchResult<StateType> execute(StateType* activeState, const EventType* ev) {
 
-    typedef typename To::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
     // Self transition
     if (is_same<To, From>().value) {
