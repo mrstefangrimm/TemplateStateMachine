@@ -39,11 +39,11 @@ struct FinalTransition {
     return DispatchResult<StateType>(true, nullptr);
   }
 
-  DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType& ev) {
     using FromFactory = typename Me::CreatorType;
     using Creator = typename CreationPolicy::CreatorType;
 
-    static_cast<Me*>(activeState)->template _exit<EventType>(*ev);
+    static_cast<Me*>(activeState)->template _exit<EventType>(ev);
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 

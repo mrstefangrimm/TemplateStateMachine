@@ -32,10 +32,9 @@ struct Spinning;
 
 struct IsWashingAction {
   template<class StateType, class EventType>
-  void perform(StateType* activeState, const EventType& ev) {
-    auto washingState = static_cast<Washing*>(activeState);
-    washingState->counter_++;
-    if (washingState->counter_ % 4 == 0) {
+  void perform(StateType& activeState, const EventType&) {
+    activeState.counter_++;
+    if (activeState.counter_ % 4 == 0) {
       BSP_Execute(blink());
     }
   }
@@ -43,18 +42,16 @@ struct IsWashingAction {
 
 struct IsWashingDone {
   template<class StateType, class EventType>
-  bool eval(StateType* activeState, const EventType& ev) {
-    auto washingState = static_cast<Washing*>(activeState);
-    return washingState->counter_ > washingState->washingLength_;
+  bool eval(const StateType& activeState, const EventType&) {
+    return activeState.counter_ > activeState.washingLength_;
   }
 };
 
 struct IsRinsingAction {
   template<class StateType, class EventType>
-  void perform(StateType* activeState, const EventType& ev) {
-    auto rinnsingState = static_cast<Rinsing*>(activeState);
-    rinnsingState->counter_++;
-    if (rinnsingState->counter_ % 2 == 0) {
+  void perform(StateType& activeState, const EventType&) {
+    activeState.counter_++;
+    if (activeState.counter_ % 2 == 0) {
       BSP_Execute(blink());
     }
   }
@@ -62,26 +59,23 @@ struct IsRinsingAction {
 
 struct IsRinsingDone {
   template<class StateType, class EventType>
-  bool eval(StateType* activeState, const EventType& ev) {
-    auto rinnsingState = static_cast<Rinsing*>(activeState);
-    return rinnsingState->counter_ > rinnsingState->rinsingLength_;
+  bool eval(const StateType& activeState, const EventType&) {
+    return activeState.counter_ > activeState.rinsingLength_;
   }
 };
 
 struct IsSpinningAction {
   template<class StateType, class EventType>
-  void perform(StateType* activeState, const EventType& ev) {
-    auto spinningState = static_cast<Spinning*>(activeState);
-    spinningState->counter_++;
+  void perform(StateType& activeState, const EventType&) {
+    activeState.counter_++;
     BSP_Execute(blink());
   }
 };
 
 struct IsSpinningDone {
   template<class StateType, class EventType>
-  bool eval(StateType* activeState, const EventType& ev) {
-    auto spinningState = static_cast<Spinning*>(activeState);
-    return spinningState->counter_ > spinningState->spinningLength_;
+  bool eval(const StateType& activeState, const EventType&) {
+    return activeState.counter_ > activeState.spinningLength_;
   }
 };
 

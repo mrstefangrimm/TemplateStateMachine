@@ -16,11 +16,8 @@ namespace UnitTests {
     struct ActionStub {
       static int calls;
 
-      template<class State>
-      void perform(State*) { calls++; }
-
       template<class StateType, class EventType>
-      void perform(StateType* activeState, const EventType& ev) { calls++; }
+      void perform(StateType&, const EventType&) { calls++; }
 
       void perform() { calls++; }
 
@@ -62,16 +59,8 @@ namespace UnitTests {
     public:
       static int calls;
 
-      template<class State>
-      void perform(State*) {
-        calls++;
-        ostringstream buf;
-        buf << To::name << "<-" << From::name;
-        Recorder::add(buf.str());
-      }
-
       template<class StateType, class EventType>
-      void perform(StateType* activeState, const EventType& ev) {
+      void perform(StateType&, const EventType&) {
         calls++;
         ostringstream buf;
         buf << To::name << "<-" << From::name;
@@ -93,10 +82,10 @@ namespace UnitTests {
       static bool CheckReturnValue;
 
       template<class StateType, class EventType>
-      bool eval(StateType* activeState, const EventType& ev) {
+      bool eval(const StateType& activeState, const EventType& ev) {
         if (!is_same < From, AnyState<StateType>>().value) {
           From* from = From::CreatorType::create();
-          Assert::IsTrue(activeState->equals(*from));
+          Assert::IsTrue(activeState.equals(*from));
           From::CreatorType::destroy(from);
         }
         calls++;

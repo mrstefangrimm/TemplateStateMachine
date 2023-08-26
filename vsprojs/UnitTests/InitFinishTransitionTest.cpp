@@ -95,8 +95,8 @@ namespace UT {
 
       struct CheckTriggerGuardC {
         template<class StateType, class EventType>
-        bool eval(StateType* state, const EventType& ev) {
-          return static_cast<C*>(state)->counter > 3;
+        bool eval(const StateType& state, const EventType& ev) {
+          return state.counter > 3;
         }
       };
 

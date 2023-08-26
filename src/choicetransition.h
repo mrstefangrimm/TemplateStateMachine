@@ -49,14 +49,15 @@ struct ChoiceTransitionBase {
     CompileTimeError< !is_same<From, EmptyState<typename CreationPolicy::ObjectType>>().value >();
   }
 
-  DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType& ev) {
 
     using ToFactory = typename To_true::CreatorType;
     using FromFactory = typename From::CreatorType;
 
-    Action().template perform<StateType, EventType>(activeState, *ev);
+    FromType* fromState = static_cast<FromType*>(activeState);
+    Action().template perform<FromType, EventType>(*fromState, ev);
 
-    if (Guard().eval(activeState, *ev)) {
+    if (Guard().eval(*fromState, ev)) {
       return execute< To_true >(activeState, ev);
     } else {
       return execute< To_false >(activeState, ev);
@@ -65,14 +66,14 @@ struct ChoiceTransitionBase {
 
 private:
   template<class To>
-  DispatchResult<StateType> execute(StateType* activeState, const EventType* ev) {
+  DispatchResult<StateType> execute(StateType* activeState, const EventType& ev) {
 
     using ToFactory = typename To::CreatorType;
     using FromFactory = typename From::CreatorType;
 
     // Self transition
     if (is_same<To, From>().value) {
-      static_cast<To*>(activeState)->_doit(*ev);
+      static_cast<To*>(activeState)->_doit(ev);
       return DispatchResult<StateType>(true, activeState);
     }
 
@@ -80,13 +81,13 @@ private:
       return DispatchResult<StateType>(false, activeState);
     }
 
-    static_cast<From*>(activeState)->template _exit<EventType>(*ev);
+    static_cast<From*>(activeState)->template _exit<EventType>(ev);
     FromFactory::destroy(static_cast<From*>(activeState));
 
     To* toState = ToFactory::create();
-    toState->template _entry<EventType>(*ev);
+    toState->template _entry<EventType>(ev);
     if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->_doit(*ev);
+      toState->_doit(ev);
     }
     return DispatchResult<StateType>(true, toState);
   }

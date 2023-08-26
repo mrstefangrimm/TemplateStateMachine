@@ -26,13 +26,13 @@ typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
 struct ToSimFromCalibAction {
   template<class T, class V>
-  void perform(T*, const V&) {
+  void perform(T&, const V&) {
   }
 };
 
 struct ToSimFromCalibGuard {
   template<class T, class V>
-  bool eval(T* activeState, const V&) { return true; }
+  bool eval(const T&, const V&) { return true; }
 };
 
 namespace Trigger {
@@ -102,7 +102,7 @@ typedef Statemachine<
 
 struct ChoiceGuardRemoteDummy {
   template<class StateType, class EventType>
-  bool eval(StateType*, const EventType&) {
+  bool eval(const StateType&, const EventType&) {
     // true => SimulationRemote
     return true;
   }
@@ -110,7 +110,7 @@ struct ChoiceGuardRemoteDummy {
 
 struct ChoiceGuardManualDummy {
   template<class StateType, class EventType>
-  bool eval(StateType*, const EventType&) {
+  bool eval(const StateType&, const EventType&) {
     // true => SimulationManual
     return true;
   }

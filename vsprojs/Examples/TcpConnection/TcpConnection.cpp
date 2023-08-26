@@ -33,7 +33,7 @@ struct timeout {};
 
 struct is_valid {
   template<class StateType, class EventType>
-  bool eval(StateType*, const EventType& ev) {
+  bool eval(const StateType&, const EventType& ev) {
     return ev.valid;
   }
 };
@@ -42,7 +42,7 @@ struct is_valid {
 
 struct send_fin {
   template<class StateType, class EventType>
-  void perform(StateType*, const EventType&) {
+  void perform(StateType&, const EventType&) {
     fin msg{ 0 };
     std::printf("send: %d\n", msg.id);
   }
@@ -50,7 +50,7 @@ struct send_fin {
 
 struct send_ack {
   template<class StateType, class EventType>
-  void perform(StateType*, const EventType& ev) {
+  void perform(StateType&, const EventType& ev) {
     std::printf("send: %d\n", ev.id);
   }
 };

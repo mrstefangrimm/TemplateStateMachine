@@ -37,7 +37,7 @@ namespace UT {
       template<class From>
       struct ActionChoiceRecordingSpy {
         template<class StateType, class EventType>
-        void perform(StateType*, const EventType&) {
+        void perform(StateType&, const EventType&) {
           ostringstream buf;
           buf << "?<-" << From::name;
           RecorderType::add(buf.str());
@@ -90,7 +90,7 @@ namespace UT {
       struct ChoiceGuardStub {
         static bool ReturnValue;
         template<class StateType, class EventType>
-        bool eval(StateType* state, const EventType& ev) {
+        bool eval(const StateType&, const EventType&) {
           return ReturnValue;
         }
       };
@@ -98,8 +98,8 @@ namespace UT {
 
       struct CountTriggerGuardA {
         template<class StateType, class EventType>
-        bool eval(StateType* state, const EventType& ev) {
-          return static_cast<A*>(state)->counter < 3;
+        bool eval(const StateType& state, const EventType& ) {
+          return state.counter < 3;
         }
       };
 

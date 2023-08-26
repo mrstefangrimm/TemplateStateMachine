@@ -101,13 +101,14 @@ public:
       // Finds last element in the list that meets the conditions.
       using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
       using FromType = typename CurrentTransition::FromType::ObjectType;
+      using EventType = typename CurrentTransition::EventType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
-      const bool conditionMet = is_same<typename CurrentTransition::EventType, Event>().value && hasSameFromState;
+      const bool conditionMet = is_same<EventType, Event>().value && hasSameFromState;
       if (conditionMet) {
-        const typename CurrentTransition::EventType* currentTransitionEvent = reinterpret_cast<const typename CurrentTransition::EventType*>(ev);
-        auto result = CurrentTransition().dispatch(activeState, currentTransitionEvent);
+        const EventType* currentTransitionEvent = reinterpret_cast<const EventType*>(ev);
+        auto result = CurrentTransition().dispatch(activeState, *currentTransitionEvent);
         return result;
       }
       // Recursion
@@ -145,13 +146,14 @@ public:
       // End of recursion.
       using FirstTransition = typename TypeAt<Transitions, 0>::Result;
       using FromType = typename FirstTransition::FromType::ObjectType;
+      using EventType = typename FirstTransition::EventType;
 
       const bool hasSameFromState = activeState->template typeOf<FromType>();
 
       const bool conditionMet = is_same<typename FirstTransition::EventType, Event>().value && hasSameFromState;
       if (conditionMet) {
-        const typename FirstTransition::EventType* currentTransitionEvent = reinterpret_cast<const typename FirstTransition::EventType*>(ev);
-        const auto result = FirstTransition().dispatch(activeState, currentTransitionEvent);
+        const EventType* currentTransitionEvent = reinterpret_cast<const EventType*>(ev);
+        const auto result = FirstTransition().dispatch(activeState, *currentTransitionEvent);
         return result;
       }
       return DispatchResult<StateType>(false, nullptr);
@@ -185,7 +187,7 @@ public:
       
       if (CurrentTransition::E && is_same<EventType, Event>().value) {
         EventType ev;
-        auto result = CurrentTransition().dispatch(nullptr, &ev);
+        auto result = CurrentTransition().dispatch(nullptr, ev);
         if (result.consumed) {
           return result;
         }
@@ -205,7 +207,7 @@ public:
 
       if (FirstTransition::E && is_same<EventType, Event>().value) {
         EventType ev;
-        const auto result = FirstTransition().dispatch(nullptr, &ev);
+        const auto result = FirstTransition().dispatch(nullptr, ev);
         if (result.consumed) {
           return result;
         }
@@ -227,7 +229,7 @@ public:
         using ET = typename CurrentTransition::EventType;
         // TODO: Add event to _exit()?
         ET ev{};
-        const auto result = CurrentTransition().dispatch(activeState, &ev);
+        const auto result = CurrentTransition().dispatch(activeState, ev);
         if (result.consumed) {
           return result;
         }
@@ -252,7 +254,7 @@ public:
         using ET = typename FirstTransition::EventType;
         // TODO: Add event to _exit()?
         ET ev{};
-        const auto result = FirstTransition().dispatch(activeState, &ev);
+        const auto result = FirstTransition().dispatch(activeState, ev);
         if (result.consumed) {
           return result;
         }
