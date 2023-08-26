@@ -123,14 +123,8 @@ public:
   }
 
   template<class Event>
-  bool _doit() {
-    static_cast<Derived*>(this)->template doit<Event>();
-    return true;
-  }
-
-  template<class Event>
   bool _doit(const Event& ev) {
-    static_cast<Derived*>(this)->template doit<Event>();
+    static_cast<Derived*>(this)->template doit<Event>(ev);
     return true;
   }
 };
@@ -151,14 +145,8 @@ public:
   }
 
   template<class Event>
-  bool _doit() {
-    auto result = subStatemachine_.template dispatch<Event>();
-    return result.consumed;
-  }
-
-  template<class Event>
   bool _doit(const Event& ev) {
-    auto result = subStatemachine_.dispatch(ev);
+    auto result = subStatemachine_.template dispatch<Event>(ev);
     return result.consumed;
   }
 

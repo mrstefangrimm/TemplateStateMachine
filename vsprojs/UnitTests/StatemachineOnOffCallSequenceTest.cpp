@@ -17,12 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
-#include "..\..\src\initialtransition.h"
-#include "..\..\src\finaltransition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -55,16 +50,16 @@ namespace UT {
         void entry() { }
         void exit() { }
         template<class Event>
-        void doit() { }
+        void doit(const Event& ev) { }
       };
       const char* FinalStateFake::name = "Final";
 
       namespace Trigger {
-        struct On;
-        struct Off;
-        struct OnToOn;
-        struct OffToOff;
-        struct OffToFinal;
+        struct On {};
+        struct Off {};
+        struct OnToOn {};
+        struct OffToOff {};
+        struct OffToFinal {};
       }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
@@ -76,7 +71,7 @@ namespace UT {
         void entry() { RecorderType::add("OnState::Entry"); }
         void exit() { RecorderType::add("OnState::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("OnState::Do"); }
+        void doit(const Event& ev) { RecorderType::add("OnState::Do"); }
       };
       const char* OnState::name = "OnState";
 
@@ -89,7 +84,7 @@ namespace UT {
         void entry() { RecorderType::add("OffState::Entry"); }
         void exit() { RecorderType::add("OffState::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("OffState::Do"); }
+        void doit(const Event& ev) { RecorderType::add("OffState::Do"); }
       };
       const char* OffState::name = "OffState";
 

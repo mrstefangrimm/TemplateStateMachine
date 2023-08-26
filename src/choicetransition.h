@@ -42,25 +42,11 @@ struct ChoiceTransitionBase {
   using StateType = typename CreationPolicy::ObjectType;
 
   ChoiceTransitionBase() {
-    // Choice without guard does not make sense; the choice is either to go the the state To_true or To_false.
+    // Choice without guard does not make sense; the choice is either to go the state To_true or To_false.
     CompileTimeError< !is_same<Guard, NoGuard>().value >();
     // Choice transition
     CompileTimeError< !is_same<To_true, EmptyState<typename CreationPolicy::ObjectType>>().value >();
     CompileTimeError< !is_same<From, EmptyState<typename CreationPolicy::ObjectType>>().value >();
-  }
-
-  DispatchResult<StateType> dispatch(StateType* activeState) {
-
-    using ToFactory = typename To_true::CreatorType;
-    using FromFactory = typename From::CreatorType;
-
-    Action().perform(activeState);
-
-    if (Guard().eval(activeState)) {
-      return execute< To_true >(activeState);
-    } else {
-      return execute< To_false >(activeState);
-    }
   }
 
   DispatchResult<StateType> dispatch(StateType* activeState, const EventType* ev) {
@@ -68,7 +54,7 @@ struct ChoiceTransitionBase {
     using ToFactory = typename To_true::CreatorType;
     using FromFactory = typename From::CreatorType;
 
-    Action().perform(activeState, *ev);
+    Action().template perform<StateType, EventType>(activeState, *ev);
 
     if (Guard().eval(activeState, *ev)) {
       return execute< To_true >(activeState, ev);
@@ -78,33 +64,6 @@ struct ChoiceTransitionBase {
   }
 
 private:
-  template<class To>
-  DispatchResult<StateType> execute(StateType* activeState) {
-
-    using ToFactory = typename To::CreatorType;
-    using FromFactory = typename From::CreatorType;
-
-    // Self transition
-    if (is_same<To, From>().value) {
-      static_cast<To*>(activeState)->template _doit<EventType>();
-      return DispatchResult<StateType>(true, activeState);
-    }
-
-    if (X) {
-      return DispatchResult<StateType>(false, activeState);
-    }
-
-    static_cast<From*>(activeState)->template _exit<EventType>();
-    FromFactory::destroy(static_cast<From*>(activeState));
-
-    To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
-    if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit<EventType>();
-    }
-    return DispatchResult<StateType>(true, toState);
-  }
-
   template<class To>
   DispatchResult<StateType> execute(StateType* activeState, const EventType* ev) {
 

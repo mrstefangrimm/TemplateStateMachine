@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 #define CAT(A, B) A##B
@@ -40,9 +37,9 @@ namespace UT {
 
       namespace Trigger
       {
-        struct On;
-        struct Off;
-        struct Goodbye;
+        struct On {};
+        struct Off {};
+        struct Goodbye {};
       }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
@@ -57,7 +54,7 @@ namespace UT {
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
         template<class Event>
-        void doit() { doitCalls++; }
+        void doit(const Event& ev) { doitCalls++; }
       };
       int OnState::entryCalls = 0;
       int OnState::exitCalls = 0;
@@ -75,7 +72,7 @@ namespace UT {
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
         template<class Event>
-        void doit() { doitCalls++; }
+        void doit(const Event& ev) { doitCalls++; }
       };
       int OffState::entryCalls = 0;
       int OffState::exitCalls = 0;
@@ -133,46 +130,6 @@ namespace UT {
         Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
-      }
-
-      TEST_METHOD(InitialTransition_Fails_InitialTransitionDefinedWithGuard)
-      {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
-        typedef GuardDummy<StateType, EmptyState<StateType>, AnyState<StateType>> ToOffFromInitGuardDummy;
-        ToOffFromInitGuardDummy::CheckReturnValue = false;
-
-        typedef ActionStub<struct EmptyState<StateType>, struct AnyState<StateType>> ToOffFromInitActionSpy;
-        // This is wrong: Use InitialTransition to avoid that "begin" fails.
-        typedef Transition<NullType, OffState, OffState, StateTypeCreationPolicyType, ToOffFromInitGuardDummy, ToOffFromInitActionSpy> WrongToInitTransition;
-
-        typedef Statemachine<
-          TransitionList,
-          WrongToInitTransition> SmWrongInitialTransition;
-
-        SmWrongInitialTransition sm;
-        OffState::exitCalls = 0;
-        OffState::entryCalls = 0;
-        OffState::doitCalls = 0;
-        OnState::exitCalls = 0;
-        OnState::entryCalls = 0;
-        OnState::doitCalls = 0;
-        ToInitActionSpy::calls = 0;
-        ToFinalFromOffActionSpy::calls = 0;
-        ToFinalFromOnGuardDummy::calls = 0;
-        ToFinalFromOnActionSpy::calls = 0;
-        ToFinalFromOffGuardDummy::calls = 0;
-        ToFinalFromOffGuardDummy::CheckReturnValue = true;
-        ToFinalFromOffGuardDummy::CheckReturnValue = true;
-        ToOffFromInitGuardDummy::calls = 0;
-        ToOffFromInitGuardDummy::CheckReturnValue = false;
-        ToOffFromInitActionSpy::calls = 0;
-
-        auto result = sm.begin();
-        Assert::AreEqual(false, result.consumed);
-        Assert::IsNull(result.activeState);
-        // Guard and action are not even called when the active state is null.
-        Assert::AreEqual<int>(0, ToOffFromInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
       }
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOff_ExitAndActionAreCalled)

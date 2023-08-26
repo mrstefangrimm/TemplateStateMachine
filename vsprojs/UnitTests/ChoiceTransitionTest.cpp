@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -39,8 +36,8 @@ namespace UT {
 
       template<class From>
       struct ActionChoiceRecordingSpy {
-        template<class T>
-        void perform(T*) {
+        template<class StateType, class EventType>
+        void perform(StateType*, const EventType&) {
           ostringstream buf;
           buf << "?<-" << From::name;
           RecorderType::add(buf.str());
@@ -49,9 +46,9 @@ namespace UT {
 
       namespace Trigger
       {
-        struct Choice_B_C;
-        struct Choice_A_B;
-        struct Count;
+        struct Choice_B_C {};
+        struct Choice_A_B {};
+        struct Count {};
       }
 
       struct A : Leaf<A> {
@@ -61,7 +58,7 @@ namespace UT {
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
         template<class Event>
-        void doit() {
+        void doit(const Event& ev) {
           RecorderType::add("A::Do");
           if (is_same<Event, Trigger::Count>().value) {
             counter++;
@@ -76,7 +73,7 @@ namespace UT {
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("B::Do"); }
+        void doit(const Event& ev) { RecorderType::add("B::Do"); }
 
         uint8_t getTypeId() const override { return 2; };
       };
@@ -87,7 +84,7 @@ namespace UT {
         void entry() { RecorderType::add("C::Entry"); }
         void exit() { RecorderType::add("C::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("C::Do"); }
+        void doit(const Event& ev) { RecorderType::add("C::Do"); }
 
         uint8_t getTypeId() const override { return 3; };
       };
@@ -95,16 +92,16 @@ namespace UT {
 
       struct ChoiceGuardStub {
         static bool ReturnValue;
-        template<class T>
-        bool eval(T*) {
+        template<class StateType, class EventType>
+        bool eval(StateType* state, const EventType& ev) {
           return ReturnValue;
         }
       };
       bool ChoiceGuardStub::ReturnValue = true;
 
       struct CountTriggerGuardA {
-        template<class T>
-        bool eval(T* state) {
+        template<class StateType, class EventType>
+        bool eval(StateType* state, const EventType& ev) {
           return static_cast<A*>(state)->counter < 3;
         }
       };

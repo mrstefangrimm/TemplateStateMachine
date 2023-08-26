@@ -27,7 +27,7 @@ using StateType = State<MemoryAddressComparator, true>;
 using StateTypeCreationPolicyType = SingletonCreator<StateType>;
 
 namespace Trigger {
-  struct Timeout;
+  struct Timeout {};
 }
 
 class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn> {
@@ -36,8 +36,7 @@ class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
   }
   void exit() {}
-  template<class Event>
-  void doit() {}
+  template<class Event> void doit(const Event& ev) {}
 };
 
 class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<LedOff> {
@@ -47,8 +46,7 @@ class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<Led
     BSP_Execute(Serial.println(freeMemory()));
   }
   void exit() {}
-  template<class event>
-  void doit() {}
+  template<class Event> void doit(const Event& ev) {}
 };
 
 using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction>;

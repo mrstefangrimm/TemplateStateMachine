@@ -50,11 +50,6 @@ struct EmptyState : T {
   void _entry() {}
 
   template<class Event>
-  bool _doit() {
-    return false;
-  }
-
-  template<class Event>
   bool _doit(const Event& ev) {
     return false;
   }
@@ -62,8 +57,6 @@ struct EmptyState : T {
 
 //Provides Action interface and does nothing.
 struct NoAction {
-  template<class T>
-  void perform(T*) {}
   template<class StateType, class EventType>
   void perform(StateType*, const EventType&) {}
   void perform() {}
@@ -71,10 +64,6 @@ struct NoAction {
 
 //Provides Guard interface and returns true.
 struct NoGuard {
-  template<class T>
-  bool eval(T*) {
-    return true;
-  }
   template<class StateType, class EventType>
   bool eval(StateType*, const EventType&) {
     return true;
@@ -105,79 +94,6 @@ struct TransitionBase {
   using ToType = To;
   using FromType = From;
   using StateType = typename CreationPolicy::ObjectType;
-
-  DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename From::CreatorType FromFactory;
-
-    // Ignore the transition if the active state is null.
-    if (activeState == nullptr) {
-      return DispatchResult<StateType>(false, activeState);
-    }
-
-    // Entering substate transition
-    if (E) {
-      typedef typename To::CreatorType ToFactory;
-      To* toState = ToFactory::create();
-      toState->template _entry<EventType>();
-      if (is_base_of< BasicState< To, StateType >, To >::value) {
-        toState->template _doit<EventType>();
-      }
-
-      return DispatchResult<StateType>(true, toState);
-    }
-
-    Action().perform(activeState);
-
-    if (!Guard().eval(activeState)) {
-      return DispatchResult<StateType>(false, activeState);
-    }
-
-    // Self transition
-    if (is_same<To, From>().value || D) {
-
-      // Exit and enter when it is a reentering transition
-      if (R) {
-        static_cast<From*>(activeState)->template _exit<EventType>();
-        static_cast<From*>(activeState)->template _entry<EventType>();
-      }
-
-      const bool consumed = static_cast<From*>(activeState)->template _doit<EventType>();
-
-      // Exit declaration (on the top level)
-      if (D) {
-        if (consumed) {
-          return DispatchResult<StateType>(true, activeState);
-        }
-
-        static_cast<From*>(activeState)->template _exit<EventType>();
-
-        using ToFactory = typename To::CreatorType;
-        To* toState = ToFactory::create();
-        toState->template _entry<EventType>();
-        if (is_base_of< BasicState< To, StateType >, To >::value) {
-          toState->template _doit<EventType>();
-        }
-        FromFactory::destroy(static_cast<From*>(activeState));
-        return DispatchResult<StateType>(true, toState);
-      }
-      return DispatchResult<StateType>(consumed, activeState);
-    }
-
-    if (X) {
-      return DispatchResult<StateType>(false, activeState);
-    }
-
-    static_cast<From*>(activeState)->template _exit<EventType>();
-
-    using ToFactory = typename To::CreatorType;
-    To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
-    if (is_base_of< BasicState< To, StateType >, To >::value) {
-      toState->template _doit<EventType>();
-    }
-    FromFactory::destroy(static_cast<From*>(activeState));
-    return DispatchResult<StateType>(true, toState);
-  }
 
   DispatchResult<StateType> dispatch(StateType* activeState, const Event* ev) {
     using FromFactory = typename From::CreatorType;
@@ -251,6 +167,7 @@ struct TransitionBase {
     FromFactory::destroy(static_cast<From*>(activeState));
     return DispatchResult<StateType>(true, toState);
   }
+
 };
 }
 

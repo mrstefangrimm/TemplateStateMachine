@@ -18,11 +18,7 @@
 #include "CppUnitTest.h"
 
 using namespace std;
-#include "..\..\src\transition.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\state.h"
-#include "..\..\src\initialtransition.h"
-#include "..\..\src\finaltransition.h"
+#include "../../src/tsm.h"
 
 namespace UT {
   namespace Classes {
@@ -37,10 +33,10 @@ namespace UT {
 
       namespace Trigger
       {
-        struct On;
-        struct Off;
-        struct Timeout;
-        struct Wrong;
+        struct On {};
+        struct Off {};
+        struct Timeout {};
+        struct Wrong {};
       }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
@@ -55,7 +51,7 @@ namespace UT {
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
         template<class Event>
-        void doit() { doitCalls++; }
+        void doit(const Event& ev) { doitCalls++; }
       };
       int OnState::entryCalls = 0;
       int OnState::exitCalls = 0;
@@ -73,7 +69,7 @@ namespace UT {
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
         template<class Event>
-        void doit() { doitCalls++; }
+        void doit(const Event& ev) { doitCalls++; }
       };
       int OffState::entryCalls = 0;
       int OffState::exitCalls = 0;
@@ -121,9 +117,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
  
         OnState on;
+        Trigger::Timeout t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&on);
+        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&on, &t);
         Assert::IsTrue(result.consumed);
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
 
@@ -136,9 +133,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
 
         OnState on;
+        Trigger::On t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::On, size - 1>().execute(&on);
+        auto result = Sm::TriggerExecutor<Trigger::On, size - 1>().execute(&on, &t);
         Assert::IsFalse(result.consumed);
         Assert::IsNull(result.activeState);
 
@@ -151,9 +149,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
 
         WrongState wrongState;
+        Trigger::Timeout t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&wrongState);
+        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&wrongState, &t);
         Assert::IsFalse(result.consumed);
         Assert::IsNull(result.activeState);
 
@@ -166,9 +165,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
 
         OnState on;
+        Trigger::Wrong t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::Wrong, size - 1>().execute(&on);
+        auto result = Sm::TriggerExecutor<Trigger::Wrong, size - 1>().execute(&on, &t);
         Assert::IsFalse(result.consumed);
         Assert::IsNull(result.activeState);
 
@@ -181,9 +181,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
 
         OffState off;
+        Trigger::Timeout t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&off);
+        auto result = Sm::TriggerExecutor<Trigger::Timeout, size - 1>().execute(&off, &t);
         Assert::IsTrue(result.consumed);
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
 
@@ -196,9 +197,10 @@ namespace UT {
         using namespace TriggerExecutorImpl;
 
         OffState off;
+        Trigger::Off t;
 
         const int size = Length<TransitionList>::value;
-        auto result = Sm::TriggerExecutor<Trigger::Off, size - 1>().execute(&off);
+        auto result = Sm::TriggerExecutor<Trigger::Off, size - 1>().execute(&off, &t);
         Assert::IsFalse(result.consumed);
         Assert::IsNull(result.activeState);
 

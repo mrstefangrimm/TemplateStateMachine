@@ -3,4 +3,14 @@
   <ItemGroup>
     <ClCompile Include="TcpConnection.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="tsmlib">
+      <UniqueIdentifier>{75012cd8-a5bf-467e-8749-dc7737151e1b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\state.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

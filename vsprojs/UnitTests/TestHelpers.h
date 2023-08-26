@@ -92,19 +92,8 @@ namespace UnitTests {
       static int calls;
       static bool CheckReturnValue;
 
-      template<class T>
-      bool eval(T* activeState) {
-        if (!is_same < From, AnyState<StateType>>().value) {
-          From* from = From::CreatorType::create();
-          Assert::IsTrue(activeState->equals(*from));
-          From::CreatorType::destroy(from);
-        }
-        calls++;
-        return CheckReturnValue;
-      }
-
       template<class StateType, class EventType>
-      bool eval(StateType* activeState, const EventType&) {
+      bool eval(StateType* activeState, const EventType& ev) {
         if (!is_same < From, AnyState<StateType>>().value) {
           From* from = From::CreatorType::create();
           Assert::IsTrue(activeState->equals(*from));

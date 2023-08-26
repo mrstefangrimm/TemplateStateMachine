@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -56,15 +53,15 @@ namespace UT {
         template<class Event>
         void _entry() { }
         template<class Event>
-        bool _doit() { return false; }
+        bool _doit(const Event& ev) { return false; }
       };
       template<class T> const char* EmptyStateFake<T>::name = "Final";
 
       namespace Trigger
       {
-        struct Next;
-        struct Count;
-        struct Check;
+        struct Next {};
+        struct Count {};
+        struct Check {};
       }
 
       struct A : Leaf<A> {
@@ -72,7 +69,7 @@ namespace UT {
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("A::Do"); }
+        void doit(const Event& ev) { RecorderType::add("A::Do"); }
       };
       const char* A::name = "A";
 
@@ -81,7 +78,7 @@ namespace UT {
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("B::Do"); }
+        void doit(const Event& ev) { RecorderType::add("B::Do"); }
       };
       const char* B::name = "B";
 
@@ -92,7 +89,7 @@ namespace UT {
         void entry() { RecorderType::add("C::Entry"); }
         void exit() { RecorderType::add("C::Exit"); }
         template<class Event>
-        void doit() {
+        void doit(const Event& ev) {
           RecorderType::add("C::Do");
           if (is_same<Event, Trigger::Count>().value) {
             counter++;
@@ -102,8 +99,8 @@ namespace UT {
       const char* C::name = "C";
 
       struct CheckTriggerGuardC {
-        template<class T>
-        bool eval(T* state) {
+        template<class StateType, class EventType>
+        bool eval(StateType* state, const EventType& ev) {
           return static_cast<C*>(state)->counter > 3;
         }
       };

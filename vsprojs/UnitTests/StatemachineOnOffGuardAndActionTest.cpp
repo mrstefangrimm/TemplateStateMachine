@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -47,10 +44,10 @@ namespace UT {
 
       namespace Trigger
       {
-        struct On;
-        struct Off;
-        struct OnToOn;
-        struct OffToOff;
+        struct On {};
+        struct Off {};
+        struct OnToOn {};
+        struct OffToOff {};
       }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
@@ -61,7 +58,7 @@ namespace UT {
         void entry() { }
         void exit() { }
         template<class Event>
-        void doit() { }
+        void doit(const Event& ev) { }
       };
 
       struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
@@ -72,7 +69,7 @@ namespace UT {
         void entry() { }
         void exit() { }
         template<class Event>
-        void doit() { }
+        void doit(const Event& ev) { }
       };
 
       typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;

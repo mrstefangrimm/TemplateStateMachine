@@ -73,16 +73,7 @@ public:
 
   template<class Event>
   DispatchResult<StateType> dispatch() {
-
-    if (activeState_ == nullptr) return DispatchResult<StateType>::null;
-
-    const int size = Length<Transitions>::value;
-    auto result = TriggerExecutor< Event, size - 1 >::execute(activeState_);
-    // Transition not found
-    if (!result.consumed || result.activeState == nullptr) return DispatchResult<StateType>(false, activeState_);
-
-    activeState_ = result.activeState;
-    return DispatchResult<StateType>(true, activeState_);
+    return dispatch(Event{});
   }
 
   template<class Event>
@@ -105,22 +96,6 @@ private:
 public:
   template<class Event, int Index>
   struct TriggerExecutor {
-
-    static DispatchResult<StateType> execute(StateType* activeState) {
-      // Finds last element in the list that meets the conditions.
-      using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
-      using FromType = typename CurrentTransition::FromType::ObjectType;
-
-      const bool hasSameFromState = activeState->template typeOf<FromType>();
-
-      const bool conditionMet = is_same<typename CurrentTransition::EventType, Event>().value && hasSameFromState;
-      if (conditionMet) {
-        auto result = CurrentTransition().dispatch(activeState);
-        return result;
-      }
-      // Recursion
-      return TriggerExecutor< Event, Index - 1 >::execute(activeState);
-    }
 
     static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
       // Finds last element in the list that meets the conditions.
@@ -154,7 +129,8 @@ public:
       if (conditionMet) {
         ToType* state = static_cast<ToType*>(entryState);
         state->template _entry<Event>();
-        state->template _doit<Event>();
+        NullType nu;
+        state->_doit(nu);
         return;
       }
       // Recursion
@@ -164,21 +140,6 @@ public:
   // Specialization
   template<class Event>
   struct TriggerExecutor<Event, 0> {
-
-    static DispatchResult<StateType> execute(StateType* activeState) {
-      // End of recursion.
-      using FirstTransition = typename TypeAt<Transitions, 0>::Result;
-      using FromType = typename FirstTransition::FromType::ObjectType;
-
-      const bool hasSameFromState = activeState->template typeOf<FromType>();
-
-      const bool conditionMet = is_same<typename FirstTransition::EventType, Event>().value&& hasSameFromState;
-      if (conditionMet) {
-        const auto result = FirstTransition().dispatch(activeState);
-        return result;
-      }
-      return DispatchResult<StateType>(false, nullptr);
-    }
 
     static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
       // End of recursion.
@@ -208,7 +169,8 @@ public:
       if (conditionMet) {
         ToType* state = static_cast<ToType*>(entryState);
         state->template _entry<Event>();
-        state->template _doit<Event>();
+        NullType nu;
+        state->_doit(nu);
       }
       return;
     }
@@ -219,8 +181,11 @@ public:
 
     static DispatchResult<StateType> init() {
       using CurrentTransition = typename TypeAt<T, Index>::Result;
-      if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
-        auto result = CurrentTransition().dispatch(nullptr);
+      using EventType = typename CurrentTransition::EventType;
+      
+      if (CurrentTransition::E && is_same<EventType, Event>().value) {
+        EventType ev;
+        auto result = CurrentTransition().dispatch(nullptr, &ev);
         if (result.consumed) {
           return result;
         }
@@ -228,20 +193,7 @@ public:
       // Recursion
       return Initializer< T, Event, Index - 1 >::init();
     }
-
-    static DispatchResult<StateType> init(const Event* ev) {
-      using CurrentTransition = typename TypeAt<T, Index>::Result;
-      if (CurrentTransition::E && is_same<typename CurrentTransition::EventType, Event>().value) {
-        auto result = CurrentTransition().dispatch(nullptr, ev);
-        if (result.consumed) {
-          return result;
-        }
-      }
-      // Recursion
-      return Initializer< T, Event, Index - 1 >::init(ev);
-    }
   };
-
   // Specialization
   template<class T, class Event>
   struct Initializer<T, Event, 0> {
@@ -249,20 +201,11 @@ public:
     static DispatchResult<StateType> init() {
       // End of recursion.
       using FirstTransition = typename TypeAt<T, 0>::Result;
-      if (FirstTransition::E && is_same<typename FirstTransition::EventType, Event>().value) {
-        const auto result = FirstTransition().dispatch(nullptr);
-        if (result.consumed) {
-          return result;
-        }
-      }
-      return Initialtransition().dispatch(nullptr);
-    }
+      using EventType = typename FirstTransition::EventType;
 
-    static DispatchResult<StateType> init(const Event* ev) {
-      // End of recursion.
-      using FirstTransition = typename TypeAt<T, 0>::Result;
-      if (FirstTransition::E && is_same<typename FirstTransition::EventType, Event>().value) {
-        const auto result = FirstTransition().dispatch(nullptr, ev);
+      if (FirstTransition::E && is_same<EventType, Event>().value) {
+        EventType ev;
+        const auto result = FirstTransition().dispatch(nullptr, &ev);
         if (result.consumed) {
           return result;
         }
@@ -281,7 +224,10 @@ public:
       const bool hasSameFromState = activeState->template typeOf<FromType>();
       const bool conditionMet = CurrentTransition::X && hasSameFromState;
       if (conditionMet) {
-        const auto result = CurrentTransition().dispatch(activeState);
+        using ET = typename CurrentTransition::EventType;
+        // TODO: Add event to _exit()?
+        ET ev{};
+        const auto result = CurrentTransition().dispatch(activeState, &ev);
         if (result.consumed) {
           return result;
         }
@@ -303,7 +249,10 @@ public:
 
       const bool conditionMet = FirstTransition::X && hasSameFromState;
       if (conditionMet) {
-        const auto result = FirstTransition().dispatch(activeState);
+        using ET = typename FirstTransition::EventType;
+        // TODO: Add event to _exit()?
+        ET ev{};
+        const auto result = FirstTransition().dispatch(activeState, &ev);
         if (result.consumed) {
           return result;
         }

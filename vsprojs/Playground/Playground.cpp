@@ -25,24 +25,24 @@ typedef State<VirtualGetTypeIdStateComparator, false> StateType;
 typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
 struct ToSimFromCalibAction {
-  template<class T>
-  void perform(T*) {
+  template<class T, class V>
+  void perform(T*, const V&) {
   }
 };
 
 struct ToSimFromCalibGuard {
-  template<class T>
-  bool eval(T* activeState) { return true; }
+  template<class T, class V>
+  bool eval(T* activeState, const V&) { return true; }
 };
 
 namespace Trigger {
-  struct On;
-  struct Calibrate;
-  struct Positionstream;
-  struct Timeout;
-  struct Remote;
-  struct Manual;
-  struct OutofSimulation;
+  struct On {};
+  struct Calibrate {};
+  struct Positionstream {};
+  struct Timeout {};
+  struct Remote {};
+  struct Manual {};
+  struct OutofSimulation {};
 }
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
@@ -50,7 +50,7 @@ struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<Si
   void entry() { }
   void exit() { }
   template<class Event>
-  void doit() { }
+  void doit(const Event&) { }
 };
 
 struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreator<SimulationManual> {
@@ -58,7 +58,7 @@ struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreato
   void entry() { }
   void exit() { }
   template<class Event>
-  void doit() { }
+  void doit(const Event&) { }
 };
 
 struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreator<SimulationRemote> {
@@ -66,7 +66,7 @@ struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreato
   void entry() { }
   void exit() { }
   template<class Event>
-  void doit() { }
+  void doit(const Event&) { }
 };
 
 struct Simulation;
@@ -104,29 +104,16 @@ typedef Statemachine<
   InitTransition> Sm;
 
 struct ChoiceGuardRemoteDummy {
-
   template<class StateType, class EventType>
   bool eval(StateType*, const EventType&) {
-    // true => SimulationRemote
-    return true;
-  }
-
-  template<class T>
-  bool eval(T*) {
     // true => SimulationRemote
     return true;
   }
 };
-struct ChoiceGuardManualDummy {
 
+struct ChoiceGuardManualDummy {
   template<class StateType, class EventType>
   bool eval(StateType*, const EventType&) {
-    // true => SimulationManual
-    return true;
-  }
-
-  template<class T>
-  bool eval(T*) {
     // true => SimulationManual
     return true;
   }
@@ -169,7 +156,7 @@ private:
   void exit() {
   }
   template<class Event>
-  void doit() {
+  void doit(const Event&) {
     if (is_same<Event, Trigger::Positionstream>().value) {
       isPositionStreamActive_ = !isPositionStreamActive_;
     }
@@ -187,7 +174,7 @@ private:
   void entry() { }
   void exit() { }
   template<class Event>
-  void doit() {
+  void doit(const Event&) {
   }
 };
 

@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -39,8 +36,8 @@ namespace UT {
 
       template<class From>
       struct ActionChoiceRecordingSpy {
-        template<class T>
-        void perform(T*) {
+        template<class StateType, class EventType>
+        void perform(StateType*, const EventType&) {
           ostringstream buf;
           buf << "?<-" << From::name;
           RecorderType::add(buf.str());
@@ -49,7 +46,7 @@ namespace UT {
 
       namespace Trigger
       {
-        struct Count;
+        struct Count {};
       }
 
       struct A : Leaf<A> {
@@ -59,7 +56,7 @@ namespace UT {
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
         template<class Event>
-        void doit() {
+        void doit(const Event& ev) {
           RecorderType::add("A::Do");
           counter++;
         }
@@ -74,7 +71,7 @@ namespace UT {
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
         template<class Event>
-        void doit() {
+        void doit(const Event& ev) {
           RecorderType::add("B::Do");
           counter++;
         }
@@ -84,15 +81,15 @@ namespace UT {
       const char* B::name = "B";
 
       struct GotoBCountGuardA {
-        template<class T>
-        bool eval(T* state) {
+        template<class StateType, class EventType>
+        bool eval(StateType* state, const EventType& ev) {
           return static_cast<A*>(state)->counter > 2;
         }
       };
 
       struct GotoACountGuardB {
-        template<class T>
-        bool eval(T* state) {
+        template<class StateType, class EventType>
+        bool eval(StateType* state, const EventType& ev) {
           return static_cast<B*>(state)->counter > 2;
         }
       };

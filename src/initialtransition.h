@@ -32,21 +32,6 @@ struct InitialTransition {
   using StateType = typename CreationPolicy::ObjectType;
   using FromType = int;
 
-  InitialTransition() {
-  }
-
-  DispatchResult<StateType> dispatch(StateType* activeState) {
-    using ToFactory = typename To::CreatorType;
-
-    Action().perform(activeState);
-    To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
-    if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit<EventType>();
-    }
-    return DispatchResult<StateType>(true, toState);
-  }
-
   DispatchResult<StateType> dispatch() {
     using ToFactory = typename To::CreatorType;
 
@@ -54,11 +39,10 @@ struct InitialTransition {
     To* toState = ToFactory::create();
     toState->template _entry<EventType>();
     if (is_base_of<BasicState<To, StateType>, To>::value) {
-
-      EventType ev{};
-      toState->template _doit<EventType>(ev);
+      toState->template _doit< EventType>(EventType{});
     }
     return DispatchResult<StateType>(true, toState);
   }
+
 };
 }

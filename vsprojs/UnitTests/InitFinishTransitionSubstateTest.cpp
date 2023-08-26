@@ -17,10 +17,7 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\transition.h"
+#include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
@@ -56,16 +53,16 @@ namespace UT {
         template<class Event>
         void _entry() { }
         template<class Event>
-        bool _doit() { return false; }
+        bool _doit(const Event& ev) { return false; }
       };
       template<class T> const char* EmptyStateFake<T>::name = "Final";
 
       namespace Trigger
       {
-        struct B_A;
-        struct B_AA;
-        struct B_AAB;
-        struct AAB_AAA;
+        struct B_A {};
+        struct B_AA {};
+        struct B_AAB {};
+        struct AAB_AAA {};
       }
 
       struct A;
@@ -92,7 +89,7 @@ namespace UT {
         void entry() { RecorderType::add("A::Entry"); }
         void exit() { RecorderType::add("A::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("A::Do"); }
+        void doit(const Event& ev) { RecorderType::add("A::Do"); }
       };
       const char* A::name = "A";
 
@@ -118,7 +115,7 @@ namespace UT {
         void entry() { RecorderType::add("AA::Entry"); }
         void exit() { RecorderType::add("AA::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("AA::Do"); }
+        void doit(const Event& ev) { RecorderType::add("AA::Do"); }
       };
       const char* AA::name = "AA";
 
@@ -127,7 +124,7 @@ namespace UT {
         void entry() { RecorderType::add("AAA::Entry"); }
         void exit() { RecorderType::add("AAA::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("AAA::Do"); }
+        void doit(const Event& ev) { RecorderType::add("AAA::Do"); }
       };
       const char* AAA::name = "AAA";
 
@@ -136,7 +133,7 @@ namespace UT {
         void entry() { RecorderType::add("AAB::Entry"); }
         void exit() { RecorderType::add("AAB::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("AAB::Do"); }
+        void doit(const Event& ev) { RecorderType::add("AAB::Do"); }
       };
       const char* AAB::name = "AAB";
 
@@ -145,7 +142,7 @@ namespace UT {
         void entry() { RecorderType::add("B::Entry"); }
         void exit() { RecorderType::add("B::Exit"); }
         template<class Event>
-        void doit() { RecorderType::add("B::Do"); }
+        void doit(const Event& ev) { RecorderType::add("B::Do"); }
       };
       const char* B::name = "B";
 

@@ -18,11 +18,7 @@
 #include "CppUnitTest.h"
 
 using namespace std;
-#include "..\..\src\transition.h"
-#include "..\..\src\statemachine.h"
-#include "..\..\src\state.h"
-#include "..\..\src\initialtransition.h"
-#include "..\..\src\finaltransition.h"
+#include "../../src/tsm.h"
 
 namespace UT {
   namespace Classes {
@@ -53,8 +49,7 @@ namespace UT {
         friend class BasicState<OnState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<class Event>
-        void doit() { doitCalls++; }
+        template<class Event> void doit(const Event& ev) { doitCalls++; }
       };
       int OnState::entryCalls = 0;
       int OnState::exitCalls = 0;
@@ -71,8 +66,7 @@ namespace UT {
         friend class BasicState<OffState, StateType>;
         void entry() { entryCalls++; }
         void exit() { exitCalls++; }
-        template<class Event>
-        void doit() { doitCalls++; }
+        template<class Event> void doit(const Event& ev) { doitCalls++; }
       };
       int OffState::entryCalls = 0;
       int OffState::exitCalls = 0;
