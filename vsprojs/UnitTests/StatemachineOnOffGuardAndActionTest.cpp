@@ -31,16 +31,22 @@ namespace UT {
 
       using StateType = State<VirtualGetTypeIdStateComparator, false>;
       using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using FinalState = EmptyState<StateType>;
 
-      using ToOnFromOffActionSpy = ActionStub<struct OnState, struct OffState>;
-      using ToOffFromOnActionSpy = ActionStub<struct OffState, struct OnState>;
-      using ToOnFromOnActionSpy = ActionStub<struct OnState, struct OnState>;
-      using ToOffFromOffActionSpy = ActionStub<struct OffState, struct OffState>;
+      struct OnState;
+      struct OffState;
+      using ToOnFromOffActionSpy = ActionStub<OnState, OffState>;
+      using ToOffFromOnActionSpy = ActionStub<OffState, OnState>;
+      using ToOnFromOnActionSpy = ActionStub<OnState, OnState>;
+      using ToOffFromOffActionSpy = ActionStub<OffState, OffState>;
+      using ToOffFromInitActionSpy = ActionStub<OffState, EmptyState<StateType>>;
+      using ToFinalFromOffActionSpy = ActionStub<FinalState, OffState>;
 
-      using ToOnFromOffGuardDummy = GuardDummy<StateType, struct OnState, struct OffState>;
-      using ToOffFromOnGuardDummy = GuardDummy<StateType, struct OffState, struct OnState>;
-      using ToOnFromOnGuardDummy = GuardDummy<StateType, struct OnState, struct OnState>;
-      using ToOffFromOffGuardDummy = GuardDummy<StateType, struct OffState, struct OffState>;
+      using ToOnFromOffGuardDummy = GuardDummy<StateType, OnState, OffState>;
+      using ToOffFromOnGuardDummy = GuardDummy<StateType, OffState, OnState>;
+      using ToOnFromOnGuardDummy = GuardDummy<StateType, OnState, OnState>;
+      using ToOffFromOffGuardDummy = GuardDummy<StateType, OffState, OffState>;
+      using ToFinalFromOffGuardDummy = GuardDummy<StateType, FinalState, OffState>;
 
       namespace Trigger
       {
@@ -48,6 +54,7 @@ namespace UT {
         struct Off {};
         struct OnToOn {};
         struct OffToOff {};
+        struct Stop {};
       }
 
       struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
@@ -74,15 +81,21 @@ namespace UT {
       using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, ToOffFromOnGuardDummy, ToOffFromOnActionSpy>;
       using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, ToOnFromOnGuardDummy, ToOnFromOnActionSpy, false>;
       using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, ToOffFromOffGuardDummy, ToOffFromOffActionSpy, false>;
+      using ToFinalFromOn = FinalTransition<OnState, StateTypeCreationPolicyType>;
+      using ToFinalFromOff = FinalTransition<OffState, StateTypeCreationPolicyType>;
+      using ToFinalFromOffTransition = FinalTransitionExplicit<Trigger::Stop, OffState, StateTypeCreationPolicyType, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToOnFromOnTransition,
         Typelist<ToOffFromOffTransition,
-        NullType>>>>;
+        Typelist<ToFinalFromOn,
+        Typelist<ToFinalFromOff,
+        Typelist<ToFinalFromOffTransition,
+        NullType>>>>>>>;
 
-      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitActionSpy>;
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
@@ -105,26 +118,26 @@ namespace UT {
         auto result = sm.dispatch<Trigger::OffToOff>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(1, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(1, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(1, ToOffFromOffActionSpy::callsWithEvent);
 
         // Off <- Off, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
 
         // Off <- Off, guard = false
         reset();
@@ -132,13 +145,13 @@ namespace UT {
         result = sm.dispatch<Trigger::On>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(1, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(1, ToOnFromOffActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
 
         // On <- Off
         reset();
@@ -146,65 +159,90 @@ namespace UT {
         result = sm.dispatch<Trigger::On>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(1, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(1, ToOnFromOffActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
 
         // On <- On, self transition
         reset();
         result = sm.dispatch<Trigger::OnToOn>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(1, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(1, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(1, ToOnFromOnActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
 
         // On <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::On>();
         Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
 
         // Off <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
         Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(1, ToOffFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(1, ToOffFromOnActionSpy::calls);
+        Assert::AreEqual<int>(1, ToOffFromOnActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOnFromOnGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOnFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOffGuardDummy::calls);
-        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls);
+        Assert::AreEqual<int>(0, ToOffFromOffActionSpy::calls());
+
+        // Final <- Off, final transitions do not have and action or guard
+        reset();
+        sm.end();
+        Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+      }
+
+      TEST_METHOD(ExplicitFinal)
+      {
+        using namespace StatemachineOnOffGuardAndActionTestImpl;
+        OnState on;
+        OffState off;
+
+        Sm sm;
+        sm.begin();
+       
+
+        // Final <- Off, final transitions do not have and action or guard
+        reset();
+        sm.dispatch<Trigger::Stop>();
+        Assert::AreEqual<int>(1, ToFinalFromOffGuardDummy::calls);
+        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::callsWithEvent);
       }
 
       private:
         void reset() const {
           using namespace StatemachineOnOffGuardAndActionTestImpl;
           ToOnFromOffGuardDummy::calls = 0;
-          ToOnFromOffActionSpy::calls = 0;
+          ToOnFromOffActionSpy::reset();
           ToOffFromOnGuardDummy::calls = 0;
-          ToOffFromOnActionSpy::calls = 0;
+          ToOffFromOnActionSpy::reset();
           ToOnFromOnGuardDummy::calls = 0;
-          ToOnFromOnActionSpy::calls = 0;
+          ToOnFromOnActionSpy::reset();
           ToOffFromOffGuardDummy::calls = 0;
-          ToOffFromOffActionSpy::calls = 0;
+          ToOffFromOffActionSpy::reset();
+          ToFinalFromOffGuardDummy::calls = 0;
+          ToFinalFromOffActionSpy::reset();
         }
     };
   }

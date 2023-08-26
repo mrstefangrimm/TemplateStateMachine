@@ -49,7 +49,7 @@
     <ClCompile Include="StatemachineMsgTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="SubstatemachineMsgTest.cpp">
+    <ClCompile Include="SubstatemachineEventTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,15 +14,33 @@ namespace UnitTests {
 
     template<class To, class From>
     struct ActionStub {
-      static int calls;
+      static int callsWithoutEvent;
+      static int callsWithEvent;
+      static int callsWithNullType;
+
+      static int calls() { return callsWithoutEvent + callsWithEvent + callsWithNullType; }
+
+      static void reset() {
+        callsWithoutEvent = 0;
+        callsWithEvent = 0;
+        callsWithNullType = 0;
+      }
 
       template<class StateType, class EventType>
-      void perform(StateType&, const EventType&) { calls++; }
+      void perform(StateType&, const EventType&) {
+        if (is_same<EventType, NullType>::value) {
+          callsWithNullType++;
+        }
+        else {
+          callsWithEvent++;
+        }
+      }
 
-      void perform() { calls++; }
-
+      void perform() { callsWithoutEvent++; }
     };
-    template<class To, class From> int ActionStub<To, From>::calls = 0;
+    template<class To, class From> int ActionStub<To, From>::callsWithoutEvent = 0;
+    template<class To, class From> int ActionStub<To, From>::callsWithEvent = 0;
+    template<class To, class From> int ActionStub<To, From>::callsWithNullType = 0;
 
     template<size_t TestId>
     class Recorder {
@@ -91,6 +109,17 @@ namespace UnitTests {
         calls++;
         return CheckReturnValue;
       }
+
+      //template<class StateType, class EventType>
+      //bool eval(const StateType& activeState, const EventType& ev) {
+      //  if (!is_same < From, AnyState<StateType>>().value) {
+      //    From* from = From::CreatorType::create();
+      //    Assert::IsTrue(activeState.equals(*from));
+      //    From::CreatorType::destroy(from);
+      //  }
+      //  calls++;
+      //  return CheckReturnValue;
+      //}
     };
     template<class StateType, class To, class From> int GuardDummy<StateType, To, From>::calls = 0;
     template<class StateType, class To, class From> bool GuardDummy<StateType, To, From>::CheckReturnValue = true;

@@ -120,11 +120,13 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::callsWithEvent);
       }
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOff_ExitAndActionAreCalled)
@@ -140,9 +142,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -156,9 +160,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::calls, WSTRING("1, ToFinalFromOffActionSpy::calls"));
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::calls(), WSTRING("1, ToFinalFromOffActionSpy::calls"));
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(1, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
       }
@@ -174,9 +178,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -188,9 +194,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::calls, WSTRING("1, ToFinalFromOffActionSpy::calls"));
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(1, ToFinalFromOffActionSpy::calls(), WSTRING("1, ToFinalFromOffActionSpy::calls"));
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(1, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
       }
@@ -208,9 +214,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -223,9 +231,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(1, OnState::entryCalls);
         Assert::AreEqual<int>(1, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -238,9 +246,9 @@ namespace UT {
         Assert::AreEqual<int>(1, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(1, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(1, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(1, ToFinalFromOnGuardDummy::calls);
       }
@@ -258,9 +266,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -274,9 +284,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
       }
@@ -294,9 +304,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -309,9 +321,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(1, OnState::entryCalls);
         Assert::AreEqual<int>(1, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -325,9 +337,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
       }
@@ -345,9 +357,11 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(1, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithNullType);
+        Assert::AreEqual<int>(1, ToInitActionSpy::callsWithoutEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
@@ -363,9 +377,9 @@ namespace UT {
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, ToInitActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls);
-        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls);
+        Assert::AreEqual<int>(0, ToInitActionSpy::callsWithEvent);
+        Assert::AreEqual<int>(0, ToFinalFromOffActionSpy::calls());
+        Assert::AreEqual<int>(0, ToFinalFromOnActionSpy::calls());
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
       }
@@ -379,9 +393,9 @@ namespace UT {
         OnState::exitCalls = 0;
         OnState::entryCalls = 0;
         OnState::doitCalls = 0;
-        ToInitActionSpy::calls = 0;
-        ToFinalFromOffActionSpy::calls = 0;
-        ToFinalFromOnActionSpy::calls = 0;
+        ToInitActionSpy::reset();
+        ToFinalFromOffActionSpy::reset();
+        ToFinalFromOnActionSpy::reset();
         ToFinalFromOffGuardDummy::calls = 0;
         ToFinalFromOnGuardDummy::calls = 0;
         ToFinalFromOffGuardDummy::CheckReturnValue = false;
