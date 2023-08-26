@@ -109,39 +109,66 @@ struct AnyState : T {
   static void destroy(AnyState*) {}
 };
 
-template<class Derived, class Basetype>
+template<class Derived, class Basetype, bool HasEntry = false, bool HasExit = false, bool HasDoit = false>
 class BasicState : public Basetype {
 public:
+  enum { BasicDoit = HasDoit };
+
   template<class Event>
   void _entry(const Event& ev) {
-    static_cast<Derived*>(this)->entry(ev);
+    __entry(ev, Int2Type<HasEntry>());
   }
 
   template<class Event>
   void _exit(const Event& ev) {
-    static_cast<Derived*>(this)->exit(ev);
+    __exit(ev, Int2Type<HasExit>());
   }
 
   template<class Event>
   bool _doit(const Event& ev) {
-    static_cast<Derived*>(this)->template doit<Event>(ev);
+    __doit(ev, Int2Type<HasDoit>());
     return true;
+  }
+
+private:
+  template<class Event>
+  void __entry(const Event& ev, const Int2Type<false>&) {
+  }
+  template<class Event>
+  void __entry(const Event& ev, const Int2Type<true>&) {
+    static_cast<Derived*>(this)->template entry<Event>(ev);
+  }
+  template<class Event>
+  void __exit(const Event& ev, const Int2Type<false>&) {
+  }
+  template<class Event>
+  void __exit(const Event& ev, const Int2Type<true>&) {
+    static_cast<Derived*>(this)->template exit<Event>(ev);
+  }
+  template<class Event>
+  void __doit(const Event& ev, const Int2Type<false>&) {
+  }
+  template<class Event>
+  void __doit(const Event& ev, const Int2Type<true>&) {
+    static_cast<Derived*>(this)->template doit<Event>(ev);
   }
 };
 
-template<class Derived, class Basetype, class Statemachine>
+template<class Derived, class Basetype, class Statemachine, bool HasEntry = false, bool HasExit = false>
 class SubstatesHolderState : public Basetype {
 public:
+  enum { BasicDoit = false };
+
   template<class Event>
   void _entry(const Event& ev) {
-    static_cast<Derived*>(this)->entry(ev);
+    __entry(ev, Int2Type<HasExit>());
     subStatemachine_.template _begin<Event>();
   }
 
   template<class Event>
   void _exit(const Event& ev) {
     subStatemachine_.template _end<Event>();
-    static_cast<Derived*>(this)->template exit<Event>(ev);
+    __exit(ev, Int2Type<HasExit>());
   }
 
   template<class Event>
@@ -151,6 +178,21 @@ public:
   }
 
 private:
+  template<class Event>
+  void __entry(const Event& ev, const Int2Type<false>&) {
+  }
+  template<class Event>
+  void __entry(const Event& ev, const Int2Type<true>&) {
+    static_cast<Derived*>(this)->template entry<Event>(ev);
+  }
+  template<class Event>
+  void __exit(const Event& ev, const Int2Type<false>&) {
+  }
+  template<class Event>
+  void __exit(const Event& ev, const Int2Type<true>&) {
+    static_cast<Derived*>(this)->template exit<Event>(ev);
+  }
+
   Statemachine subStatemachine_;
 };
 

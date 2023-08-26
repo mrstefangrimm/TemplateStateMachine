@@ -83,8 +83,11 @@ public:
 
     const int size = Length<Transitions>::value;
     auto result = TriggerExecutor< Event, size - 1 >::execute(activeState_, &ev);
-    // Transition not found
-    if (!result.consumed || result.activeState == nullptr) return DispatchResult<StateType>(false, activeState_);
+
+    // Transition not found, active state is not changed
+    if (!result.consumed) {
+      return DispatchResult<StateType>(false, activeState_);
+    }
 
     activeState_ = result.activeState;
     return DispatchResult<StateType>(true, activeState_);

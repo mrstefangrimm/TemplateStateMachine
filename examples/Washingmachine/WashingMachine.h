@@ -96,7 +96,7 @@ using WashingmachineTransitionList =
 using InitTransition = InitialTransition<Loading, StateTypeCreationPolicyType, NoAction>;
 using WashingmachineSm = Statemachine<WashingmachineTransitionList, InitTransition>;
 
-struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<Loading> {
+struct Loading : public BasicState<Loading, StateType, true, true>, public SingletonCreator<Loading> {
   template<class Event> void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
     BSP_Execute(Serial.println(F("Loading")));
@@ -105,48 +105,39 @@ struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<
   template<class Event> void exit(const Event&) {
     BSP_Execute(Serial.println(F("  Door closed.")));
   }
-  template<class Event> void doit(const Event&) {}
 };
 
-struct Running : public SubstatesHolderState<Running, StateType, RunningSm>, public SingletonCreator<Running> {
+struct Running : public SubstatesHolderState<Running, StateType, RunningSm, true>, public SingletonCreator<Running> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("Running")));
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 };
 
-struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<Washing> {
+struct Washing : public BasicState<Washing, StateType, true>, public SingletonCreator<Washing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Washing")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t washingLength_ = 50;
 };
 
-struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
+struct Rinsing : public BasicState<Rinsing, StateType, true>, public SingletonCreator<Rinsing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Rinsing")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t rinsingLength_ = 30;
 };
 
-struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreator<Spinning> {
+struct Spinning : public BasicState<Spinning, StateType, true>, public SingletonCreator<Spinning> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Spinning")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t spinningLength_ = 40;

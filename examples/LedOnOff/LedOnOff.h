@@ -24,29 +24,21 @@ namespace Trigger {
 struct Timeout {};
 }
 
-class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn> {
-  friend class BasicState<LedOn, StateType>;
+class LedOn : public BasicState<LedOn, StateType, true>, public SingletonCreator<LedOn> {
+  friend class BasicState<LedOn, StateType, true>;
   template<class Event>
   void entry(const Event&) {
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
   }
-  template<class Event>
-  void exit(const Event& ev) {}
-  template<class Event>
-  void doit(const Event& ev) {}
 };
 
-class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<LedOff> {
-  friend class BasicState<LedOff, StateType>;
+class LedOff : public BasicState<LedOff, StateType, true>, public SingletonCreator<LedOff> {
+  friend class BasicState<LedOff, StateType, true>;
   template<class Event>
   void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
     BSP_Execute(Serial.println(freeMemory()));
   }
-  template<class Event>
-  void exit(const Event& ev) {}
-  template<class Event>
-  void doit(const Event&) {}
 };
 
 using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction>;

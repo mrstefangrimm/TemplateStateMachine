@@ -32,8 +32,8 @@ namespace UT {
       using StateType = State<MemoryAddressComparator, true>;
       using StateTypeCreationPolicyType = SingletonCreatorFake<StateType>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
-      template<class Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StateType, true, true, true>, SingletonCreatorFake<Derived> {};
+      template<class Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine, true, true>, SingletonCreatorFake<Derived> {};
 
       struct InitialStateFake : StateType {
         static const char* name;

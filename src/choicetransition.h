@@ -86,7 +86,8 @@ private:
 
     To* toState = ToFactory::create();
     toState->template _entry<EventType>(ev);
-    if (is_base_of<BasicState<To, StateType>, To>::value) {
+
+    if (To::BasicDoit) {
       toState->_doit(ev);
     }
     return DispatchResult<StateType>(true, toState);

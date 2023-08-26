@@ -38,7 +38,7 @@ namespace UT {
       };
       const char* InitialStateFake::name = "Initial";
 
-      struct FinalStateFake : BasicState<FinalStateFake, StateType> {
+      struct FinalStateFake : BasicState<FinalStateFake, StateType, true, true, true> {
         static const char* name;
         using CreatorType = FinalStateFake;
         using ObjectType = FinalStateFake;
@@ -46,7 +46,7 @@ namespace UT {
         static void destroy(FinalStateFake*) { }
 
       private:
-        friend class BasicState<FinalStateFake, StateType>;
+        friend class BasicState<FinalStateFake, StateType, true, true, true>;
         template<class Event> void entry(const Event&) { }
         template<class Event> void exit(const Event&) { }
         template<class Event> void doit(const Event&) { }
@@ -61,24 +61,24 @@ namespace UT {
         struct OffToFinal {};
       }
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreator<OnState> {
         static const char* name;
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StateType, true, true, true>;
         template<class Event> void entry(const Event&) { RecorderType::add("OnState::Entry"); }
         template<class Event> void exit(const Event&) { RecorderType::add("OnState::Exit"); }
         template<class Event> void doit(const Event&) { RecorderType::add("OnState::Do"); }
       };
       const char* OnState::name = "OnState";
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreator<OffState> {
         static const char* name;
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StateType, true, true, true>;
         template<class Event>  void entry(const Event&) { RecorderType::add("OffState::Entry"); }
         template<class Event>  void exit(const Event&) { RecorderType::add("OffState::Exit"); }
         template<class Event> void doit(const Event&) { RecorderType::add("OffState::Do"); }

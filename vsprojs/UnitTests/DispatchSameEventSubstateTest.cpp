@@ -32,8 +32,8 @@ namespace UT {
       using StateType = State<VirtualGetTypeIdStateComparator, false>;
       using StateTypeCreationPolicyType = FactoryCreatorFake<StateType>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
-      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StateType, true, true, true>, FactoryCreatorFake<Derived> {};
+      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine, true, true>, FactoryCreatorFake<Derived> {};
 
       template<class From>
       struct ActionChoiceRecordingSpy {

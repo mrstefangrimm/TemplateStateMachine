@@ -40,8 +40,9 @@ struct InitialTransition {
 
     EventType ev;
     toState->template _entry<EventType>(ev);
-    if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit< EventType>(ev);
+
+    if (To::BasicDoit) {
+      toState->template _doit<EventType>(ev);
     }
     return DispatchResult<StateType>(true, toState);
   }

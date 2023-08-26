@@ -40,7 +40,7 @@ namespace UT {
         struct OffToOff {};
       }
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreatorFake<OnState> {
+      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreatorFake<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -48,7 +48,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StateType, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -57,7 +57,7 @@ namespace UT {
       int OnState::exitCalls = 0;
       int OnState::doitCalls = 0;
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreatorFake<OffState> {
+      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreatorFake<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -65,7 +65,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StateType, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -126,7 +126,7 @@ namespace UT {
         // Off <- Off, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
@@ -137,7 +137,7 @@ namespace UT {
         // On <- Off
         reset();
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(1, OnState::entryCalls);
         Assert::AreEqual<int>(1, OnState::doitCalls);
@@ -148,7 +148,7 @@ namespace UT {
         // On <- On, self transition
         reset();
         result = sm.dispatch<Trigger::OnToOn>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(1, OnState::doitCalls);
@@ -159,7 +159,7 @@ namespace UT {
         // On <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);
@@ -170,7 +170,7 @@ namespace UT {
         // Off <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(1, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
         Assert::AreEqual<int>(0, OnState::doitCalls);

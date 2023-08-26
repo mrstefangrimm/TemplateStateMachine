@@ -43,7 +43,7 @@ namespace UT {
         struct Start { int id = 400; };
       }
 
-      struct Idle : BasicState<Idle, StateType>, FactoryCreator<Idle> {
+      struct Idle : BasicState<Idle, StateType, true, true, true>, FactoryCreator<Idle> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -51,7 +51,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<Idle, StateType>;
+        friend class BasicState<Idle, StateType, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -60,7 +60,7 @@ namespace UT {
       int Idle::exitCalls = 0;
       int Idle::doitCalls = 0;
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -80,7 +80,7 @@ namespace UT {
         }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StateType, true, true, true>;
         template<class Event> void entry(const Event& ev) { entryCalls++; lastEntryEvent = ev.id; }
         template<> void entry(const NullType& ev) { entryCalls++; lastEntryEvent = 0; }
         template<class Event> void exit(const Event& ev) { exitCalls++; lastExitEvent = ev.id; }
@@ -95,7 +95,7 @@ namespace UT {
       int OnState::lastExitEvent = -1;
       int OnState::lastDoitEvent = -1;
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -115,7 +115,7 @@ namespace UT {
         }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StateType, true, true, true>;
         template<class Event> void entry(const Event& ev) { entryCalls++; lastEntryEvent = ev.id; }
         template<> void entry(const NullType& ev) { entryCalls++; lastEntryEvent = 0; }
         template<class Event> void exit(const Event& ev) { exitCalls++; lastExitEvent = ev.id; }
@@ -147,7 +147,7 @@ namespace UT {
       using ActivestateInitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
       using ActivestateStatemachine = Statemachine<ActivestateTransitionList, ActivestateInitTransition>;
 
-      struct Active : SubstatesHolderState<Active, StateType, ActivestateStatemachine>, FactoryCreator<Active> {
+      struct Active : SubstatesHolderState<Active, StateType, ActivestateStatemachine, true, true>, FactoryCreator<Active> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -155,7 +155,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 3; }
 
       private:
-        friend class SubstatesHolderState<Active, StateType, ActivestateStatemachine>;
+        friend class SubstatesHolderState<Active, StateType, ActivestateStatemachine, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }

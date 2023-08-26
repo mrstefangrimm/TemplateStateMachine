@@ -116,7 +116,7 @@ namespace UT {
         sm.begin();
         // Off <- Off, self transition
         auto result = sm.dispatch<Trigger::OffToOff>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -129,7 +129,7 @@ namespace UT {
         // Off <- Off, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -143,7 +143,7 @@ namespace UT {
         reset();
         ToOnFromOffGuardDummy::CheckReturnValue = false;
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(1, ToOnFromOffActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -157,7 +157,7 @@ namespace UT {
         reset();
         ToOnFromOffGuardDummy::CheckReturnValue = true;
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(1, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(1, ToOnFromOffActionSpy::callsWithEvent);
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -170,7 +170,7 @@ namespace UT {
         // On <- On, self transition
         reset();
         result = sm.dispatch<Trigger::OnToOn>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -183,7 +183,7 @@ namespace UT {
         // On <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OnState>());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(0, ToOffFromOnGuardDummy::calls);
@@ -196,7 +196,7 @@ namespace UT {
         // Off <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(0, ToOnFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToOnFromOffActionSpy::calls());
         Assert::AreEqual<int>(1, ToOffFromOnGuardDummy::calls);
@@ -221,7 +221,6 @@ namespace UT {
 
         Sm sm;
         sm.begin();
-       
 
         // Final <- Off, final transitions do not have and action or guard
         reset();

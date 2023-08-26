@@ -37,6 +37,8 @@ template<class T> DispatchResult<T> DispatchResult<T>::null(false, nullptr);
 
 template<class T>
 struct EmptyState : T {
+  enum { BasicDoit = false };
+
   using CreatorType = EmptyState<T>;
   using ObjectType = EmptyState<T>;
 
@@ -108,7 +110,7 @@ struct TransitionBase {
       using ToFactory = typename To::CreatorType;
       To* toState = ToFactory::create();
       toState->template _entry<EventType>(ev);
-      if (is_base_of< BasicState< To, StateType >, To >::value) {
+      if (To::BasicDoit) {
         toState->_doit(ev);
       }
 
@@ -144,7 +146,7 @@ struct TransitionBase {
         using ToFactory = typename To::CreatorType;
         To* toState = ToFactory::create();
         toState->template _entry<EventType>(ev);
-        if (is_base_of< BasicState< To, StateType >, To >::value) {
+        if (To::BasicDoit) {
           toState->template _doit<EventType>(ev);
         }
         FromFactory::destroy(static_cast<From*>(activeState));
@@ -162,7 +164,8 @@ struct TransitionBase {
     using ToFactory = typename To::CreatorType;
     To* toState = ToFactory::create();
     toState->template _entry<EventType>(ev);
-    if (is_base_of< BasicState< To, StateType >, To >::value) {
+
+    if (To::BasicDoit) {
       toState->_doit(ev);
     }
     FromFactory::destroy(static_cast<From*>(activeState));

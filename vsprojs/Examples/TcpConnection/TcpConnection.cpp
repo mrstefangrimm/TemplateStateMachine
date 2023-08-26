@@ -57,30 +57,15 @@ struct send_ack {
 
 // states
 
-// TODO false should be default
-struct established : public BasicState<established, StateType>, public SingletonCreator<established> {
-  template<class Event> void entry(const Event&) {}
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
-};
+struct established : public BasicState<established, StateType>, public SingletonCreator<established> {};
 
-struct fin_wait_1 : public BasicState<fin_wait_1, StateType>, public SingletonCreator<fin_wait_1> {
-  template<class Event> void entry(const Event&) {}
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
-};
+struct fin_wait_1 : public BasicState<fin_wait_1, StateType>, public SingletonCreator<fin_wait_1> {};
 
-struct fin_wait_2 : public BasicState<fin_wait_2, StateType>, public SingletonCreator<fin_wait_2> {
-  template<class Event> void entry(const Event&) {}
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
-};
+struct fin_wait_2 : public BasicState<fin_wait_2, StateType>, public SingletonCreator<fin_wait_2> {};
 
-struct timed_wait : public BasicState<timed_wait, StateType>, public SingletonCreator<timed_wait> {
-  template<class Event> void entry(const Event& ev) {}
-  template<class Event> void exit(const Event& ev) {}
-  template<class Event> void doit(const Event&) {}
-};
+struct timed_wait : public BasicState<timed_wait, StateType>, public SingletonCreator<timed_wait> {};
+
+// transitions
 
 using ToWait1FromEstablished = Transition<close, fin_wait_1, established, StateTypeCreationPolicyType, NoGuard, send_fin>;
 using ToWait1FromWait1 = Transition<ack, fin_wait_2, fin_wait_1, StateTypeCreationPolicyType, is_valid, NoAction>;
@@ -101,18 +86,17 @@ int main()
 {
   Sm sm;
   auto result = sm.begin();
+  assert(result.activeState->typeOf<established>());
 
-  //assert(sm.is("established"_s));
-
-  result = sm.dispatch<close>(close{}); // complexity O(1)
-  //assert(sm.is("fin wait 1"_s));
+  result = sm.dispatch<close>(close{});
+  assert(result.activeState->typeOf<fin_wait_1>());
 
   result = sm.dispatch(ack{ true });
-  //assert(sm.is("fin wait 2"_s));
+  assert(result.activeState->typeOf<fin_wait_2>());
 
   result = sm.dispatch(fin{ 42, true });
-  //assert(sm.is("timed wait"_s));
+  assert(result.activeState->typeOf<timed_wait>());
 
   result = sm.dispatch<timeout>(timeout{});
-  //assert(sm.is(X));  // terminated
+  assert(nullptr == result.activeState);
 }
