@@ -18,7 +18,7 @@ struct Int2Type {
 class NullType {};
 
 // From Modern C++
-template<class T, typename U>
+template<class T, class U>
 struct Typelist {
   typedef T Head;
   typedef U Tail;
@@ -54,11 +54,11 @@ public:
 };
 
 // From Modern C++
-template<bool flag, typename T, typename U>
+template<bool flag, class T, class U>
 struct Select {
   typedef T Result;
 };
-template<typename T, typename U>
+template<class T, class U>
 struct Select<false, T, U> {
   typedef U Result;
 };
@@ -88,7 +88,6 @@ struct Append<NullType, Typelist<Head, Tail> > {
 template<class Head, class Tail, class T>
 struct Append<Typelist<Head, Tail>, T> {
   typedef Typelist<Head,
-                   typename Append<Tail, T>::Result>
-    Result;
+  typename Append<Tail, T>::Result> Result;
 };
 }

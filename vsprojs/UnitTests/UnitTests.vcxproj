@@ -172,15 +172,17 @@
     <ClCompile Include="SelfTransitionTest.cpp" />
     <ClCompile Include="StateComparatorTests.cpp" />
     <ClCompile Include="CreatorTests.cpp" />
+    <ClCompile Include="StatemachineMsgTest.cpp" />
     <ClCompile Include="StatemachineOnOffEntryCallsExitTest.cpp" />
     <ClCompile Include="DispatchSameEventTest.cpp" />
-    <ClCompile Include="StatemachineTest.cpp" />
+    <ClCompile Include="StatemachineTriggerTest.cpp" />
     <ClCompile Include="ChoiceTransitionTest.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequenceTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
     <ClCompile Include="DispatchSameEventSubstateTest.cpp" />
-    <ClCompile Include="SubstatemachineTest.cpp" />
+    <ClCompile Include="SubstatemachineEventTest.cpp" />
+    <ClCompile Include="SubstatemachineTriggerTest.cpp" />
     <ClCompile Include="TriggerExecutorTest.cpp" />
   </ItemGroup>
   <ItemGroup>

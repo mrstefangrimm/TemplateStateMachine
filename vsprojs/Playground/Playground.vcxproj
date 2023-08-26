@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d2ce092b-ed94-4f15-b402-e59482a7fe14}</ProjectGuid>
-    <RootNamespace>LedOnOff</RootNamespace>
+    <ProjectGuid>{4ada61b5-c2ca-4734-9737-47f946db0dd0}</ProjectGuid>
+    <RootNamespace>TemplateStateMachine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -109,6 +109,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -125,20 +129,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LedOnOff.cpp" />
+    <ClInclude Include="..\..\src\state.h" />
+    <ClInclude Include="..\..\src\statemachine.h" />
+    <ClInclude Include="..\..\src\transition.h" />
+    <ClInclude Include="..\..\src\tsm.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\examples\LedOnOff\LedOnOff.h" />
-    <ClInclude Include="..\..\..\src\choicetransition.h" />
-    <ClInclude Include="..\..\..\src\finaltransition.h" />
-    <ClInclude Include="..\..\..\src\initialtransition.h" />
-    <ClInclude Include="..\..\..\src\lokilight.h" />
-    <ClInclude Include="..\..\..\src\state.h" />
-    <ClInclude Include="..\..\..\src\statemachine.h" />
-    <ClInclude Include="..\..\..\src\transition.h" />
-    <ClInclude Include="..\..\..\src\tsm.h" />
+    <ClCompile Include="Playground.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

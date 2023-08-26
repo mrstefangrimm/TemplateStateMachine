@@ -15,15 +15,15 @@ struct is_same<T, T> {
 typedef char (&yes)[1];
 typedef char (&no)[2];
 
-template<typename B, typename D>
+template<class B, class D>
 struct Host {
   operator B*() const;
   operator D*();
 };
 
-template<typename B, typename D>
+template<class B, class D>
 struct is_base_of {
-  template<typename T>
+  template<class T>
   static yes check(D*, T);
   static no check(B*, int);
 

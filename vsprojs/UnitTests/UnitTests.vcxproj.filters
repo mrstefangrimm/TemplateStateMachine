@@ -31,10 +31,10 @@
     <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp">
       <Filter>StatemachineOnOff</Filter>
     </ClCompile>
-    <ClCompile Include="StatemachineTest.cpp">
+    <ClCompile Include="StatemachineTriggerTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="SubstatemachineTest.cpp">
+    <ClCompile Include="SubstatemachineTriggerTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="InitFinishTransitionSubstateTest.cpp">
@@ -45,6 +45,12 @@
     </ClCompile>
     <ClCompile Include="DispatchSameEventSubstateTest.cpp">
       <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="StatemachineMsgTest.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SubstatemachineEventTest.cpp">
+      <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

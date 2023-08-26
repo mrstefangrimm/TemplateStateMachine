@@ -18,21 +18,32 @@
 
 namespace tsmlib {
 
-template<typename Me, typename CreationPolicy>
+template<class Me, class CreationPolicy>
 struct FinalTransition {
 
-  enum { N = -1 };
   enum { E = false };
   enum { X = true };
 
-  typedef typename CreationPolicy::ObjectType StateType;
-  typedef Me FromType;
+  using EventType = NullType;
+  using StateType = typename CreationPolicy::ObjectType;
+  using FromType = Me;
 
   DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename Me::CreatorType FromFactory;
-    typedef typename CreationPolicy::CreatorType Creator;
+    using FromFactory = typename Me::CreatorType;
+    using Creator = typename CreationPolicy::CreatorType;
 
-    static_cast<Me*>(activeState)->template _exit<N>();
+    static_cast<Me*>(activeState)->template _exit<EventType>();
+
+    FromFactory::destroy(static_cast<Me*>(activeState));
+
+    return DispatchResult<StateType>(true, nullptr);
+  }
+
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType& ev) {
+    using FromFactory = typename Me::CreatorType;
+    using Creator = typename CreationPolicy::CreatorType;
+
+    static_cast<Me*>(activeState)->template _exit<EventType>(ev);
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 
@@ -40,11 +51,12 @@ struct FinalTransition {
   }
 };
 
-template<uint8_t Trigger, typename From, typename CreationPolicy, typename Guard, typename Action>
-struct FinalTransitionExplicit : impl::TransitionBase<Trigger, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
+template<class Event, class From, class CreationPolicy, class Guard, class Action>
+struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
   FinalTransitionExplicit() {
+    // TODO - Boost SML example is without guard.
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.
-    CompileTimeError< !is_same<Guard, NoGuard>().value >();
+    //CompileTimeError< !is_same<Guard, NoGuard>().value >();
   }
 };
 }

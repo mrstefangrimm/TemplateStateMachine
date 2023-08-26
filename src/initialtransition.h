@@ -19,31 +19,32 @@
 
 namespace tsmlib {
 
-template<typename To, typename CreationPolicy, typename Action>
+template<class To, class CreationPolicy, class Action>
 struct InitialTransition {
 
-  enum { N = -1 };
   enum { E = true };
   enum { X = false };
   enum { R = false };
-  typedef To ToType;
-  typedef CreationPolicy CreationPolicyType;
-  typedef typename CreationPolicy::ObjectType StateType;
-  typedef EmptyState<StateType> FromType;
 
-  InitialTransition() {
-  }
+  using EventType = NullType;
+  using ToType = To;
+  using CreationPolicyType = CreationPolicy;
+  using StateType = typename CreationPolicy::ObjectType;
+  using FromType = int;
 
-  DispatchResult<StateType> dispatch(StateType* activeState) {
-    typedef typename To::CreatorType ToFactory;
+  DispatchResult<StateType> dispatch() {
+    using ToFactory = typename To::CreatorType;
 
-    Action().perform(activeState);
+    Action().perform();
     To* toState = ToFactory::create();
-    toState->template _entry<N>();
+
+    EventType ev;
+    toState->template _entry<EventType>(ev);
     if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit<N>();
+      toState->template _doit< EventType>(ev);
     }
     return DispatchResult<StateType>(true, toState);
   }
+
 };
 }

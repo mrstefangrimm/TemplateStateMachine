@@ -17,8 +17,8 @@
 
 #include "CppUnitTest.h"
 
-#include "..\..\src\state.h"
-#include "..\..\src\lokilight.h"
+#include "../../src/state.h"
+#include "../../src/lokilight.h"
 
 namespace UT {
   namespace Classes {

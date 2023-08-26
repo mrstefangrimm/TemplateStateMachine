@@ -22,57 +22,58 @@ namespace tsmlib {
 namespace impl {
 
 template<
-  uint8_t Trigger,
-  typename To_true,
-  typename To_false,
-  typename From,
-  typename CreationPolicy,
-  typename Guard,
-  typename Action,
+  class Event,
+  class To_true,
+  class To_false,
+  class From,
+  class CreationPolicy,
+  class Guard,
+  class Action,
   bool IsExitingTransition>
 struct ChoiceTransitionBase {
 
-  enum { N = Trigger };
   enum { E = false };
   enum { X = IsExitingTransition };
 
-  typedef To_false ToType;
-  typedef From FromType;
-  typedef CreationPolicy CreationPolicyType;
-  typedef typename CreationPolicy::ObjectType StateType;
+  using EventType = Event;
+  using ToType = To_false;
+  using FromType = From;
+  using CreationPolicyType = CreationPolicy;
+  using StateType = typename CreationPolicy::ObjectType;
 
   ChoiceTransitionBase() {
-    // Choice without guard does not make sense; the choice is either to go the the state To_true or To_false.
+    // Choice without guard does not make sense; the choice is either to go the state To_true or To_false.
     CompileTimeError< !is_same<Guard, NoGuard>().value >();
     // Choice transition
     CompileTimeError< !is_same<To_true, EmptyState<typename CreationPolicy::ObjectType>>().value >();
     CompileTimeError< !is_same<From, EmptyState<typename CreationPolicy::ObjectType>>().value >();
   }
 
-  DispatchResult<StateType> dispatch(StateType* activeState) {
+  DispatchResult<StateType> dispatch(StateType* activeState, const EventType& ev) {
 
-    typedef typename To_true::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To_true::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
-    Action().perform(activeState);
+    FromType* fromState = static_cast<FromType*>(activeState);
+    Action().template perform<FromType, EventType>(*fromState, ev);
 
-    if (Guard().eval(activeState)) {
-      return execute< To_true >(activeState);
+    if (Guard().eval(*fromState, ev)) {
+      return execute< To_true >(activeState, ev);
     } else {
-      return execute< To_false >(activeState);
+      return execute< To_false >(activeState, ev);
     }
   }
 
 private:
-  template<typename To>
-  DispatchResult<StateType> execute(StateType* activeState) {
+  template<class To>
+  DispatchResult<StateType> execute(StateType* activeState, const EventType& ev) {
 
-    typedef typename To::CreatorType ToFactory;
-    typedef typename From::CreatorType FromFactory;
+    using ToFactory = typename To::CreatorType;
+    using FromFactory = typename From::CreatorType;
 
     // Self transition
     if (is_same<To, From>().value) {
-      static_cast<To*>(activeState)->template _doit<Trigger>();
+      static_cast<To*>(activeState)->_doit(ev);
       return DispatchResult<StateType>(true, activeState);
     }
 
@@ -80,13 +81,13 @@ private:
       return DispatchResult<StateType>(false, activeState);
     }
 
-    static_cast<From*>(activeState)->template _exit<Trigger>();
+    static_cast<From*>(activeState)->template _exit<EventType>(ev);
     FromFactory::destroy(static_cast<From*>(activeState));
 
     To* toState = ToFactory::create();
-    toState->template _entry<Trigger>();
+    toState->template _entry<EventType>(ev);
     if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit<Trigger>();
+      toState->_doit(ev);
     }
     return DispatchResult<StateType>(true, toState);
   }
@@ -94,10 +95,10 @@ private:
 
 }
 
-template<uint8_t Trigger, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ChoiceTransition = impl::ChoiceTransitionBase<Trigger, To_true, To_false, From, CreationPolicy, Guard, Action, false>;
+template<class Event, class To_true, class To_false, class From, class CreationPolicy, class Guard, class Action>
+using ChoiceTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, From, CreationPolicy, Guard, Action, false>;
 
-template<uint8_t Trigger, typename To_true, typename To_false, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ChoiceExitTransition = impl::ChoiceTransitionBase<Trigger, To_true, To_false, From, CreationPolicy, Guard, Action, true>;
+template<class Event, class To_true, class To_false, class From, class CreationPolicy, class Guard, class Action>
+using ChoiceExitTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, From, CreationPolicy, Guard, Action, true>;
 
 }

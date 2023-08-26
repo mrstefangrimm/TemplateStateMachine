@@ -25,14 +25,14 @@ struct MemoryAddressComparator;
 struct VirtualGetTypeIdStateComparator;
 struct RttiComparator;
 
-template<typename Comparator, bool Singleton>
+template<class Comparator, bool Singleton>
 struct State {
 
   bool equals(const State& other) const {
     return Comparator::areEqual(*this, other);
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     return Comparator::template hasType<T>(*this);
   }
@@ -45,9 +45,9 @@ struct State<MemoryAddressComparator, true> {
     return this == &other;
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
-    typedef typename T::CreatorType Factory;
+    using Factory = typename T::CreatorType;
     T* other = Factory::create();
     // other is 0 for AnyState
     bool sameType = other != 0 ? this->equals(*other) : true;
@@ -63,13 +63,12 @@ struct State<VirtualGetTypeIdStateComparator, false> {
   virtual uint8_t getTypeId() const = 0;
 
   bool equals(const State<VirtualGetTypeIdStateComparator, false>& other) const {
-    auto derived = static_cast<const State<VirtualGetTypeIdStateComparator, false>*>(this);
-    return derived->getTypeId() == other.getTypeId();
+    return this->getTypeId() == other.getTypeId();
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
-    typedef typename T::CreatorType Factory;
+    using Factory = typename T::CreatorType;
     T* other = Factory::create();
     // other is nullptr for AnyState. Rule: AnyState != AnyState
     if (other == nullptr) return false;
@@ -92,17 +91,17 @@ public:
     return typeid(*this) == typeid(other);
   }
 
-  template<typename T>
+  template<class T>
   bool typeOf() const {
     return typeid(*this) == typeid(T);
   }
 };
 #endif
 
-template<typename T>
+template<class T>
 struct AnyState : T {
-  typedef AnyState CreatorType;
-  typedef AnyState ObjectType;
+  using CreatorType = AnyState<T>;
+  using ObjectType = AnyState<T>;
 
   static AnyState* create() {
     return nullptr;
@@ -110,44 +109,44 @@ struct AnyState : T {
   static void destroy(AnyState*) {}
 };
 
-template<typename Derived, typename Basetype>
+template<class Derived, class Basetype>
 class BasicState : public Basetype {
 public:
-  template<uint8_t N>
-  void _entry() {
-    static_cast<Derived*>(this)->entry();
+  template<class Event>
+  void _entry(const Event& ev) {
+    static_cast<Derived*>(this)->entry(ev);
   }
 
-  template<uint8_t N>
-  void _exit() {
-    static_cast<Derived*>(this)->exit();
+  template<class Event>
+  void _exit(const Event& ev) {
+    static_cast<Derived*>(this)->exit(ev);
   }
 
-  template<uint8_t N>
-  bool _doit() {
-    static_cast<Derived*>(this)->template doit<N>();
+  template<class Event>
+  bool _doit(const Event& ev) {
+    static_cast<Derived*>(this)->template doit<Event>(ev);
     return true;
   }
 };
 
-template<typename Derived, typename Basetype, typename Statemachine>
+template<class Derived, class Basetype, class Statemachine>
 class SubstatesHolderState : public Basetype {
 public:
-  template<uint8_t N>
-  void _entry() {
-    static_cast<Derived*>(this)->entry();
-    subStatemachine_.template _begin<N>();
+  template<class Event>
+  void _entry(const Event& ev) {
+    static_cast<Derived*>(this)->entry(ev);
+    subStatemachine_.template _begin<Event>();
   }
 
-  template<uint8_t N>
-  void _exit() {
-    subStatemachine_.template _end<N>();
-    static_cast<Derived*>(this)->exit();
+  template<class Event>
+  void _exit(const Event& ev) {
+    subStatemachine_.template _end<Event>();
+    static_cast<Derived*>(this)->template exit<Event>(ev);
   }
 
-  template<uint8_t N>
-  bool _doit() {
-    auto result = subStatemachine_.template dispatch<N>();
+  template<class Event>
+  bool _doit(const Event& ev) {
+    auto result = subStatemachine_.template dispatch<Event>(ev);
     return result.consumed;
   }
 
@@ -155,7 +154,7 @@ private:
   Statemachine subStatemachine_;
 };
 
-template<typename Comparator, bool Singleton>
+template<class Comparator, bool Singleton>
 bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator, Singleton>& rhs) {
   return lhs.equals(rhs);
 }
@@ -163,28 +162,28 @@ bool operator==(const State<Comparator, Singleton>& lhs, const State<Comparator,
 /**
 * When leaving, the object not destroyed. Make sure you reset the state's state.
 */
-template<typename T>
+template<class T>
 struct SingletonCreator {
-  typedef SingletonCreator<T> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = SingletonCreator<T>;
+  using ObjectType = T;
 
   static T* create() {
-    return instance;
+    return &instance;
   }
-  static void destroy(T* state) {}
+  static void destroy(T*) {}
 
 private:
-  static T* instance;
+  static T instance;
 };
-template<typename T> T* SingletonCreator<T>::instance = new T;
+template<class T> T SingletonCreator<T>::instance;
 
 /**
 * When leaving, the object is destroyed and the state's state is lost.
 */
-template<typename T, bool implementsCreate = true>
+template<class T, bool implementsCreate = true>
 struct FactoryCreator {
-  typedef FactoryCreator<T, true> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = FactoryCreator<T, true>;
+  using ObjectType = T;
 
   static T* create() {
     return new T;
@@ -194,10 +193,10 @@ struct FactoryCreator {
   }
 };
 // Specialization
-template<typename T>
+template<class T>
 struct FactoryCreator<T, false> {
-  typedef FactoryCreator<T, false> CreatorType;
-  typedef T ObjectType;
+  using CreatorType = FactoryCreator<T, false>;
+  using ObjectType = T;
 
   static void* create() {
     CompileTimeError<true>();

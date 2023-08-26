@@ -15,7 +15,7 @@
 */
 #define IAMWORKSTATION 1
 
-#include "..\..\src\tsm.h"
+#include "../../src/tsm.h"
 
 #include <iostream>
 
@@ -25,48 +25,45 @@ typedef State<VirtualGetTypeIdStateComparator, false> StateType;
 typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
 
 struct ToSimFromCalibAction {
-  template<typename T>
-  void perform(T*) {
+  template<class T, class V>
+  void perform(T&, const V&) {
   }
 };
 
 struct ToSimFromCalibGuard {
-  template<typename T>
-  bool eval(T* activeState) { return true; }
+  template<class T, class V>
+  bool eval(const T&, const V&) { return true; }
 };
 
-enum Trigger {
-  On,
-  Calibrate,
-  Positionstream,
-  Timeout,
-  Remote,
-  Manual,
-  OutofSimulation,
-};
+namespace Trigger {
+  struct On {};
+  struct Calibrate {};
+  struct Positionstream {};
+  struct Timeout {};
+  struct Remote {};
+  struct Manual {};
+  struct OutofSimulation {};
+}
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
-  void entry() { }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
-  void entry() { }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) { }
 };
 
 struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
-  void entry() { }
-  void exit() { }
-  template<uint8_t N>
-  void doit() { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) { }
 };
 
 struct Simulation;
@@ -104,15 +101,16 @@ typedef Statemachine<
   InitTransition> Sm;
 
 struct ChoiceGuardRemoteDummy {
-  template<typename T>
-  bool eval(T*) {
+  template<class StateType, class EventType>
+  bool eval(const StateType&, const EventType&) {
     // true => SimulationRemote
     return true;
   }
 };
+
 struct ChoiceGuardManualDummy {
-  template<typename T>
-  bool eval(T*) {
+  template<class StateType, class EventType>
+  bool eval(const StateType&, const EventType&) {
     // true => SimulationManual
     return true;
   }
@@ -150,13 +148,10 @@ struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubsta
 private:
   friend class SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>;
 
-  void entry() {
-  }
-  void exit() {
-  }
-  template<uint8_t N>
-  void doit() {
-    if (N == Trigger::Positionstream) {
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {
+    if (is_same<Event, Trigger::Positionstream>().value) {
       isPositionStreamActive_ = !isPositionStreamActive_;
     }
   }
@@ -170,10 +165,9 @@ struct Calibration : BasicState<Calibration, StateType>, FactoryCreator<Calibrat
 
 private:
   friend class BasicState<Calibration, StateType>;
-  void entry() { }
-  void exit() { }
-  template<uint8_t N>
-  void doit() {
+  template<class Event> void entry(const Event&) { }
+  template<class Event> void exit(const Event&) { }
+  template<class Event> void doit(const Event&) {
   }
 };
 
