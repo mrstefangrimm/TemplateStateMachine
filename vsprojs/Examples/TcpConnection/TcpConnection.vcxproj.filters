@@ -12,5 +12,8 @@
     <ClInclude Include="..\..\..\src\state.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\transition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

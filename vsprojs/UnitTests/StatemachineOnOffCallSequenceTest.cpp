@@ -47,10 +47,9 @@ namespace UT {
 
       private:
         friend class BasicState<FinalStateFake, StateType>;
-        void entry() { }
-        void exit() { }
-        template<class Event>
-        void doit(const Event& ev) { }
+        template<class Event> void entry(const Event&) { }
+        template<class Event> void exit(const Event&) { }
+        template<class Event> void doit(const Event&) { }
       };
       const char* FinalStateFake::name = "Final";
 
@@ -68,10 +67,9 @@ namespace UT {
 
       private:
         friend class BasicState<OnState, StateType>;
-        void entry() { RecorderType::add("OnState::Entry"); }
-        void exit() { RecorderType::add("OnState::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("OnState::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("OnState::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("OnState::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("OnState::Do"); }
       };
       const char* OnState::name = "OnState";
 
@@ -81,10 +79,9 @@ namespace UT {
 
       private:
         friend class BasicState<OffState, StateType>;
-        void entry() { RecorderType::add("OffState::Entry"); }
-        void exit() { RecorderType::add("OffState::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("OffState::Do"); }
+        template<class Event>  void entry(const Event&) { RecorderType::add("OffState::Entry"); }
+        template<class Event>  void exit(const Event&) { RecorderType::add("OffState::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("OffState::Do"); }
       };
       const char* OffState::name = "OffState";
 

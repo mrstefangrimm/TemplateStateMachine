@@ -59,27 +59,27 @@ struct send_ack {
 
 // TODO false should be default
 struct established : public BasicState<established, StateType>, public SingletonCreator<established> {
-  void entry() {}
-  void exit() {}
-  template<class Event> void doit(const Event& ev) {}
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 struct fin_wait_1 : public BasicState<fin_wait_1, StateType>, public SingletonCreator<fin_wait_1> {
-  void entry() {}
-  void exit() {}
-  template<class Event> void doit(const Event& ev) {}
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 struct fin_wait_2 : public BasicState<fin_wait_2, StateType>, public SingletonCreator<fin_wait_2> {
-  void entry() {}
-  void exit() {}
-  template<class Event> void doit(const Event& ev) {}
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 struct timed_wait : public BasicState<timed_wait, StateType>, public SingletonCreator<timed_wait> {
-  void entry() {}
-  void exit() {}
-  template<class Event> void doit(const Event& ev) {}
+  template<class Event> void entry(const Event& ev) {}
+  template<class Event> void exit(const Event& ev) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 using ToWait1FromEstablished = Transition<close, fin_wait_1, established, StateTypeCreationPolicyType, NoGuard, send_fin>;

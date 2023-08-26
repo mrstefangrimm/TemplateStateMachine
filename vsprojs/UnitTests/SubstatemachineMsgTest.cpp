@@ -52,8 +52,8 @@ namespace UT {
 
       private:
         friend class BasicState<Idle, StateType>;
-        void entry() { entryCalls++; }
-        void exit() { exitCalls++; }
+        template<class Event> void entry(const Event&) { entryCalls++; }
+        template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
       };
       int Idle::entryCalls = 0;
@@ -69,8 +69,8 @@ namespace UT {
 
       private:
         friend class BasicState<OnState, StateType>;
-        void entry() { entryCalls++; }
-        void exit() { exitCalls++; }
+        template<class Event> void entry(const Event&) { entryCalls++; }
+        template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
       };
       int OnState::entryCalls = 0;
@@ -86,8 +86,8 @@ namespace UT {
 
       private:
         friend class BasicState<OffState, StateType>;
-        void entry() { entryCalls++; }
-        void exit() { exitCalls++; }
+        template<class Event> void entry(const Event&) { entryCalls++; }
+        template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
       };
       int OffState::entryCalls = 0;
@@ -122,10 +122,9 @@ namespace UT {
 
       private:
         friend class SubstatesHolderState<Active, StateType, ActivestateStatemachine>;
-        void entry() { entryCalls++; }
-        void exit() { exitCalls++; }
-        template<class Event>
-        void doit(const Event& ev) { doitCalls++; }
+        template<class Event> void entry(const Event&) { entryCalls++; }
+        template<class Event> void exit(const Event&) { exitCalls++; }
+        template<class Event> void doit(const Event&) { doitCalls++; }
       };
       int Active::entryCalls = 0;
       int Active::exitCalls = 0;

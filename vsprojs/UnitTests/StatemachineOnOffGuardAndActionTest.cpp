@@ -55,10 +55,9 @@ namespace UT {
 
       private:
         friend class BasicState<OnState, StateType>;
-        void entry() { }
-        void exit() { }
-        template<class Event>
-        void doit(const Event& ev) { }
+        template<class Event> void entry(const Event&) { }
+        template<class Event> void exit(const Event&) { }
+        template<class Event> void doit(const Event&) { }
       };
 
       struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
@@ -66,10 +65,9 @@ namespace UT {
 
       private:
         friend class BasicState<OffState, StateType>;
-        void entry() { }
-        void exit() { }
-        template<class Event>
-        void doit(const Event& ev) { }
+        template<class Event> void entry(const Event&) { }
+        template<class Event> void exit(const Event&) { }
+        template<class Event> void doit(const Event&) { }
       };
 
       typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;

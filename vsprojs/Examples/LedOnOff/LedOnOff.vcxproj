@@ -130,6 +130,7 @@
     <ClCompile Include="LedOnOff.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\examples\LedOnOff\LedOnOff.h" />
     <ClInclude Include="..\..\..\src\choicetransition.h" />
     <ClInclude Include="..\..\..\src\finaltransition.h" />
     <ClInclude Include="..\..\..\src\initialtransition.h" />

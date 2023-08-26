@@ -34,5 +34,6 @@
     <ClInclude Include="..\..\..\src\transition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\examples\LedOnOff\LedOnOff.h" />
   </ItemGroup>
 </Project>

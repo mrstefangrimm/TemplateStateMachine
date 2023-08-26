@@ -113,13 +113,13 @@ template<class Derived, class Basetype>
 class BasicState : public Basetype {
 public:
   template<class Event>
-  void _entry() {
-    static_cast<Derived*>(this)->entry();
+  void _entry(const Event& ev) {
+    static_cast<Derived*>(this)->entry(ev);
   }
 
-  template<class event>
-  void _exit() {
-    static_cast<Derived*>(this)->exit();
+  template<class Event>
+  void _exit(const Event& ev) {
+    static_cast<Derived*>(this)->exit(ev);
   }
 
   template<class Event>
@@ -133,15 +133,15 @@ template<class Derived, class Basetype, class Statemachine>
 class SubstatesHolderState : public Basetype {
 public:
   template<class Event>
-  void _entry() {
-    static_cast<Derived*>(this)->entry();
+  void _entry(const Event& ev) {
+    static_cast<Derived*>(this)->entry(ev);
     subStatemachine_.template _begin<Event>();
   }
 
   template<class Event>
-  void _exit() {
+  void _exit(const Event& ev) {
     subStatemachine_.template _end<Event>();
-    static_cast<Derived*>(this)->exit();
+    static_cast<Derived*>(this)->template exit<Event>(ev);
   }
 
   template<class Event>
@@ -170,7 +170,7 @@ struct SingletonCreator {
   static T* create() {
     return &instance;
   }
-  static void destroy(T* state) {}
+  static void destroy(T*) {}
 
 private:
   static T instance;

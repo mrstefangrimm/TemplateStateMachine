@@ -80,11 +80,11 @@ private:
       return DispatchResult<StateType>(false, activeState);
     }
 
-    static_cast<From*>(activeState)->template _exit<EventType>();
+    static_cast<From*>(activeState)->template _exit<EventType>(*ev);
     FromFactory::destroy(static_cast<From*>(activeState));
 
     To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
+    toState->template _entry<EventType>(*ev);
     if (is_base_of<BasicState<To, StateType>, To>::value) {
       toState->_doit(*ev);
     }

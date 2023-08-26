@@ -37,9 +37,11 @@ struct InitialTransition {
 
     Action().perform();
     To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
+
+    EventType ev;
+    toState->template _entry<EventType>(ev);
     if (is_base_of<BasicState<To, StateType>, To>::value) {
-      toState->template _doit< EventType>(EventType{});
+      toState->template _doit< EventType>(ev);
     }
     return DispatchResult<StateType>(true, toState);
   }

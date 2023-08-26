@@ -47,26 +47,23 @@ namespace Trigger {
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
-  void entry() { }
-  void exit() { }
-  template<class Event>
-  void doit(const Event&) { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {}
 };
 
 struct SimulationManual : BasicState<SimulationManual, StateType>, FactoryCreator<SimulationManual> {
   uint8_t getTypeId() const override { return 11; }
-  void entry() { }
-  void exit() { }
-  template<class Event>
-  void doit(const Event&) { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) { }
 };
 
 struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreator<SimulationRemote> {
   uint8_t getTypeId() const override { return 12; }
-  void entry() { }
-  void exit() { }
-  template<class Event>
-  void doit(const Event&) { }
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) { }
 };
 
 struct Simulation;
@@ -151,12 +148,9 @@ struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubsta
 private:
   friend class SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>;
 
-  void entry() {
-  }
-  void exit() {
-  }
-  template<class Event>
-  void doit(const Event&) {
+  template<class Event> void entry(const Event&) {}
+  template<class Event> void exit(const Event&) {}
+  template<class Event> void doit(const Event&) {
     if (is_same<Event, Trigger::Positionstream>().value) {
       isPositionStreamActive_ = !isPositionStreamActive_;
     }
@@ -171,10 +165,9 @@ struct Calibration : BasicState<Calibration, StateType>, FactoryCreator<Calibrat
 
 private:
   friend class BasicState<Calibration, StateType>;
-  void entry() { }
-  void exit() { }
-  template<class Event>
-  void doit(const Event&) {
+  template<class Event> void entry(const Event&) { }
+  template<class Event> void exit(const Event&) { }
+  template<class Event> void doit(const Event&) {
   }
 };
 

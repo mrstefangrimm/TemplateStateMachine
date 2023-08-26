@@ -55,10 +55,9 @@ namespace UT {
         static const char* name;
         int counter = 0;
 
-        void entry() { RecorderType::add("A::Entry"); }
-        void exit() { RecorderType::add("A::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) {
+        template<class Event> void entry(const Event&) { RecorderType::add("A::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("A::Exit"); }
+        template<class Event> void doit(const Event&) {
           RecorderType::add("A::Do");
           if (is_same<Event, Trigger::Count>().value) {
             counter++;
@@ -70,10 +69,9 @@ namespace UT {
 
       struct B : Leaf<B> {
         static const char* name;
-        void entry() { RecorderType::add("B::Entry"); }
-        void exit() { RecorderType::add("B::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("B::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("B::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("B::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("B::Do"); }
 
         uint8_t getTypeId() const override { return 2; };
       };
@@ -81,10 +79,9 @@ namespace UT {
 
       struct C : Leaf<C> {
         static const char* name;
-        void entry() { RecorderType::add("C::Entry"); }
-        void exit() { RecorderType::add("C::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("C::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("C::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("C::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("C::Do"); }
 
         uint8_t getTypeId() const override { return 3; };
       };

@@ -51,9 +51,9 @@ namespace UT {
         static void destroy(EmptyStateFake*) { }
 
         template<class Event>
-        void _entry() { }
+        void _entry(const Event&) { }
         template<class Event>
-        bool _doit(const Event& ev) { return false; }
+        bool _doit(const Event&) { return false; }
       };
       template<class T> const char* EmptyStateFake<T>::name = "Final";
 
@@ -86,10 +86,9 @@ namespace UT {
 
       struct A : Composite<A, SmA> {
         static const char* name;
-        void entry() { RecorderType::add("A::Entry"); }
-        void exit() { RecorderType::add("A::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("A::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("A::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("A::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("A::Do"); }
       };
       const char* A::name = "A";
 
@@ -112,37 +111,33 @@ namespace UT {
 
       struct AA : Composite<AA, SmAA> {
         static const char* name;
-        void entry() { RecorderType::add("AA::Entry"); }
-        void exit() { RecorderType::add("AA::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("AA::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("AA::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("AA::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("AA::Do"); }
       };
       const char* AA::name = "AA";
 
       struct AAA : Leaf<AAA> {
         static const char* name;
-        void entry() { RecorderType::add("AAA::Entry"); }
-        void exit() { RecorderType::add("AAA::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("AAA::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("AAA::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("AAA::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("AAA::Do"); }
       };
       const char* AAA::name = "AAA";
 
       struct AAB : Leaf<AAB> {
         static const char* name;
-        void entry() { RecorderType::add("AAB::Entry"); }
-        void exit() { RecorderType::add("AAB::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("AAB::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("AAB::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("AAB::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("AAB::Do"); }
       };
       const char* AAB::name = "AAB";
 
       struct B : Leaf<B> {
         static const char* name;
-        void entry() { RecorderType::add("B::Entry"); }
-        void exit() { RecorderType::add("B::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) { RecorderType::add("B::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("B::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("B::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("B::Do"); }
       };
       const char* B::name = "B";
 

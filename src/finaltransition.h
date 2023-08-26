@@ -43,7 +43,7 @@ struct FinalTransition {
     using FromFactory = typename Me::CreatorType;
     using Creator = typename CreationPolicy::CreatorType;
 
-    static_cast<Me*>(activeState)->template _exit<EventType>();
+    static_cast<Me*>(activeState)->template _exit<EventType>(*ev);
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 

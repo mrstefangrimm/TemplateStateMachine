@@ -53,10 +53,9 @@ namespace UT {
         static const char* name;
         int counter = 0;
 
-        void entry() { RecorderType::add("A::Entry"); }
-        void exit() { RecorderType::add("A::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) {
+        template<class Event> void entry(const Event&) { RecorderType::add("A::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("A::Exit"); }
+        template<class Event> void doit(const Event&) {
           RecorderType::add("A::Do");
           counter++;
         }
@@ -68,10 +67,9 @@ namespace UT {
         static const char* name;
         int counter = 0;
         
-        void entry() { RecorderType::add("B::Entry"); }
-        void exit() { RecorderType::add("B::Exit"); }
-        template<class Event>
-        void doit(const Event& ev) {
+        template<class Event> void entry(const Event&) { RecorderType::add("B::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("B::Exit"); }
+        template<class Event> void doit(const Event&) {
           RecorderType::add("B::Do");
           counter++;
         }

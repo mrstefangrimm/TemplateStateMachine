@@ -47,10 +47,10 @@ struct EmptyState : T {
   static void destroy(EmptyState*) {}
 
   template<class Event>
-  void _entry() {}
+  void _entry(const Event&) {}
 
   template<class Event>
-  bool _doit(const Event& ev) {
+  bool _doit(const Event&) {
     return false;
   }
 };
@@ -107,7 +107,7 @@ struct TransitionBase {
     if (E) {
       using ToFactory = typename To::CreatorType;
       To* toState = ToFactory::create();
-      toState->template _entry<EventType>();
+      toState->template _entry<EventType>(*ev);
       if (is_base_of< BasicState< To, StateType >, To >::value) {
         toState->_doit(*ev);
       }
@@ -126,8 +126,8 @@ struct TransitionBase {
 
       // Exit and enter when it is a reentering transition
       if (R) {
-        static_cast<From*>(activeState)->template _exit<EventType>();
-        static_cast<From*>(activeState)->template _entry<EventType>();
+        static_cast<From*>(activeState)->template _exit<EventType>(*ev);
+        static_cast<From*>(activeState)->template _entry<EventType>(*ev);
       }
 
       const bool consumed = static_cast<From*>(activeState)->template _doit<EventType>(*ev);
@@ -138,11 +138,11 @@ struct TransitionBase {
           return DispatchResult<StateType>(true, activeState);
         }
 
-        static_cast<From*>(activeState)->template _exit<EventType>();
+        static_cast<From*>(activeState)->template _exit<EventType>(*ev);
 
         using ToFactory = typename To::CreatorType;
         To* toState = ToFactory::create();
-        toState->template _entry<EventType>();
+        toState->template _entry<EventType>(*ev);
         if (is_base_of< BasicState< To, StateType >, To >::value) {
           toState->template _doit<EventType>(*ev);
         }
@@ -156,11 +156,11 @@ struct TransitionBase {
       return DispatchResult<StateType>(false, activeState);
     }
 
-    static_cast<From*>(activeState)->template _exit<EventType>();
+    static_cast<From*>(activeState)->template _exit<EventType>(*ev);
 
     using ToFactory = typename To::CreatorType;
     To* toState = ToFactory::create();
-    toState->template _entry<EventType>();
+    toState->template _entry<EventType>(*ev);
     if (is_base_of< BasicState< To, StateType >, To >::value) {
       toState->_doit(*ev);
     }
