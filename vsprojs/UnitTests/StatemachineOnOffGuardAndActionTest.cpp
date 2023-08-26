@@ -29,18 +29,18 @@ namespace UT {
 
     namespace StatemachineOnOffGuardAndActionTestImpl {
 
-      typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-      typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
+      using StateType = State<VirtualGetTypeIdStateComparator, false>;
+      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
 
-      typedef ActionStub<struct OnState, struct OffState> ToOnFromOffActionSpy;
-      typedef ActionStub<struct OffState, struct OnState> ToOffFromOnActionSpy;
-      typedef ActionStub<struct OnState, struct OnState> ToOnFromOnActionSpy;
-      typedef ActionStub<struct OffState, struct OffState> ToOffFromOffActionSpy;
+      using ToOnFromOffActionSpy = ActionStub<struct OnState, struct OffState>;
+      using ToOffFromOnActionSpy = ActionStub<struct OffState, struct OnState>;
+      using ToOnFromOnActionSpy = ActionStub<struct OnState, struct OnState>;
+      using ToOffFromOffActionSpy = ActionStub<struct OffState, struct OffState>;
 
-      typedef GuardDummy<StateType, struct OnState, struct OffState> ToOnFromOffGuardDummy;
-      typedef GuardDummy<StateType, struct OffState, struct OnState> ToOffFromOnGuardDummy;
-      typedef GuardDummy<StateType, struct OnState, struct OnState> ToOnFromOnGuardDummy;
-      typedef GuardDummy<StateType, struct OffState, struct OffState> ToOffFromOffGuardDummy;
+      using ToOnFromOffGuardDummy = GuardDummy<StateType, struct OnState, struct OffState>;
+      using ToOffFromOnGuardDummy = GuardDummy<StateType, struct OffState, struct OnState>;
+      using ToOnFromOnGuardDummy = GuardDummy<StateType, struct OnState, struct OnState>;
+      using ToOffFromOffGuardDummy = GuardDummy<StateType, struct OffState, struct OffState>;
 
       namespace Trigger
       {
@@ -70,27 +70,24 @@ namespace UT {
         template<class Event> void doit(const Event&) { }
       };
 
-      typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy> ToOnFromOffTransition;
-      typedef Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, ToOffFromOnGuardDummy, ToOffFromOnActionSpy> ToOffFromOnTransition;
-      typedef SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, ToOnFromOnGuardDummy, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
-      typedef SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, ToOffFromOffGuardDummy, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, ToOnFromOffGuardDummy, ToOnFromOffActionSpy>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, ToOffFromOnGuardDummy, ToOffFromOnActionSpy>;
+      using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, ToOnFromOnGuardDummy, ToOnFromOnActionSpy, false>;
+      using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, ToOffFromOffGuardDummy, ToOffFromOffActionSpy, false>;
 
-      typedef
+      using TransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToOnFromOnTransition,
         Typelist<ToOffFromOffTransition,
-        NullType>>>> TransitionList;
+        NullType>>>>;
 
-      typedef InitialTransition<OffState, StateTypeCreationPolicyType, NoAction> InitTransition;
-      typedef Statemachine<
-        TransitionList,
-        InitTransition> Sm;
+      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
     TEST_CLASS(StatemachineOnOffGuardAndActionTest)
     {
-    public:
       TEST_METHOD_INITIALIZE(Initialize)
       {
         reset();
@@ -198,7 +195,7 @@ namespace UT {
       }
 
       private:
-        void reset() {
+        void reset() const {
           using namespace StatemachineOnOffGuardAndActionTestImpl;
           ToOnFromOffGuardDummy::calls = 0;
           ToOnFromOffActionSpy::calls = 0;

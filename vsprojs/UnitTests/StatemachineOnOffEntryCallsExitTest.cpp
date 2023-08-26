@@ -29,8 +29,8 @@ namespace UT {
 
     namespace StatemachineOnOffEntryCallsExitTestImpl {
 
-      typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-      typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
+      using StateType = State<VirtualGetTypeIdStateComparator, false>;
+      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
 
       namespace Trigger
       {
@@ -74,27 +74,24 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOffTransition;
-      typedef Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOnTransition;
-      typedef SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToOnFromOnTransition;
-      typedef SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToOffFromOffTransition;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
+      using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
 
-      typedef
+      using TransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToOnFromOnTransition,
         Typelist<ToOffFromOffTransition,
-        NullType>>>> TransitionList;
+        NullType>>>>;
 
-      typedef InitialTransition<OffState, StateTypeCreationPolicyType, NoAction> InitTransition;
-      typedef Statemachine<
-        TransitionList,
-        InitTransition> Sm;
+      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
     TEST_CLASS(StatemachineOnOffEntryDoExitTest)
     {
-    public:
       TEST_METHOD_INITIALIZE(Initialize)
       {
         reset();
@@ -187,7 +184,7 @@ namespace UT {
       }
 
     private:
-      void reset() {
+      void reset() const {
         using namespace StatemachineOnOffEntryCallsExitTestImpl;
         OnState::exitCalls = 0;
         OnState::entryCalls = 0;

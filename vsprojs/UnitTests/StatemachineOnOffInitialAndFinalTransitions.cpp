@@ -32,8 +32,8 @@ namespace UT {
       using namespace tsmlib;
       using namespace UnitTests::Helpers;
 
-      typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-      typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
+      using StateType = State<VirtualGetTypeIdStateComparator, false>;
+      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
 
       namespace Trigger
       {
@@ -76,34 +76,31 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      typedef GuardDummy<StateType, EmptyState<StateType>, OffState> ToFinalFromOffGuardDummy;
-      typedef GuardDummy<StateType, EmptyState<StateType>, OnState> ToFinalFromOnGuardDummy;
-      typedef ActionStub<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
-      typedef ActionStub<EmptyState<StateType>, struct OnState> ToFinalFromOnActionSpy;
-      typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOffTransition;
-      typedef Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOnTransition;
-      typedef FinalTransitionExplicit<Trigger::Goodbye, OffState, StateTypeCreationPolicyType, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
-      typedef FinalTransitionExplicit<Trigger::Goodbye, OnState, StateTypeCreationPolicyType, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy> ToFinalFromOnTransition;
-      typedef FinalTransition<OffState, StateTypeCreationPolicyType> ToEndTransition;
+      using ToFinalFromOffGuardDummy = GuardDummy<StateType, EmptyState<StateType>, OffState>;
+      using ToFinalFromOnGuardDummy = GuardDummy<StateType, EmptyState<StateType>, OnState>;
+      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StateType>, struct OffState>;
+      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StateType>, struct OnState>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToFinalFromOffTransition = FinalTransitionExplicit<Trigger::Goodbye, OffState, StateTypeCreationPolicyType, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy>;
+      using ToFinalFromOnTransition = FinalTransitionExplicit<Trigger::Goodbye, OnState, StateTypeCreationPolicyType, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy>;
+      using ToEndTransition = FinalTransition<OffState, StateTypeCreationPolicyType>;
 
-      typedef
+      using TransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToFinalFromOffTransition,
         Typelist<ToFinalFromOnTransition,
         Typelist<ToEndTransition,
-        NullType>>>>> TransitionList;
+        NullType>>>>>;
 
-      typedef ActionStub<struct OffState, struct EmptyState<StateType>> ToInitActionSpy;
-      typedef InitialTransition<OffState, StateTypeCreationPolicyType, ToInitActionSpy> ToInitTransition;
-      typedef Statemachine<
-        TransitionList,
-        ToInitTransition> Sm;
+      using ToInitActionSpy = ActionStub<struct OffState, struct EmptyState<StateType>>;
+      using ToInitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, ToInitActionSpy>;
+      using Sm = Statemachine<TransitionList, ToInitTransition>;
     }
 
     TEST_CLASS(StatemachineOnOffInitialAndFinalTransitions)
     {
-    public:
       TEST_METHOD_INITIALIZE(Initialize)
       {
         reset();
@@ -374,7 +371,7 @@ namespace UT {
       }
 
     private:
-      void reset() {
+      void reset() const {
         using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
         OffState::exitCalls = 0;
         OffState::entryCalls = 0;

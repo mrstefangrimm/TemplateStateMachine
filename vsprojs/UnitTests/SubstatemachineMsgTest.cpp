@@ -29,12 +29,12 @@ namespace UT {
 
     namespace SubstatemachineMsgTestImpl {
 
-      typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-      typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
+      using StateType = State<VirtualGetTypeIdStateComparator, false>;
+      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
 
-      typedef ActionStub<struct OffState, struct EmptyState<StateType>> ToOffFromInitialActionSpy;
-      typedef ActionStub<EmptyState<StateType>, struct OffState> ToFinalFromOffActionSpy;
-      typedef ActionStub<EmptyState<StateType>, struct OnState> ToFinalFromOnActionSpy;
+      using ToOffFromInitialActionSpy = ActionStub<struct OffState, struct EmptyState<StateType>>;
+      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StateType>, struct OffState>;
+      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StateType>, struct OnState>;
 
       namespace Msg {
         struct On {};
@@ -94,24 +94,22 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      typedef Transition<Msg::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOnFromOffTransition;
-      typedef Transition<Msg::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction> ToOffFromOnTransition;
-      typedef ExitTransition<Msg::Stop, Idle, OnState, StateTypeCreationPolicyType, NoGuard, NoAction> ToIdleFromOnTransition;
-      typedef FinalTransition<OffState, StateTypeCreationPolicyType> ToFinalFromOff;
-      typedef FinalTransition<OnState, StateTypeCreationPolicyType> ToFinalFromOn;
+      using ToOnFromOffTransition = Transition<Msg::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Msg::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToIdleFromOnTransition = ExitTransition<Msg::Stop, Idle, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToFinalFromOff = FinalTransition<OffState, StateTypeCreationPolicyType>;
+      using ToFinalFromOn = FinalTransition<OnState, StateTypeCreationPolicyType>;
 
-      typedef
+      using ActivestateTransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToIdleFromOnTransition,
         Typelist<ToFinalFromOff,
         Typelist<ToFinalFromOn,
-        NullType>>>>> ActivestateTransitionList;
+        NullType>>>>>;
 
-      typedef InitialTransition<OffState, StateTypeCreationPolicyType, NoAction> ActivestateInitTransition;
-      typedef Statemachine<
-        ActivestateTransitionList,
-        ActivestateInitTransition> ActivestateStatemachine;
+      using ActivestateInitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using ActivestateStatemachine = Statemachine<ActivestateTransitionList, ActivestateInitTransition>;
 
       struct Active : SubstatesHolderState<Active, StateType, ActivestateStatemachine>, FactoryCreator<Active> {
         static int entryCalls;
@@ -130,43 +128,36 @@ namespace UT {
       int Active::exitCalls = 0;
       int Active::doitCalls = 0;
 
-      typedef GuardDummy<StateType, AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesGuardDummy;
-      typedef ActionStub<AnyState<StateType>, AnyState<StateType>> ToFinalSubstatesActionSpy;
+      using ToFinalSubstatesGuardDummy = GuardDummy<StateType, AnyState<StateType>, AnyState<StateType>>;
+      using ToFinalSubstatesActionSpy = ActionStub<AnyState<StateType>, AnyState<StateType>>;
 
-      typedef Declaration<Msg::On, Active, StateTypeCreationPolicyType> ToOnFromOffSubDeclaration;
-      typedef Declaration<Msg::Off, Active, StateTypeCreationPolicyType> ToOffFromOnSubDeclaration;
-      typedef ExitDeclaration<Msg::Stop, Idle, Active, StateTypeCreationPolicyType> ToIdleFromOnDeclaration;
+      using ToOnFromOffSubDeclaration = Declaration<Msg::On, Active, StateTypeCreationPolicyType>;
+      using ToOffFromOnSubDeclaration = Declaration<Msg::Off, Active, StateTypeCreationPolicyType>;
+      using ToIdleFromOnDeclaration = ExitDeclaration<Msg::Stop, Idle, Active, StateTypeCreationPolicyType>;
 
-      typedef Transition<Msg::Start, Active, Idle, StateTypeCreationPolicyType, NoGuard, NoAction> ToActiveFromIdleTransition;
-      typedef Transition<Msg::Stop, Idle, Active, StateTypeCreationPolicyType, NoGuard, NoAction> ToIdleFromActiveTransition;
-      typedef FinalTransition<Active, StateTypeCreationPolicyType> ToFinalFromActive;
-      typedef FinalTransition<Idle, StateTypeCreationPolicyType> ToFinalFromIdle;
+      using ToActiveFromIdleTransition = Transition<Msg::Start, Active, Idle, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToIdleFromActiveTransition = Transition<Msg::Stop, Idle, Active, StateTypeCreationPolicyType, NoGuard, NoAction>;
+      using ToFinalFromActive = FinalTransition<Active, StateTypeCreationPolicyType>;
+      using ToFinalFromIdle = FinalTransition<Idle, StateTypeCreationPolicyType>;
 
-
-      typedef
-        Typelist< ToOnFromOffSubDeclaration,
-        Typelist< ToOffFromOnSubDeclaration,
+      using TransitionList =
+        Typelist<ToOnFromOffSubDeclaration,
+        Typelist<ToOffFromOnSubDeclaration,
         Typelist<ToIdleFromOnDeclaration,
         Typelist<ToActiveFromIdleTransition,
         Typelist<ToIdleFromActiveTransition,
         Typelist<ToFinalFromActive,
-        Typelist<ToFinalFromIdle,
-        NullType>>>>>>> TransitionList;
+        Typelist<ToFinalFromIdle, NullType>>>>>>>;
 
-      typedef InitialTransition<Idle, StateTypeCreationPolicyType, NoAction> InitTransitionToIdle;
-      typedef Statemachine<
-        TransitionList,
-        InitTransitionToIdle> Sm;
+      using InitTransitionToIdle = InitialTransition<Idle, StateTypeCreationPolicyType, NoAction>;
+      using Sm = Statemachine<TransitionList, InitTransitionToIdle>;
 
-      typedef InitialTransition<Active, StateTypeCreationPolicyType, NoAction> InitTransitionToActive;
-      typedef Statemachine<
-        TransitionList,
-        InitTransitionToActive> SmBeginEnd;
+      using InitTransitionToActive = InitialTransition<Active, StateTypeCreationPolicyType, NoAction>;
+      using SmBeginEnd = Statemachine<TransitionList, InitTransitionToActive>;
     }
 
     TEST_CLASS(SubstatemachineMsgTest)
     {
-    public:
       TEST_METHOD_INITIALIZE(Initialize)
       {
         reset();
@@ -268,7 +259,7 @@ namespace UT {
         Sm sm;
         sm.begin();
         sm.dispatch(Msg::Start{});
-        auto result = sm.dispatch(Msg::On{});
+        sm.dispatch(Msg::On{});
 
         reset();
 
@@ -288,7 +279,7 @@ namespace UT {
       }
 
     private:
-      void reset()
+      void reset() const
       {
         using namespace SubstatemachineMsgTestImpl;
         Idle::entryCalls = 0;

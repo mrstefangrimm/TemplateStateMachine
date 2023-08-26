@@ -31,36 +31,36 @@ namespace UT {
 
       template<class T>
       struct TestStateA : T, FactoryCreator<TestStateA<T>> {
-        typedef typename FactoryCreator<TestStateA> CreatorType;
+        using CreatorType = FactoryCreator<TestStateA<T>>;
         uint8_t getTypeId() const { return 1; }
       };
 
       template<class T>
       struct TestStateB : T, FactoryCreator<TestStateB<T>> {
-        typedef typename FactoryCreator<TestStateB<T>> CreatorType;
+        using CreatorType = FactoryCreator<TestStateB<T>>;
         uint8_t getTypeId() const { return 2; }
       };
 
       template<class T>
       struct TestStateSingletonA : T, SingletonCreator<TestStateSingletonA<T>> {
-        typedef typename SingletonCreator<TestStateSingletonA<T>> CreatorType;
+        using CreatorType = SingletonCreator<TestStateSingletonA<T>>;
       };
 
       template<class T>
       struct TestStateSingletonB : T, SingletonCreator<TestStateSingletonB<T>> {
-        typedef typename SingletonCreator<TestStateSingletonB<T>> CreatorType;
+        using CreatorType = SingletonCreator<TestStateSingletonB<T>>;
       };
 
       struct TestComparator {
 
         static bool isEqual;
 
-        static bool areEqual(const State<TestComparator, false>& lhs, const State<TestComparator, false>& rhs) {
+        static bool areEqual(const State<TestComparator, false>&, const State<TestComparator, false>&) {
           return isEqual;
         }
 
         template<class T>
-        static bool hasType(const State<TestComparator, false>& me) {
+        static bool hasType(const State<TestComparator, false>&) {
           return isEqual;
         }
       };
@@ -73,8 +73,8 @@ namespace UT {
       TEST_METHOD(Equals_VirtualGetTypeIdStateComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        typedef TestStateA<State<VirtualGetTypeIdStateComparator, false>> A;
-        typedef TestStateB<State<VirtualGetTypeIdStateComparator, false>> B;
+        using A = TestStateA<State<VirtualGetTypeIdStateComparator, false>>;
+        using B = TestStateB<State<VirtualGetTypeIdStateComparator, false>>;
 
         A a1;
         A a2;
@@ -93,8 +93,8 @@ namespace UT {
       TEST_METHOD(GetTypeId_VirtualGetTypeIdStateComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        typedef TestStateA<State<VirtualGetTypeIdStateComparator, false>> A;
-        typedef TestStateB<State<VirtualGetTypeIdStateComparator, false>> B;
+        using A = TestStateA<State<VirtualGetTypeIdStateComparator, false>>;
+        using B = TestStateB<State<VirtualGetTypeIdStateComparator, false>>;
         A a;
         B b;
 
@@ -120,8 +120,8 @@ namespace UT {
       TEST_METHOD(GetTypeId_MemoryAddressComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        typedef TestStateSingletonA<State<MemoryAddressComparator, true>> A;
-        typedef TestStateSingletonB<State<MemoryAddressComparator, true>> B;
+        using A = TestStateSingletonA<State<MemoryAddressComparator, true>>;
+        using B = TestStateSingletonB<State<MemoryAddressComparator, true>>;
         A* a = A::create();
         B* b = B::create();
 
@@ -147,8 +147,8 @@ namespace UT {
       TEST_METHOD(GetTypeId_RttiComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        typedef TestStateA<State<RttiComparator, false>> A;
-        typedef TestStateB<State<RttiComparator, false>> B;
+        using A = TestStateA<State<RttiComparator, false>>;
+        using B = TestStateB<State<RttiComparator, false>>;
         A a;
         B b;
 
@@ -184,8 +184,8 @@ namespace UT {
       TEST_METHOD(GetTypeId_TestComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        typedef TestStateA<State<TestComparator, false>> A;
-        typedef TestStateB<State<TestComparator, false>> B;
+        using A = TestStateA<State<TestComparator, false>>;
+        using B = TestStateB<State<TestComparator, false>>;
         A a;
         B b;
 

@@ -29,9 +29,9 @@ namespace UT {
 
     namespace StatemachineOnOffCallSequenceTestImpl {
 
-      typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-      typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
-      typedef Recorder<sizeof(__FILE__) + __LINE__> RecorderType;
+      using StateType = State<VirtualGetTypeIdStateComparator, false>;
+      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
 
       struct InitialStateFake : StateType {
         static const char* name;
@@ -40,8 +40,8 @@ namespace UT {
 
       struct FinalStateFake : BasicState<FinalStateFake, StateType> {
         static const char* name;
-        typedef FinalStateFake CreatorType;
-        typedef FinalStateFake ObjectType;
+        using CreatorType = FinalStateFake;
+        using ObjectType = FinalStateFake;
         static FinalStateFake* create() { return nullptr; }
         static void destroy(FinalStateFake*) { }
 
@@ -85,36 +85,33 @@ namespace UT {
       };
       const char* OffState::name = "OffState";
 
-      typedef ActionSpy<struct OnState, struct OffState, RecorderType> ToOnFromOffActionSpy;
-      typedef ActionSpy<struct OffState, struct OnState, RecorderType> ToOffFromOnActionSpy;
-      typedef ActionSpy<struct OnState, struct OnState, RecorderType> ToOnFromOnActionSpy;
-      typedef ActionSpy<struct OffState, struct OffState, RecorderType> ToOffFromOffActionSpy;
-      typedef ActionSpy<struct FinalStateFake, struct OffState, RecorderType> ToFinalFromOffActionSpy;
+      using ToOnFromOffActionSpy = ActionSpy<struct OnState, struct OffState, RecorderType>;
+      using ToOffFromOnActionSpy = ActionSpy<struct OffState, struct OnState, RecorderType>;
+      using ToOnFromOnActionSpy = ActionSpy<struct OnState, struct OnState, RecorderType>;
+      using ToOffFromOffActionSpy = ActionSpy<struct OffState, struct OffState, RecorderType>;
+      using ToFinalFromOffActionSpy = ActionSpy<struct FinalStateFake, struct OffState, RecorderType>;
 
-      typedef Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, ToOnFromOffActionSpy> ToOnFromOffTransition;
-      typedef Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, ToOffFromOnActionSpy> ToOffFromOnTransition;
-      typedef SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, NoGuard, ToOnFromOnActionSpy, false> ToOnFromOnTransition;
-      typedef SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, NoGuard, ToOffFromOffActionSpy, false> ToOffFromOffTransition;
-      typedef Transition<Trigger::OffToFinal, FinalStateFake, OffState, StateTypeCreationPolicyType, NoGuard, ToFinalFromOffActionSpy> ToFinalFromOffTransition;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, ToOnFromOffActionSpy>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, ToOffFromOnActionSpy>;
+      using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, NoGuard, ToOnFromOnActionSpy, false>;
+      using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, NoGuard, ToOffFromOffActionSpy, false>;
+      using ToFinalFromOffTransition = Transition<Trigger::OffToFinal, FinalStateFake, OffState, StateTypeCreationPolicyType, NoGuard, ToFinalFromOffActionSpy>;
 
-      typedef
+      using TransitionList =
         Typelist<ToOnFromOffTransition,
         Typelist<ToOffFromOnTransition,
         Typelist<ToOnFromOnTransition,
         Typelist<ToOffFromOffTransition,
         Typelist<ToFinalFromOffTransition,
-        NullType>>>>> TransitionList;
+        NullType>>>>>;
 
-      typedef ActionSpy<struct OffState, struct InitialStateFake, RecorderType> ToOffFromInitialActionSpy;
-      typedef InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitialActionSpy> InitTransition;
-      typedef Statemachine<
-        TransitionList,
-        InitTransition> Sm;
+      using ToOffFromInitialActionSpy = ActionSpy<struct OffState, struct InitialStateFake, RecorderType>;
+      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitialActionSpy>;
+      using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
     TEST_CLASS(StatemachineOnOffCallSequenceTest)
     {
-    public:
       TEST_METHOD_INITIALIZE(Initialize)
       {
         using namespace StatemachineOnOffCallSequenceTestImpl;
