@@ -171,7 +171,6 @@ struct TransitionBase {
     FromFactory::destroy(static_cast<From*>(activeState));
     return DispatchResult<StateType>(true, toState);
   }
-
 };
 }
 

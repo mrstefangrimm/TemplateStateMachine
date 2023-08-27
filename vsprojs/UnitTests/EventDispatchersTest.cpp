@@ -13,11 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
-using namespace std;
 #include "../../src/tsm.h"
 
 namespace UT {

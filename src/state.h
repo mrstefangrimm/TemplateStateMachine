@@ -80,7 +80,7 @@ struct State<VirtualGetTypeIdStateComparator, false> {
   }
 };
 
-#if defined(IAMWORKSTATION)
+#if !defined(__AVR__)
 template<>
 struct State<RttiComparator, false> {
 public:

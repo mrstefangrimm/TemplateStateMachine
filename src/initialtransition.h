@@ -46,6 +46,5 @@ struct InitialTransition {
     }
     return DispatchResult<StateType>(true, toState);
   }
-
 };
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#define IAMWORKSTATION 1
 #include "../../src/tsm.h"
 #include <vector>
 
