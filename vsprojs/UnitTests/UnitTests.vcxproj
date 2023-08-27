@@ -183,10 +183,11 @@
     <ClCompile Include="DispatchSameEventSubstateTest.cpp" />
     <ClCompile Include="SubstatemachineEventTest.cpp" />
     <ClCompile Include="SubstatemachineTriggerTest.cpp" />
-    <ClCompile Include="TriggerExecutorTest.cpp" />
+    <ClCompile Include="EventDispatchersTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\choicetransition.h" />
+    <ClInclude Include="..\..\src\eventdispatchers.h" />
     <ClInclude Include="..\..\src\finaltransition.h" />
     <ClInclude Include="..\..\src\initialtransition.h" />
     <ClInclude Include="..\..\src\state.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\src\lokilight.h" />
     <ClInclude Include="..\..\src\transition.h" />
     <ClInclude Include="..\..\src\tsm.h" />
+    <ClInclude Include="eventdispatchers.h" />
     <ClInclude Include="TestHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -7,7 +7,7 @@
     <ClCompile Include="StateComparatorTests.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="TriggerExecutorTest.cpp">
+    <ClCompile Include="EventDispatchersTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="ChoiceTransitionTest.cpp">
@@ -77,6 +77,12 @@
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\initialtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="eventdispatchers.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\eventdispatchers.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
   </ItemGroup>
