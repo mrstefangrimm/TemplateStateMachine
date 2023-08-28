@@ -26,10 +26,9 @@ namespace UT {
 
     namespace ChoiceTransitionTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreatorFake<StateType>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType, true, true, true>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, FactoryCreatorFake<Derived> {};
 
       template<class From>
       struct ActionChoiceRecordingSpy {
@@ -100,16 +99,16 @@ namespace UT {
         }
       };
 
-      using ToAorB = ChoiceTransition<Trigger::Choice_A_B, B, A, A, StateTypeCreationPolicyType, ChoiceGuardStub, ActionChoiceRecordingSpy<A>>;
-      using ToBorC = ChoiceTransition<Trigger::Choice_B_C, B, C, A, StateTypeCreationPolicyType, ChoiceGuardStub, ActionChoiceRecordingSpy<A>>;
-      using ToAorFinal = ChoiceTransition<Trigger::Count, A, EmptyState<StateType>, A, StateTypeCreationPolicyType, CountTriggerGuardA, ActionChoiceRecordingSpy<A>>;
+      using ToAorB = ChoiceTransition<Trigger::Choice_A_B, B, A, A, ChoiceGuardStub, ActionChoiceRecordingSpy<A>>;
+      using ToBorC = ChoiceTransition<Trigger::Choice_B_C, B, C, A, ChoiceGuardStub, ActionChoiceRecordingSpy<A>>;
+      using ToAorFinal = ChoiceTransition<Trigger::Count, A, EmptyState<StatePolicy>, A, CountTriggerGuardA, ActionChoiceRecordingSpy<A>>;
       using Transitions = 
         Typelist<ToAorB,
         Typelist<ToBorC,
         Typelist<ToAorFinal,
         NullType>>>;
 
-      using ToplevelInitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateNamedFake<StateType>, RecorderType>>;
+      using ToplevelInitTransition = InitialTransition<A, ActionSpy<A, InitialStateNamedFake<StatePolicy>, RecorderType>>;
       using Sm = Statemachine<Transitions, ToplevelInitTransition>;
     }
 

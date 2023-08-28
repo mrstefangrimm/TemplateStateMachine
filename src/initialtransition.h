@@ -1,6 +1,6 @@
 #pragma once
 /*
-  Copyright 2022 Stefan Grimm
+  Copyright 2022-2023 Stefan Grimm
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 namespace tsmlib {
 
-template<class To, class CreationPolicy, class Action>
+template<class To, class Action>
 struct InitialTransition {
 
   enum { E = true };
@@ -28,11 +28,9 @@ struct InitialTransition {
 
   using EventType = NullType;
   using ToType = To;
-  using CreationPolicyType = CreationPolicy;
-  using StateType = typename CreationPolicy::ObjectType;
-  using FromType = int;
+  using StatePolicy = typename To::Policy;
 
-  DispatchResult<StateType> dispatch() {
+  DispatchResult<StatePolicy> dispatch() {
     using ToFactory = typename To::CreatorType;
 
     Action().perform();
@@ -44,7 +42,7 @@ struct InitialTransition {
     if (To::BasicDoit) {
       toState->template _doit<EventType>(ev);
     }
-    return DispatchResult<StateType>(true, toState);
+    return DispatchResult<StatePolicy>(true, toState);
   }
 };
 }

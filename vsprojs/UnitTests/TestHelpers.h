@@ -125,6 +125,7 @@ namespace UnitTests {
 
     template<class StateType>
     struct InitialStateNamedFake : StateType {
+      using Policy = StateType;
       static const char* name;
     };
     template<class StateType> const char* InitialStateNamedFake<StateType>::name = "Initial";

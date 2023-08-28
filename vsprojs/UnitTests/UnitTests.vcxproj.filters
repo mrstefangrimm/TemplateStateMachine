@@ -79,9 +79,6 @@
     <ClInclude Include="..\..\src\initialtransition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="eventdispatchers.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\eventdispatchers.h">
       <Filter>tsmlib</Filter>
     </ClInclude>

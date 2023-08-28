@@ -24,8 +24,7 @@ namespace UT {
 
     namespace StatemachineTriggerTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
 
       namespace Trigger {
         struct On {};
@@ -34,7 +33,7 @@ namespace UT {
         struct Reenter {};
       }
 
-      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -42,7 +41,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType, true, true, true>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -51,7 +50,7 @@ namespace UT {
       int OnState::exitCalls = 0;
       int OnState::doitCalls = 0;
 
-      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -59,7 +58,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType, true, true, true>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -68,13 +67,13 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOnFromOnSelfTransition = SelfTransition<Trigger::Self, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
-      using ToOffFromOffSelfTransition = SelfTransition<Trigger::Self, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
-      using ToOnFromOnReenterTransition = SelfTransition<Trigger::Reenter, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, true>;
-      using ToOffFromOffReenterTransition = SelfTransition<Trigger::Reenter, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, true>;
-      using ToFinalFromOnTransition = FinalTransition<OnState, StateTypeCreationPolicyType>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, NoGuard, NoAction>;
+      using ToOnFromOnSelfTransition = SelfTransition<Trigger::Self, OnState, NoGuard, NoAction, false>;
+      using ToOffFromOffSelfTransition = SelfTransition<Trigger::Self, OffState, NoGuard, NoAction, false>;
+      using ToOnFromOnReenterTransition = SelfTransition<Trigger::Reenter, OnState, NoGuard, NoAction, true>;
+      using ToOffFromOffReenterTransition = SelfTransition<Trigger::Reenter, OffState, NoGuard, NoAction, true>;
+      using ToFinalFromOnTransition = FinalTransition<OnState>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,
@@ -86,7 +85,7 @@ namespace UT {
         Typelist<ToFinalFromOnTransition,
         NullType>>>>>>>;
 
-      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using InitTransition = InitialTransition<OffState, NoAction>;
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 

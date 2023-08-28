@@ -1,5 +1,19 @@
 #pragma once
+/*
+  Copyright 2022-2023 Stefan Grimm
 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 #include "transition.h"
 #include "initialtransition.h"
 #include "finaltransition.h"
@@ -10,9 +24,9 @@ namespace tsmlib {
 template<class Transitions, class Event, int Index>
 struct EventDispatcher {
 
-  using StateType = typename TypeAt<Transitions, 0>::Result::StateType;
+  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
 
-  static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
+  static DispatchResult<StatePolicy> execute(StatePolicy* activeState, const Event* ev) {
     // Finds last element in the list that meets the conditions.
     using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
     using FromType = typename CurrentTransition::FromType::ObjectType;
@@ -30,11 +44,10 @@ struct EventDispatcher {
     return EventDispatcher< Transitions, Event, Index - 1 >::execute(activeState, ev);
   }
 
-  static void entry(StateType* entryState) {
+  static void entry(StatePolicy* entryState) {
     // Finds last element in the list that meets the conditions.
     using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
     using ToType = typename CurrentTransition::ToType::ObjectType;
-    using CreationPolicy = typename CurrentTransition::CreationPolicyType;
 
     // TODO: Mustn't be a choice transition
     //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
@@ -57,9 +70,9 @@ struct EventDispatcher {
 template<class Transitions, class Event>
 struct EventDispatcher<Transitions, Event, 0> {
 
-  using StateType = typename TypeAt<Transitions, 0>::Result::StateType;
+  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
 
-  static DispatchResult<StateType> execute(StateType* activeState, const Event* ev) {
+  static DispatchResult<StatePolicy> execute(StatePolicy* activeState, const Event* ev) {
     // End of recursion.
     using FirstTransition = typename TypeAt<Transitions, 0>::Result;
     using FromType = typename FirstTransition::FromType::ObjectType;
@@ -73,14 +86,13 @@ struct EventDispatcher<Transitions, Event, 0> {
       const auto result = FirstTransition().dispatch(activeState, *currentTransitionEvent);
       return result;
     }
-    return DispatchResult<StateType>(false, nullptr);
+    return DispatchResult<StatePolicy>(false, nullptr);
   }
 
-  static void entry(StateType* entryState) {
+  static void entry(StatePolicy* entryState) {
     // End of recursion.
     using FirstTransition = typename TypeAt<Transitions, 0>::Result;
     using ToType = typename FirstTransition::ToType::ObjectType;
-    using CreationPolicy = typename FirstTransition::CreationPolicyType;
 
     const bool hasSameFromState = entryState->template typeOf<ToType>();
 
@@ -98,9 +110,9 @@ struct EventDispatcher<Transitions, Event, 0> {
 template<class Transitions, class Initialtransition, class Event, int Index>
 struct Initializer {
 
-  using StateType = typename Initialtransition::StateType;
+  using StatePolicy = typename Initialtransition::StatePolicy;
 
-  static DispatchResult<StateType> init() {
+  static DispatchResult<StatePolicy> init() {
     using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
     using EventType = typename CurrentTransition::EventType;
 
@@ -119,9 +131,9 @@ struct Initializer {
 template<class Transitions, class Initialtransition, class Event>
 struct Initializer<Transitions, Initialtransition, Event, 0> {
 
-  using StateType = typename Initialtransition::StateType;
+  using StatePolicy = typename Initialtransition::StatePolicy;
 
-  static DispatchResult<StateType> init() {
+  static DispatchResult<StatePolicy> init() {
     // End of recursion.
     using FirstTransition = typename TypeAt<Transitions, 0>::Result;
     using EventType = typename FirstTransition::EventType;
@@ -140,9 +152,9 @@ struct Initializer<Transitions, Initialtransition, Event, 0> {
 template<class Transitions, int Index>
 struct Finalizer {
 
-  using StateType = typename TypeAt<Transitions, 0>::Result::StateType;
+  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
 
-  static DispatchResult<StateType> end(StateType* activeState) {
+  static DispatchResult<StatePolicy> end(StatePolicy* activeState) {
     using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
     using FromType = typename CurrentTransition::FromType::ObjectType;
 
@@ -165,9 +177,9 @@ struct Finalizer {
 template<class Transitions>
 struct Finalizer<Transitions, 0> {
 
-  using StateType = typename TypeAt<Transitions, 0>::Result::StateType;
+  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
 
-  static DispatchResult<StateType> end(StateType* activeState) {
+  static DispatchResult<StatePolicy> end(StatePolicy* activeState) {
     // End of recursion.
     using FirstTransition = typename TypeAt<Transitions, 0>::Result;
     using FromType = typename FirstTransition::FromType::ObjectType;
@@ -184,7 +196,7 @@ struct Finalizer<Transitions, 0> {
         return result;
       }
     }
-    return DispatchResult<StateType>(false, activeState);
+    return DispatchResult<StatePolicy>(false, activeState);
   }
 };
 }

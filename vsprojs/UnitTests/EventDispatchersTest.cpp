@@ -24,8 +24,7 @@ namespace UT {
 
     namespace EventDispatchersTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
 
       namespace Trigger
       {
@@ -35,7 +34,7 @@ namespace UT {
         struct Wrong {};
       }
 
-      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -43,7 +42,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType, true, true, true>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -52,7 +51,7 @@ namespace UT {
       int OnState::exitCalls = 0;
       int OnState::doitCalls = 0;
 
-      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -60,7 +59,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType, true, true, true>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -69,14 +68,15 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      struct WrongState : StateType, FactoryCreator<OnState> {
+      struct WrongState : StatePolicy, FactoryCreator<OnState> {
+        using Policy = StatePolicy;
         uint8_t getTypeId() const override { return 3; }
       };
 
-      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOnFromOnTransition = SelfTransition<Trigger::Timeout, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
-      using ToOffFromOffTransition = SelfTransition<Trigger::Timeout, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, NoGuard, NoAction>;
+      using ToOnFromOnTransition = SelfTransition<Trigger::Timeout, OnState, NoGuard, NoAction, false>;
+      using ToOffFromOffTransition = SelfTransition<Trigger::Timeout, OffState, NoGuard, NoAction, false>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,

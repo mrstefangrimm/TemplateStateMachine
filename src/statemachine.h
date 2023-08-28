@@ -23,9 +23,9 @@ namespace tsmlib {
 template<class Transitions, class Initialtransition>
 class Statemachine {
 public:
-  using StateType = typename Initialtransition::StateType;
+  using StatePolicy = typename Initialtransition::StatePolicy;
 
-  DispatchResult<StateType> begin() {
+  DispatchResult<StatePolicy> begin() {
     const auto result = Initialtransition().dispatch();
     if (result.consumed) {
       activeState_ = result.activeState;
@@ -35,7 +35,7 @@ public:
 
   // TODO: private: friend class SubstatesHolderState<...; instead of using "_"
   template<class Event>
-  DispatchResult<StateType> _begin() {
+  DispatchResult<StatePolicy> _begin() {
 
     // Transitions can have initial transitions (for a higher-level state to a sub-state).
     // The default initial transition is added to the front and is therefore executed when no other was found.
@@ -50,9 +50,9 @@ public:
   /**
       End requires an exit-transition, otherwise exit is not called.
     */
-  DispatchResult<StateType> end() {
+  DispatchResult<StatePolicy> end() {
 
-    if (activeState_ == nullptr) return DispatchResult<StateType>::null;
+    if (activeState_ == nullptr) return DispatchResult<StatePolicy>::null;
 
     const int size = Length<Transitions>::value;
     auto result = Finalizer< Transitions, size - 1 >::end(activeState_);
@@ -63,7 +63,7 @@ public:
   }
 
   template<class Event>
-  DispatchResult<StateType> _end() {
+  DispatchResult<StatePolicy> _end() {
     const int size = Length<Transitions>::value;
     const auto result = Finalizer< Transitions, size - 1 >::end(activeState_);
     if (result.consumed) {
@@ -73,28 +73,28 @@ public:
   }
 
   template<class Event>
-  DispatchResult<StateType> dispatch() {
+  DispatchResult<StatePolicy> dispatch() {
     return dispatch(Event{});
   }
 
   template<class Event>
-  DispatchResult<StateType> dispatch(const Event& ev) {
+  DispatchResult<StatePolicy> dispatch(const Event& ev) {
 
-    if (activeState_ == nullptr) return DispatchResult<StateType>::null;
+    if (activeState_ == nullptr) return DispatchResult<StatePolicy>::null;
 
     const int size = Length<Transitions>::value;
     auto result = EventDispatcher< Transitions, Event, size - 1 >::execute(activeState_, &ev);
 
     // Transition not found, active state is not changed
     if (!result.consumed) {
-      return DispatchResult<StateType>(false, activeState_);
+      return DispatchResult<StatePolicy>(false, activeState_);
     }
 
     activeState_ = result.activeState;
-    return DispatchResult<StateType>(true, activeState_);
+    return DispatchResult<StatePolicy>(true, activeState_);
   }
 
 private:
-  StateType* activeState_ = 0;
+  StatePolicy* activeState_ = 0;
 };
 }

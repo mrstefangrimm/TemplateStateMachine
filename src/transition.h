@@ -37,6 +37,7 @@ template<class T> DispatchResult<T> DispatchResult<T>::null(false, nullptr);
 
 template<class T>
 struct EmptyState : T {
+  using Policy = T;
   enum { BasicDoit = false };
 
   using CreatorType = EmptyState<T>;
@@ -67,7 +68,7 @@ struct NoAction {
 //Provides Guard interface and returns true.
 struct NoGuard {
   template<class StateType, class EventType>
-  bool eval(const StateType& state, const EventType&) {
+  bool eval(const StateType&, const EventType&) {
     return true;
   }
 };
@@ -78,7 +79,6 @@ template<
   class Event,
   typename To,
   typename From,
-  typename CreationPolicy,
   typename Guard,
   typename Action,
   bool IsEnteringTransition,
@@ -92,17 +92,20 @@ struct TransitionBase {
   enum { D = IsExitDeclaration };  // top-state exit declaration triggers the exit of the sub-states.
 
   using EventType = Event;
-  using CreationPolicyType = CreationPolicy;
   using ToType = To;
   using FromType = From;
-  using StateType = typename CreationPolicy::ObjectType;
+  using StatePolicy = typename From::Policy;
 
-  DispatchResult<StateType> dispatch(StateType* activeState, const Event& ev) {
+  TransitionBase() {
+    CompileTimeError< is_same<typename From::Policy, typename To::Policy>().value >();
+  }
+
+  DispatchResult<StatePolicy> dispatch(StatePolicy* activeState, const Event& ev) {
     using FromFactory = typename From::CreatorType;
 
     // Ignore the transition if the active state is null.
     if (activeState == nullptr) {
-      return DispatchResult<StateType>(false, activeState);
+      return DispatchResult<StatePolicy>(false, activeState);
     }
 
     // Entering substate transition
@@ -114,14 +117,14 @@ struct TransitionBase {
         toState->_doit(ev);
       }
 
-      return DispatchResult<StateType>(true, toState);
+      return DispatchResult<StatePolicy>(true, toState);
     }
 
     FromType* fromState = static_cast<FromType*>(activeState);
     Action().perform(*fromState, ev);
 
     if (!Guard().eval(*fromState, ev)) {
-      return DispatchResult<StateType>(false, activeState);
+      return DispatchResult<StatePolicy>(false, activeState);
     }
 
     // Self transition
@@ -138,7 +141,7 @@ struct TransitionBase {
       // Exit declaration (on the top level)
       if (D) {
         if (consumed) {
-          return DispatchResult<StateType>(true, activeState);
+          return DispatchResult<StatePolicy>(true, activeState);
         }
 
         static_cast<From*>(activeState)->template _exit<EventType>(ev);
@@ -150,13 +153,13 @@ struct TransitionBase {
           toState->template _doit<EventType>(ev);
         }
         FromFactory::destroy(static_cast<From*>(activeState));
-        return DispatchResult<StateType>(true, toState);
+        return DispatchResult<StatePolicy>(true, toState);
       }
-      return DispatchResult<StateType>(consumed, activeState);
+      return DispatchResult<StatePolicy>(consumed, activeState);
     }
 
     if (X) {
-      return DispatchResult<StateType>(false, activeState);
+      return DispatchResult<StatePolicy>(false, activeState);
     }
 
     static_cast<From*>(activeState)->template _exit<EventType>(ev);
@@ -169,24 +172,24 @@ struct TransitionBase {
       toState->_doit(ev);
     }
     FromFactory::destroy(static_cast<From*>(activeState));
-    return DispatchResult<StateType>(true, toState);
+    return DispatchResult<StatePolicy>(true, toState);
   }
 };
 }
 
-template<class Event, typename Me, typename CreationPolicy, typename Guard, typename Action, bool Reenter>
-using SelfTransition = impl::TransitionBase<Event, Me, Me, CreationPolicy, Guard, Action, false, false, Reenter>;
+template<class Event, typename Me, typename Guard, typename Action, bool Reenter>
+using SelfTransition = impl::TransitionBase<Event, Me, Me, Guard, Action, false, false, Reenter>;
 
-template<class Event, typename Me, typename CreationPolicy>
-using Declaration = impl::TransitionBase<Event, Me, Me, CreationPolicy, NoGuard, NoAction, false, false, false>;
+template<class Event, typename Me>
+using Declaration = impl::TransitionBase<Event, Me, Me, NoGuard, NoAction, false, false, false>;
 
-template<class Event, typename To, typename Me, typename CreationPolicy>
-using ExitDeclaration = impl::TransitionBase<Event, To, Me, CreationPolicy, NoGuard, NoAction, false, false, false, true>;
+template<class Event, typename To, typename Me>
+using ExitDeclaration = impl::TransitionBase<Event, To, Me, NoGuard, NoAction, false, false, false, true>;
 
-template<class Event, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using ExitTransition = impl::TransitionBase<Event, To, From, CreationPolicy, Guard, Action, false, true, false>;
+template<class Event, typename To, typename From, typename Guard, typename Action>
+using ExitTransition = impl::TransitionBase<Event, To, From, Guard, Action, false, true, false>;
 
-template<class Event, typename To, typename From, typename CreationPolicy, typename Guard, typename Action>
-using Transition = impl::TransitionBase<Event, To, From, CreationPolicy, Guard, Action, false, false, false>;
+template<class Event, typename To, typename From, typename Guard, typename Action>
+using Transition = impl::TransitionBase<Event, To, From, Guard, Action, false, false, false>;
 
 }

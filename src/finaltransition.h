@@ -18,41 +18,39 @@
 
 namespace tsmlib {
 
-template<class Me, class CreationPolicy>
+template<class Me>
 struct FinalTransition {
 
   enum { E = false };
   enum { X = true };
 
   using EventType = NullType;
-  using StateType = typename CreationPolicy::ObjectType;
   using FromType = Me;
+  using StatePolicy = typename Me::Policy;
 
-  DispatchResult<StateType> dispatch(StateType* activeState) {
+  DispatchResult<StatePolicy> dispatch(StatePolicy* activeState) {
     using FromFactory = typename Me::CreatorType;
-    using Creator = typename CreationPolicy::CreatorType;
 
     static_cast<Me*>(activeState)->template _exit<EventType>();
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 
-    return DispatchResult<StateType>(true, nullptr);
+    return DispatchResult<StatePolicy>(true, nullptr);
   }
 
-  DispatchResult<StateType> dispatch(StateType* activeState, const EventType& ev) {
+  DispatchResult<StatePolicy> dispatch(StatePolicy* activeState, const EventType& ev) {
     using FromFactory = typename Me::CreatorType;
-    using Creator = typename CreationPolicy::CreatorType;
 
     static_cast<Me*>(activeState)->template _exit<EventType>(ev);
 
     FromFactory::destroy(static_cast<Me*>(activeState));
 
-    return DispatchResult<StateType>(true, nullptr);
+    return DispatchResult<StatePolicy>(true, nullptr);
   }
 };
 
-template<class Event, class From, class CreationPolicy, class Guard, class Action>
-struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename CreationPolicy::ObjectType>, From, CreationPolicy, Guard, Action, false, false, false> {
+template<class Event, class From, class Guard, class Action>
+struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename From::Policy>, From, Guard, Action, false, false, false> {
   FinalTransitionExplicit() {
     // TODO - Boost SML example is without guard.
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.

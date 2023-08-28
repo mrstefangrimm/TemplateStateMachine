@@ -24,17 +24,16 @@ namespace UT {
 
     namespace StatemachineEventTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
-
-      namespace Msg {
+      namespace Event {
         struct On {};
         struct Off {};
         struct Self {};
         struct Reenter {};
       }
 
-      struct OnState : BasicState<OnState, StateType, true, true, true>, FactoryCreator<OnState> {
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -42,7 +41,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType, true, true, true>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -51,7 +50,7 @@ namespace UT {
       int OnState::exitCalls = 0;
       int OnState::doitCalls = 0;
 
-      struct OffState : BasicState<OffState, StateType, true, true, true>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -59,7 +58,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType, true, true, true>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -68,13 +67,13 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      using ToOnFromOffTransition = Transition<Msg::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOffFromOnTransition = Transition<Msg::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOnFromOnSelfTransition = SelfTransition<Msg::Self, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
-      using ToOffFromOffSelfTransition = SelfTransition<Msg::Self, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, false>;
-      using ToOnFromOnReenterTransition = SelfTransition<Msg::Reenter, OnState, StateTypeCreationPolicyType, NoGuard, NoAction, true>;
-      using ToOffFromOffReenterTransition = SelfTransition<Msg::Reenter, OffState, StateTypeCreationPolicyType, NoGuard, NoAction, true>;
-      using ToFinalFromOnTransition = FinalTransition<OnState, StateTypeCreationPolicyType>;
+      using ToOnFromOffTransition = Transition<Event::On, OnState, OffState, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Event::Off, OffState, OnState, NoGuard, NoAction>;
+      using ToOnFromOnSelfTransition = SelfTransition<Event::Self, OnState, NoGuard, NoAction, false>;
+      using ToOffFromOffSelfTransition = SelfTransition<Event::Self, OffState, NoGuard, NoAction, false>;
+      using ToOnFromOnReenterTransition = SelfTransition<Event::Reenter, OnState, NoGuard, NoAction, true>;
+      using ToOffFromOffReenterTransition = SelfTransition<Event::Reenter, OffState, NoGuard, NoAction, true>;
+      using ToFinalFromOnTransition = FinalTransition<OnState>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,
@@ -86,7 +85,7 @@ namespace UT {
         Typelist<ToFinalFromOnTransition,
         NullType>>>>>>>;
 
-      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using InitTransition = InitialTransition<OffState, NoAction>;
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
@@ -120,7 +119,7 @@ namespace UT {
         Sm sm;
         sm.begin();
 
-        auto result = sm.dispatch(Msg::On{});
+        auto result = sm.dispatch(Event::On{});
         Assert::AreEqual<int>(1, result.activeState->getTypeId());
 
         reset();
@@ -144,7 +143,7 @@ namespace UT {
 
         reset();
 
-        auto result = sm.dispatch(Msg::Self{});
+        auto result = sm.dispatch(Event::Self{});
         Assert::AreEqual<int>(2, result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
@@ -162,7 +161,7 @@ namespace UT {
 
         reset();
 
-        auto result = sm.dispatch(Msg::Reenter{});
+        auto result = sm.dispatch(Event::Reenter{});
         Assert::AreEqual<int>(2, result.activeState->getTypeId());
         Assert::AreEqual<int>(0, OnState::exitCalls);
         Assert::AreEqual<int>(0, OnState::entryCalls);
@@ -177,7 +176,7 @@ namespace UT {
         using namespace StatemachineEventTestImpl;
 
         Sm sm;
-        auto result = sm.dispatch(Msg::On{});
+        auto result = sm.dispatch(Event::On{});
         Assert::IsNull(result.activeState);
         Assert::IsFalse(result.consumed);
       }
@@ -189,7 +188,7 @@ namespace UT {
         Sm sm;
         sm.begin();
 
-        auto result = sm.dispatch(Msg::On{});
+        auto result = sm.dispatch(Event::On{});
         Assert::AreEqual<int>(1, result.activeState->getTypeId());
 
         reset();

@@ -3,22 +3,14 @@
 //
 // Programmed with the TSM
 //
-#define IAMWORKSTATION 1
-
 #include <cstdio>
 #include <cassert>
 
-#include <iostream>
 #include "../../../src/tsm.h"
 
 using namespace tsmlib;
 
-using StateType = State<MemoryAddressComparator, true>;
-using StateTypeCreationPolicyType = SingletonCreator<StateType>;
-
-
 // events
-struct close;
 struct ack {
   bool valid{};
 };
@@ -30,7 +22,6 @@ struct close {};
 struct timeout {};
 
 // guards
-
 struct is_valid {
   template<class StateType, class EventType>
   bool eval(const StateType&, const EventType& ev) {
@@ -39,7 +30,6 @@ struct is_valid {
 };
 
 // actions
-
 struct send_fin {
   template<class StateType, class EventType>
   void perform(StateType&, const EventType&) {
@@ -56,21 +46,22 @@ struct send_ack {
 };
 
 // states
+using StatePolicy = State<MemoryAddressComparator, true>;
 
-struct established : public BasicState<established, StateType>, public SingletonCreator<established> {};
+struct established : public BasicState<established, StatePolicy>, public SingletonCreator<established> {};
 
-struct fin_wait_1 : public BasicState<fin_wait_1, StateType>, public SingletonCreator<fin_wait_1> {};
+struct fin_wait_1 : public BasicState<fin_wait_1, StatePolicy>, public SingletonCreator<fin_wait_1> {};
 
-struct fin_wait_2 : public BasicState<fin_wait_2, StateType>, public SingletonCreator<fin_wait_2> {};
+struct fin_wait_2 : public BasicState<fin_wait_2, StatePolicy>, public SingletonCreator<fin_wait_2> {};
 
-struct timed_wait : public BasicState<timed_wait, StateType>, public SingletonCreator<timed_wait> {};
+struct timed_wait : public BasicState<timed_wait, StatePolicy>, public SingletonCreator<timed_wait> {};
 
 // transitions
 
-using ToWait1FromEstablished = Transition<close, fin_wait_1, established, StateTypeCreationPolicyType, NoGuard, send_fin>;
-using ToWait1FromWait1 = Transition<ack, fin_wait_2, fin_wait_1, StateTypeCreationPolicyType, is_valid, NoAction>;
-using ToTimedFromWait2 = Transition<fin, timed_wait, fin_wait_2, StateTypeCreationPolicyType, is_valid, send_ack>;
-using ToFinalFromTimed = FinalTransitionExplicit<timeout, timed_wait, StateTypeCreationPolicyType, NoGuard, NoAction>;
+using ToWait1FromEstablished = Transition<close, fin_wait_1, established, NoGuard, send_fin>;
+using ToWait1FromWait1 = Transition<ack, fin_wait_2, fin_wait_1, is_valid, NoAction>;
+using ToTimedFromWait2 = Transition<fin, timed_wait, fin_wait_2, is_valid, send_ack>;
+using ToFinalFromTimed = FinalTransitionExplicit<timeout, timed_wait, NoGuard, NoAction>;
 
 using Transitions =
   Typelist<ToWait1FromEstablished,
@@ -79,7 +70,7 @@ using Transitions =
   Typelist<ToFinalFromTimed,
   NullType>>>>;
 
-using InitTransition = InitialTransition<established, StateTypeCreationPolicyType, NoAction>;
+using InitTransition = InitialTransition<established, NoAction>;
 using Sm = Statemachine<Transitions, InitTransition>;
 
 int main()

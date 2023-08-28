@@ -34,6 +34,7 @@ struct is_base_of {
 
 #include <stdint.h>
 #include <typeinfo>
+#include <type_traits>
 
 using namespace std;
 

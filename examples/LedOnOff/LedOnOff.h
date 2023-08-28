@@ -17,23 +17,22 @@
 
 using namespace tsmlib;
 
-using StateType = State<MemoryAddressComparator, true>;
-using StateTypeCreationPolicyType = SingletonCreator<StateType>;
-
 namespace Trigger {
 struct Timeout {};
 }
 
-class LedOn : public BasicState<LedOn, StateType, true>, public SingletonCreator<LedOn> {
-  friend class BasicState<LedOn, StateType, true>;
+using StatePolicy = State<MemoryAddressComparator, true>;
+
+class LedOn : public BasicState<LedOn, StatePolicy, true>, public SingletonCreator<LedOn> {
+  friend class BasicState<LedOn, StatePolicy, true>;
   template<class Event>
   void entry(const Event&) {
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
   }
 };
 
-class LedOff : public BasicState<LedOff, StateType, true>, public SingletonCreator<LedOff> {
-  friend class BasicState<LedOff, StateType, true>;
+class LedOff : public BasicState<LedOff, StatePolicy, true>, public SingletonCreator<LedOff> {
+  friend class BasicState<LedOff, StatePolicy, true>;
   template<class Event>
   void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
@@ -41,15 +40,15 @@ class LedOff : public BasicState<LedOff, StateType, true>, public SingletonCreat
   }
 };
 
-using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction>;
-using ToOffFromOn = Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction>;
+using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, NoGuard, NoAction>;
+using ToOffFromOn = Transition<Trigger::Timeout, LedOff, LedOn, NoGuard, NoAction>;
 
 using Transitions =
   Typelist<ToOnFromOff,
            Typelist<ToOffFromOn,
                     NullType>>;
 
-using InitTransition = InitialTransition<LedOff, StateTypeCreationPolicyType, NoAction>;
+using InitTransition = InitialTransition<LedOff, NoAction>;
 using Sm = Statemachine<Transitions, InitTransition>;
 
 Sm statemachine;

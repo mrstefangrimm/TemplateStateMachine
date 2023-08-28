@@ -26,11 +26,10 @@ namespace UT {
 
     namespace DispatchSameEventSubstateTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreatorFake<StateType>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType, true, true, true>, FactoryCreatorFake<Derived> {};
-      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine, true, true>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, FactoryCreatorFake<Derived> {};
+      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StatePolicy, Statemachine, true, true>, FactoryCreatorFake<Derived> {};
 
       template<class From>
       struct ActionChoiceRecordingSpy {
@@ -90,14 +89,14 @@ namespace UT {
         }
       };
 
-      using ToAorSelfBA = ChoiceExitTransition<Trigger::Count, A, BA, BA, StateTypeCreationPolicyType, GotoACountGuardBA, ActionChoiceRecordingSpy<BA>>;
-      using ToFinalFromBA = FinalTransition<BA, StateTypeCreationPolicyType>;
+      using ToAorSelfBA = ChoiceExitTransition<Trigger::Count, A, BA, BA, GotoACountGuardBA, ActionChoiceRecordingSpy<BA>>;
+      using ToFinalFromBA = FinalTransition<BA>;
       using BTransitions =
         Typelist<ToAorSelfBA,
         Typelist<ToFinalFromBA,
         NullType>>;
 
-      using BInitTransition = InitialTransition<BA, StateTypeCreationPolicyType, ActionSpy<BA, InitialStateNamedFake<StateType>, RecorderType>>;
+      using BInitTransition = InitialTransition<BA, ActionSpy<BA, InitialStateNamedFake<StatePolicy>, RecorderType>>;
       using BSm = Statemachine<BTransitions, BInitTransition>;
 
       struct B : Composite<B, BSm> {
@@ -113,14 +112,14 @@ namespace UT {
       };
       const char* B::name = "B";
 
-      using ToBorSelfA = ChoiceTransition<Trigger::Count, B, A, A, StateTypeCreationPolicyType, GotoBCountGuardA, ActionChoiceRecordingSpy<A>>;
-      using DeclToAorSelfBA = ExitDeclaration<Trigger::Count, A, B, StateTypeCreationPolicyType>;
+      using ToBorSelfA = ChoiceTransition<Trigger::Count, B, A, A, GotoBCountGuardA, ActionChoiceRecordingSpy<A>>;
+      using DeclToAorSelfBA = ExitDeclaration<Trigger::Count, A, B>;
       using Transitions =
         Typelist<ToBorSelfA,
         Typelist<DeclToAorSelfBA,
         NullType>>;
 
-      using ToplevelInitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateNamedFake<StateType>, RecorderType>>;
+      using ToplevelInitTransition = InitialTransition<A, ActionSpy<A, InitialStateNamedFake<StatePolicy>, RecorderType>>;
       using Sm = Statemachine<Transitions, ToplevelInitTransition>;
     }
 

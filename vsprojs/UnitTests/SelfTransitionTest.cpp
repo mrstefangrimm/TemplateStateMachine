@@ -26,12 +26,12 @@ namespace UT {
 
     namespace SelfTransitionTestImpl {
 
-      using StateType = State<MemoryAddressComparator, true>;
-      using StateTypeCreationPolicyType = SingletonCreatorFake<StateType>;
+      using StatePolicy = State<MemoryAddressComparator, true>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType, true, true, true>, SingletonCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, SingletonCreatorFake<Derived> {};
 
-      struct InitialStateFake : StateType {
+      struct InitialStateFake : StatePolicy {
+        using Policy = StatePolicy;
         static const char* name;
       };
       const char* InitialStateFake::name = "Initial";
@@ -82,14 +82,14 @@ namespace UT {
       };
       const char* C::name = "C";
 
-      using B_A_t = Transition<Trigger::Next, B, A, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, A, RecorderType>>;
-      using C_B_t = Transition<Trigger::Next, C, B, StateTypeCreationPolicyType, NoGuard, ActionSpy<C, B, RecorderType>>;
-      using A_A_rt = SelfTransition<Trigger::Reenter, A, StateTypeCreationPolicyType, NoGuard, ActionSpy<A, A, RecorderType>, true>;
-      using B_B_rt = SelfTransition<Trigger::Reenter, B, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, B, RecorderType>, true>;
-      using C_C_rt = SelfTransition<Trigger::Reenter, C, StateTypeCreationPolicyType, NoGuard, ActionSpy<C, C, RecorderType>, true>;
-      using A_A_t = SelfTransition<Trigger::Self, A, StateTypeCreationPolicyType, NoGuard, ActionSpy<A, A, RecorderType>, false>;
-      using B_B_t = SelfTransition<Trigger::Self, B, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, B, RecorderType>, false>;
-      using C_C_t = SelfTransition<Trigger::Self, C, StateTypeCreationPolicyType, NoGuard, ActionSpy<C, C, RecorderType>, false>;
+      using B_A_t = Transition<Trigger::Next, B, A, NoGuard, ActionSpy<B, A, RecorderType>>;
+      using C_B_t = Transition<Trigger::Next, C, B, NoGuard, ActionSpy<C, B, RecorderType>>;
+      using A_A_rt = SelfTransition<Trigger::Reenter, A, NoGuard, ActionSpy<A, A, RecorderType>, true>;
+      using B_B_rt = SelfTransition<Trigger::Reenter, B, NoGuard, ActionSpy<B, B, RecorderType>, true>;
+      using C_C_rt = SelfTransition<Trigger::Reenter, C, NoGuard, ActionSpy<C, C, RecorderType>, true>;
+      using A_A_t = SelfTransition<Trigger::Self, A, NoGuard, ActionSpy<A, A, RecorderType>, false>;
+      using B_B_t = SelfTransition<Trigger::Self, B, NoGuard, ActionSpy<B, B, RecorderType>, false>;
+      using C_C_t = SelfTransition<Trigger::Self, C, NoGuard, ActionSpy<C, C, RecorderType>, false>;
 
       using Transitions =
         Typelist<B_A_t,
@@ -102,7 +102,7 @@ namespace UT {
         Typelist<C_C_t,
         NullType>>>>>>>>;
 
-      using ToplevelInitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake, RecorderType>>;
+      using ToplevelInitTransition = InitialTransition<A, ActionSpy<A, InitialStateFake, RecorderType>>;
       using Sm = Statemachine<Transitions, ToplevelInitTransition>;
     }
 
