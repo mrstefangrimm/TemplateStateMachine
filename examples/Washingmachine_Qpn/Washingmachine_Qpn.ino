@@ -32,8 +32,6 @@
 
 #include "Arduino.h"  // Main include file for the Arduino SDK
 
-#include "FreeMemory.h"
-
 enum Signals {
   MANUAL_MOTION_MODE_SIG = Q_USER_SIG,
   TRIG1_SIG,

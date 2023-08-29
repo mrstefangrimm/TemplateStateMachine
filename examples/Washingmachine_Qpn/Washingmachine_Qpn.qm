@@ -155,8 +155,6 @@ Serial.println(F(&quot;  Spinning&quot;));</entry>
 
 #include &quot;Arduino.h&quot;  // Main include file for the Arduino SDK
 
-#include &quot;FreeMemory.h&quot;
-
 enum Signals {
   MANUAL_MOTION_MODE_SIG = Q_USER_SIG,
   TRIG1_SIG,
@@ -258,33 +256,6 @@ Q_NORETURN Q_onAssert(char const Q_ROM * const module, int location) {
 $define${AOs::Washingmachine}
 //...
 </text>
-  </file>
-  <file name="FreeMemory.h">
-   <text>// Copied from:
-// https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
-
-#ifndef __FREEMEMORY_H
-#define __FREEMEMORY_H
-
-#ifdef __arm__
-// should use uinstd.h to define sbrk but Due causes a conflict
-extern &quot;C&quot; char* sbrk(int incr);
-#else  // __ARM__
-extern char *__brkval;
-#endif  // __arm__
-
-int freeMemory() {
-  char top;
-#ifdef __arm__
-  return &amp;top - reinterpret_cast&lt;char*&gt;(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO &gt; 103 &amp;&amp; ARDUINO != 151)
-  return 1 + (&amp;top - __brkval);
-#else  // __arm__
-  return 1 + (__brkval ? &amp;top - __brkval : &amp;top - __malloc_heap_start);
-#endif  // __arm__
-}
-
-#endif</text>
   </file>
  </directory>
 </model>
