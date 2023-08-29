@@ -1,19 +1,26 @@
 State	KEYWORD1
+BasicState	KEYWORD1
+SubstatesHolderState	KEYWORD1
 Transition	KEYWORD1
+SelfTransition	KEYWORD1
+ExitTransition	KEYWORD1
+Declaration	KEYWORD1
+ExitDeclaration	KEYWORD1
+ChoiceTransition	KEYWORD1
+InitialTransition	KEYWORD1
+FinalTransition	KEYWORD1
+FinalTransitionExplicit	KEYWORD1
 Statemachine	KEYWORD1
 SingletonCreator	KEYWORD1
-MemoryAddressStateComperator	KEYWORD1
+MemoryAddressComparator	KEYWORD1
 Typelist	KEYWORD1
 NullType	KEYWORD1
-OkGuard	KEYWORD1
-EmptyAction	KEYWORD1
+NoGuard	KEYWORD1
+NoAction	KEYWORD1
 
 dispatch	KEYWORD2
 entry	KEYWORD2
 exit	KEYWORD2
 doit	KEYWORD2
-
-IAMARDUINO	LITERAL1
-DISABLE_NESTED_STATES	LITERAL1
 
 tsmlib	LITERAL1

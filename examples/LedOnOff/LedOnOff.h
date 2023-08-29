@@ -36,7 +36,6 @@ class LedOff : public BasicState<LedOff, StatePolicy, true>, public SingletonCre
   template<class Event>
   void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
-    BSP_Execute(Serial.println(freeMemory()));
   }
 };
 

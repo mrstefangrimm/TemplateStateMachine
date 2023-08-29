@@ -48,13 +48,13 @@ struct send_ack {
 // states
 using StatePolicy = State<MemoryAddressComparator, true>;
 
-struct established : public BasicState<established, StatePolicy>, public SingletonCreator<established> {};
+struct established : BasicState<established, StatePolicy>, SingletonCreator<established> {};
 
-struct fin_wait_1 : public BasicState<fin_wait_1, StatePolicy>, public SingletonCreator<fin_wait_1> {};
+struct fin_wait_1 : BasicState<fin_wait_1, StatePolicy>, SingletonCreator<fin_wait_1> {};
 
-struct fin_wait_2 : public BasicState<fin_wait_2, StatePolicy>, public SingletonCreator<fin_wait_2> {};
+struct fin_wait_2 : BasicState<fin_wait_2, StatePolicy>, SingletonCreator<fin_wait_2> {};
 
-struct timed_wait : public BasicState<timed_wait, StatePolicy>, public SingletonCreator<timed_wait> {};
+struct timed_wait : BasicState<timed_wait, StatePolicy>, SingletonCreator<timed_wait> {};
 
 // transitions
 

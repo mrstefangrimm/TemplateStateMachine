@@ -72,7 +72,7 @@ struct IsSpinningDone {
 
 using StatePolicy = State<MemoryAddressComparator, true>;
 
-struct Loading : public BasicState<Loading, StatePolicy, true, true>, public SingletonCreator<Loading> {
+struct Loading : BasicState<Loading, StatePolicy, true, true>, SingletonCreator<Loading> {
   template<class Event> void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
     BSP_Execute(Serial.println(F("Loading")));
@@ -83,7 +83,7 @@ struct Loading : public BasicState<Loading, StatePolicy, true, true>, public Sin
   }
 };
 
-struct Washing : public BasicState<Washing, StatePolicy, true>, public SingletonCreator<Washing> {
+struct Washing : BasicState<Washing, StatePolicy, true>, SingletonCreator<Washing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Washing")));
     counter_ = 0;
@@ -93,7 +93,7 @@ struct Washing : public BasicState<Washing, StatePolicy, true>, public Singleton
   const uint8_t washingLength_ = 50;
 };
 
-struct Rinsing : public BasicState<Rinsing, StatePolicy, true>, public SingletonCreator<Rinsing> {
+struct Rinsing : BasicState<Rinsing, StatePolicy, true>, SingletonCreator<Rinsing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Rinsing")));
     counter_ = 0;
@@ -103,7 +103,7 @@ struct Rinsing : public BasicState<Rinsing, StatePolicy, true>, public Singleton
   const uint8_t rinsingLength_ = 30;
 };
 
-struct Spinning : public BasicState<Spinning, StatePolicy, true>, public SingletonCreator<Spinning> {
+struct Spinning : BasicState<Spinning, StatePolicy, true>, SingletonCreator<Spinning> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Spinning")));
     counter_ = 0;
@@ -120,7 +120,7 @@ using RunningTransitionList = Typelist<ToRinsingFromWashing, Typelist<ToSpinning
 using RunningInitTransition = InitialTransition<Washing, NoAction>;
 using RunningSm = Statemachine<RunningTransitionList, RunningInitTransition>;
 
-struct Running : public SubstatesHolderState<Running, StatePolicy, RunningSm, true>, public SingletonCreator<Running> {
+struct Running : SubstatesHolderState<Running, StatePolicy, RunningSm, true>, SingletonCreator<Running> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("Running")));
   }
@@ -135,9 +135,6 @@ using WashingmachineTransitionList =
 
 using InitTransition = InitialTransition<Loading, NoAction>;
 using WashingmachineSm = Statemachine<WashingmachineTransitionList, InitTransition>;
-
-
-
 
 WashingmachineSm statemachine;
 
