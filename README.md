@@ -50,7 +50,7 @@ You should only use it to experiment with it or for hobby projects at this time.
 
 [qpn](https://github.com/QuantumLeaps/qpn) has been around for years and does an excellent job.
 
-While thinking how I could use C++ templates to generate a state machine, the [SML](https://github.com/boost-ext/sml) released. Too bad for tsm, they  did a great job. It is a pity though that it no longer works with C++14.
+While thinking how I could use C++ templates to generate a state machine, SML](https://github.com/boost-ext/sml) got released. Too bad for tsm, they  did a great job. It is a pity that SML no longer works with C++14.
 
 
 
@@ -58,7 +58,7 @@ While thinking how I could use C++ templates to generate a state machine, the [S
 
 With tsm, you write state classes with state and behavior. Sounds weird? The opposite of tsm is the [Stateless C# library](https://github.com/dotnet-state-machine/stateless) or [SML](https://github.com/boost-ext/sml). I am not saying state classes are not possible with these libraries, but state classes are not an inherent part of these libraries.
 
-You can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation and state objects are usually Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
+You can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation and state objects are usually implemented as Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
 
 ---
 
