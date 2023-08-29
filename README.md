@@ -68,7 +68,7 @@ You can define the life cycle model. According to UML, the state object is delet
 
 ## Features
 
-[[![statemachine example](docs/sm_example.png)](https://wandbox.org/permlink/p7sckwCk2nVR2Moh)
+[![statemachine example](docs/sm_example.png)](https://wandbox.org/permlink/p7sckwCk2nVR2Moh)
 
 ### UML state machine
 
