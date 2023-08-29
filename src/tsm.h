@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(IAMARDUINO)
+#if defined(__AVR__)
 
 template<class T, class U>
 struct is_same {
@@ -30,15 +30,14 @@ struct is_base_of {
   static const bool value = sizeof(check(Host<B, D>(), int())) == sizeof(yes);
 };
 
-#elif defined(IAMWORKSTATION)
+#else
 
 #include <stdint.h>
 #include <typeinfo>
+#include <type_traits>
 
 using namespace std;
 
-#else
-#error define either IAMARDUINO or IAMWORKSTATION
 #endif
 
 #include "lokilight.h"

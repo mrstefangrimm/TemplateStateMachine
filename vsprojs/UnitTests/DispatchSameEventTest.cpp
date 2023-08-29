@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -29,10 +26,9 @@ namespace UT {
 
     namespace DispatchSameEventTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreatorFake<StateType>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType>, FactoryCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, FactoryCreatorFake<Derived> {};
 
       template<class From>
       struct ActionChoiceRecordingSpy {
@@ -92,14 +88,14 @@ namespace UT {
         }
       };
 
-      using ToBorSelfA = ChoiceTransition<Trigger::Count, B, A, A, StateTypeCreationPolicyType, GotoBCountGuardA, ActionChoiceRecordingSpy<A>>;
-      using ToAorSelfB = ChoiceTransition<Trigger::Count, A, B, B, StateTypeCreationPolicyType, GotoACountGuardB, ActionChoiceRecordingSpy<B>>;
+      using ToBorSelfA = ChoiceTransition<Trigger::Count, B, A, A, GotoBCountGuardA, ActionChoiceRecordingSpy<A>>;
+      using ToAorSelfB = ChoiceTransition<Trigger::Count, A, B, B, GotoACountGuardB, ActionChoiceRecordingSpy<B>>;
       using Transitions =
         Typelist<ToBorSelfA,
         Typelist<ToAorSelfB,
         NullType>>;
 
-      using ToplevelInitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateNamedFake<StateType>, RecorderType>>;
+      using ToplevelInitTransition = InitialTransition<A, ActionSpy<A, InitialStateNamedFake<StatePolicy>, RecorderType>>;
       using Sm = Statemachine<Transitions, ToplevelInitTransition>;
     }
 

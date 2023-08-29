@@ -21,9 +21,6 @@
 
 using namespace tsmlib;
 
-typedef State<VirtualGetTypeIdStateComparator, false> StateType;
-typedef FactoryCreator<StateType, false> StateTypeCreationPolicyType;
-
 struct ToSimFromCalibAction {
   template<class T, class V>
   void perform(T&, const V&) {
@@ -44,6 +41,8 @@ namespace Trigger {
   struct Manual {};
   struct OutofSimulation {};
 }
+
+typedef State<VirtualGetTypeIdStateComparator, false> StateType;
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
@@ -69,15 +68,15 @@ struct SimulationRemote : BasicState<SimulationRemote, StateType>, FactoryCreato
 struct Simulation;
 struct Calibration;
 
-typedef Transition<Trigger::On, Simulation, Calibration, StateTypeCreationPolicyType, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
-typedef Transition<Trigger::Calibrate, Calibration, Simulation, StateTypeCreationPolicyType, NoGuard, NoAction> ToCalibToSim;
-typedef SelfTransition<Trigger::Positionstream, Simulation, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToSimFromSimPositionStream;
-typedef SelfTransition<Trigger::Positionstream, Calibration, StateTypeCreationPolicyType, NoGuard, NoAction, false> ToCalibFromCalibPositionStream;
+typedef Transition<Trigger::On, Simulation, Calibration, ToSimFromCalibGuard, ToSimFromCalibAction> ToSimFromCalib;
+typedef Transition<Trigger::Calibrate, Calibration, Simulation, NoGuard, NoAction> ToCalibToSim;
+typedef SelfTransition<Trigger::Positionstream, Simulation, NoGuard, NoAction, false> ToSimFromSimPositionStream;
+typedef SelfTransition<Trigger::Positionstream, Calibration, NoGuard, NoAction, false> ToCalibFromCalibPositionStream;
 
-typedef Declaration<Trigger::Timeout, Simulation, StateTypeCreationPolicyType> ToSimFromSimTimeout;
-typedef Declaration<Trigger::Remote, Simulation, StateTypeCreationPolicyType> ToSimFromSimRemote;
-typedef Declaration<Trigger::Manual, Simulation, StateTypeCreationPolicyType> ToSimFromSimManual;
-typedef ExitDeclaration<Trigger::OutofSimulation, Calibration, Simulation, StateTypeCreationPolicyType> ToCalibFromSimManual;
+typedef Declaration<Trigger::Timeout, Simulation> ToSimFromSimTimeout;
+typedef Declaration<Trigger::Remote, Simulation> ToSimFromSimRemote;
+typedef Declaration<Trigger::Manual, Simulation> ToSimFromSimManual;
+typedef ExitDeclaration<Trigger::OutofSimulation, Calibration, Simulation> ToCalibFromSimManual;
 
 typedef
 Typelist<ToSimFromCalib,
@@ -95,7 +94,7 @@ Typelist< Simulation,
   Typelist< Calibration,
   NullType>> StateList;
 
-typedef InitialTransition<Simulation, StateTypeCreationPolicyType, NoAction> InitTransition;
+typedef InitialTransition<Simulation, NoAction> InitTransition;
 typedef Statemachine<
   TransitionList,
   InitTransition> Sm;
@@ -116,11 +115,11 @@ struct ChoiceGuardManualDummy {
   }
 };
 
-typedef Transition<Trigger::Timeout, SimulationManual, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardManualDummy, NoAction> ToManualFromInit;
-typedef Transition<Trigger::Timeout, SimulationRemote, SimulationInit, StateTypeCreationPolicyType, ChoiceGuardRemoteDummy, NoAction> ToRemoteFromInit;
-typedef Transition<Trigger::Remote, SimulationRemote, SimulationManual, StateTypeCreationPolicyType, NoGuard, NoAction> ToRemoteFromManual;
-typedef Transition<Trigger::Manual, SimulationManual, SimulationRemote, StateTypeCreationPolicyType, NoGuard, NoAction> ToManualFromRemote;
-typedef Transition<Trigger::OutofSimulation, Calibration, SimulationManual, StateTypeCreationPolicyType, NoGuard, NoAction> ToCalibrationFromManual;
+typedef Transition<Trigger::Timeout, SimulationManual, SimulationInit, ChoiceGuardManualDummy, NoAction> ToManualFromInit;
+typedef Transition<Trigger::Timeout, SimulationRemote, SimulationInit, ChoiceGuardRemoteDummy, NoAction> ToRemoteFromInit;
+typedef Transition<Trigger::Remote, SimulationRemote, SimulationManual, NoGuard, NoAction> ToRemoteFromManual;
+typedef Transition<Trigger::Manual, SimulationManual, SimulationRemote, NoGuard, NoAction> ToManualFromRemote;
+typedef Transition<Trigger::OutofSimulation, Calibration, SimulationManual, NoGuard, NoAction> ToCalibrationFromManual;
 
 typedef
 Typelist <
@@ -137,7 +136,7 @@ Typelist< SimulationInit,
   Typelist<SimulationRemote,
   NullType>>> SimulationStateList;
 
-typedef InitialTransition<SimulationInit, StateTypeCreationPolicyType, NoAction> SimulationSubstatesInitTransition;
+typedef InitialTransition<SimulationInit, NoAction> SimulationSubstatesInitTransition;
 typedef Statemachine<
   SimulationTransitionList,
   SimulationSubstatesInitTransition> SimulationSubstatemachine;

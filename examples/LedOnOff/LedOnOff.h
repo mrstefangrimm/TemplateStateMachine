@@ -17,47 +17,37 @@
 
 using namespace tsmlib;
 
-using StateType = State<MemoryAddressComparator, true>;
-using StateTypeCreationPolicyType = SingletonCreator<StateType>;
-
 namespace Trigger {
 struct Timeout {};
 }
 
-class LedOn : public BasicState<LedOn, StateType>, public SingletonCreator<LedOn> {
-  friend class BasicState<LedOn, StateType>;
+using StatePolicy = State<MemoryAddressComparator, true>;
+
+class LedOn : public BasicState<LedOn, StatePolicy, true>, public SingletonCreator<LedOn> {
+  friend class BasicState<LedOn, StatePolicy, true>;
   template<class Event>
   void entry(const Event&) {
     BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
   }
-  template<class Event>
-  void exit(const Event& ev) {}
-  template<class Event>
-  void doit(const Event& ev) {}
 };
 
-class LedOff : public BasicState<LedOff, StateType>, public SingletonCreator<LedOff> {
-  friend class BasicState<LedOff, StateType>;
+class LedOff : public BasicState<LedOff, StatePolicy, true>, public SingletonCreator<LedOff> {
+  friend class BasicState<LedOff, StatePolicy, true>;
   template<class Event>
   void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
-    BSP_Execute(Serial.println(freeMemory()));
   }
-  template<class Event>
-  void exit(const Event& ev) {}
-  template<class Event>
-  void doit(const Event&) {}
 };
 
-using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, StateTypeCreationPolicyType, NoGuard, NoAction>;
-using ToOffFromOn = Transition<Trigger::Timeout, LedOff, LedOn, StateTypeCreationPolicyType, NoGuard, NoAction>;
+using ToOnFromOff = Transition<Trigger::Timeout, LedOn, LedOff, NoGuard, NoAction>;
+using ToOffFromOn = Transition<Trigger::Timeout, LedOff, LedOn, NoGuard, NoAction>;
 
 using Transitions =
   Typelist<ToOnFromOff,
            Typelist<ToOffFromOn,
                     NullType>>;
 
-using InitTransition = InitialTransition<LedOff, StateTypeCreationPolicyType, NoAction>;
+using InitTransition = InitialTransition<LedOff, NoAction>;
 using Sm = Statemachine<Transitions, InitTransition>;
 
 Sm statemachine;

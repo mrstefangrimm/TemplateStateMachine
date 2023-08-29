@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -29,16 +26,16 @@ namespace UT {
 
     namespace StatemachineOnOffCallSequenceTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
 
-      struct InitialStateFake : StateType {
+      struct InitialStateFake : StatePolicy {
+        using Policy = StatePolicy;
         static const char* name;
       };
       const char* InitialStateFake::name = "Initial";
 
-      struct FinalStateFake : BasicState<FinalStateFake, StateType> {
+      struct FinalStateFake : BasicState<FinalStateFake, StatePolicy, true, true, true> {
         static const char* name;
         using CreatorType = FinalStateFake;
         using ObjectType = FinalStateFake;
@@ -46,7 +43,7 @@ namespace UT {
         static void destroy(FinalStateFake*) { }
 
       private:
-        friend class BasicState<FinalStateFake, StateType>;
+        friend class BasicState<FinalStateFake, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { }
         template<class Event> void exit(const Event&) { }
         template<class Event> void doit(const Event&) { }
@@ -61,24 +58,24 @@ namespace UT {
         struct OffToFinal {};
       }
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static const char* name;
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { RecorderType::add("OnState::Entry"); }
         template<class Event> void exit(const Event&) { RecorderType::add("OnState::Exit"); }
         template<class Event> void doit(const Event&) { RecorderType::add("OnState::Do"); }
       };
       const char* OnState::name = "OnState";
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static const char* name;
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event>  void entry(const Event&) { RecorderType::add("OffState::Entry"); }
         template<class Event>  void exit(const Event&) { RecorderType::add("OffState::Exit"); }
         template<class Event> void doit(const Event&) { RecorderType::add("OffState::Do"); }
@@ -91,11 +88,11 @@ namespace UT {
       using ToOffFromOffActionSpy = ActionSpy<struct OffState, struct OffState, RecorderType>;
       using ToFinalFromOffActionSpy = ActionSpy<struct FinalStateFake, struct OffState, RecorderType>;
 
-      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, ToOnFromOffActionSpy>;
-      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, ToOffFromOnActionSpy>;
-      using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, StateTypeCreationPolicyType, NoGuard, ToOnFromOnActionSpy, false>;
-      using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, StateTypeCreationPolicyType, NoGuard, ToOffFromOffActionSpy, false>;
-      using ToFinalFromOffTransition = Transition<Trigger::OffToFinal, FinalStateFake, OffState, StateTypeCreationPolicyType, NoGuard, ToFinalFromOffActionSpy>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, NoGuard, ToOnFromOffActionSpy>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, NoGuard, ToOffFromOnActionSpy>;
+      using ToOnFromOnTransition = SelfTransition<Trigger::OnToOn, OnState, NoGuard, ToOnFromOnActionSpy, false>;
+      using ToOffFromOffTransition = SelfTransition<Trigger::OffToOff, OffState, NoGuard, ToOffFromOffActionSpy, false>;
+      using ToFinalFromOffTransition = Transition<Trigger::OffToFinal, FinalStateFake, OffState, NoGuard, ToFinalFromOffActionSpy>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,
@@ -106,7 +103,7 @@ namespace UT {
         NullType>>>>>;
 
       using ToOffFromInitialActionSpy = ActionSpy<struct OffState, struct InitialStateFake, RecorderType>;
-      using InitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, ToOffFromInitialActionSpy>;
+      using InitTransition = InitialTransition<OffState, ToOffFromInitialActionSpy>;
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 

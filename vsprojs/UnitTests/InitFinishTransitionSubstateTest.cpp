@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -29,13 +26,13 @@ namespace UT {
 
     namespace InitFinishTransitionSubstateTestImpl {
 
-      using StateType = State<MemoryAddressComparator, true>;
-      using StateTypeCreationPolicyType = SingletonCreatorFake<StateType>;
+      using StatePolicy = State<MemoryAddressComparator, true>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
-      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, SingletonCreatorFake<Derived> {};
+      template<class Derived, class Statemachine> struct Composite : SubstatesHolderState<Derived, StatePolicy, Statemachine, true, true>, SingletonCreatorFake<Derived> {};
 
-      struct InitialStateFake : StateType {
+      struct InitialStateFake : StatePolicy {
+        using Policy = StatePolicy;
         static const char* name;
       };
       const char* InitialStateFake::name = "Initial";
@@ -44,8 +41,8 @@ namespace UT {
       struct EmptyStateFake : T {
         static const char* name;
 
-        typedef EmptyStateFake CreatorType;
-        typedef EmptyStateFake ObjectType;
+        using CreatorType = EmptyStateFake<T>;
+        using ObjectType = EmptyStateFake<T>;
 
         static EmptyStateFake* create() { return nullptr; }
         static void destroy(EmptyStateFake*) { }
@@ -65,53 +62,13 @@ namespace UT {
         struct AAB_AAA {};
       }
 
-      struct A;
-      struct B;
-      struct AA;
-      struct AAB;
-      using ToBfromAA = ExitTransition<Trigger::B_AA, B, AA, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, AA, RecorderType>>;
-      using ToFinalFromAA = FinalTransition<AA, StateTypeCreationPolicyType>;
-      using DeclToAABfromAAA1 = Declaration<Trigger::AAB_AAA, AA, StateTypeCreationPolicyType>;
-      using DeclToBfromAAB1 = Declaration<Trigger::B_AAB, AA, StateTypeCreationPolicyType>;
-      using TransitionsA =
-        Typelist<ToBfromAA,
-        Typelist<ToFinalFromAA,
-        Typelist<DeclToAABfromAAA1,
-        Typelist<DeclToBfromAAB1,
-        NullType>>>>;
-      using InitA = InitialTransition<AA, StateTypeCreationPolicyType, ActionSpy<AA, InitialStateFake, RecorderType>>;
-      using SmA = Statemachine<TransitionsA, InitA>;
-
-      struct A : Composite<A, SmA> {
+      struct B : Leaf<B> {
         static const char* name;
-        template<class Event> void entry(const Event&) { RecorderType::add("A::Entry"); }
-        template<class Event> void exit(const Event&) { RecorderType::add("A::Exit"); }
-        template<class Event> void doit(const Event&) { RecorderType::add("A::Do"); }
+        template<class Event> void entry(const Event&) { RecorderType::add("B::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("B::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("B::Do"); }
       };
-      const char* A::name = "A";
-
-      struct AAA;
-      struct AAB;
-      using ToAABfromAAA = Transition<Trigger::AAB_AAA, AAB, AAA, StateTypeCreationPolicyType, NoGuard, ActionSpy<AAB, AAA, RecorderType>>;
-      using ToBfromAAB = ExitTransition<Trigger::B_AAB, B, AAB, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, AAB, RecorderType>>;
-      using ToFinalFromAAA = FinalTransition<AAA, StateTypeCreationPolicyType>;
-      using ToFinalFromAAB = FinalTransition<AAB, StateTypeCreationPolicyType>;
-      using TransitionsAA =
-        Typelist<ToAABfromAAA,
-        Typelist<ToBfromAAB,
-        Typelist<ToFinalFromAAA,
-        Typelist<ToFinalFromAAB,
-        NullType>>>>;
-      using InitAA = InitialTransition<AAA, StateTypeCreationPolicyType, ActionSpy<AAA, InitialStateFake, RecorderType>>;
-      using SmAA = Statemachine<TransitionsAA, InitAA>;
-
-      struct AA : Composite<AA, SmAA> {
-        static const char* name;
-        template<class Event> void entry(const Event&) { RecorderType::add("AA::Entry"); }
-        template<class Event> void exit(const Event&) { RecorderType::add("AA::Exit"); }
-        template<class Event> void doit(const Event&) { RecorderType::add("AA::Do"); }
-      };
-      const char* AA::name = "AA";
+      const char* B::name = "B";
 
       struct AAA : Leaf<AAA> {
         static const char* name;
@@ -129,20 +86,54 @@ namespace UT {
       };
       const char* AAB::name = "AAB";
 
-      struct B : Leaf<B> {
-        static const char* name;
-        template<class Event> void entry(const Event&) { RecorderType::add("B::Entry"); }
-        template<class Event> void exit(const Event&) { RecorderType::add("B::Exit"); }
-        template<class Event> void doit(const Event&) { RecorderType::add("B::Do"); }
-      };
-      const char* B::name = "B";
+      using ToAABfromAAA = Transition<Trigger::AAB_AAA, AAB, AAA, NoGuard, ActionSpy<AAB, AAA, RecorderType>>;
+      using ToBfromAAB = ExitTransition<Trigger::B_AAB, B, AAB, NoGuard, ActionSpy<B, AAB, RecorderType>>;
+      using ToFinalFromAAA = FinalTransition<AAA>;
+      using ToFinalFromAAB = FinalTransition<AAB>;
+      using TransitionsAA =
+        Typelist<ToAABfromAAA,
+        Typelist<ToBfromAAB,
+        Typelist<ToFinalFromAAA,
+        Typelist<ToFinalFromAAB,
+        NullType>>>>;
+      using InitAA = InitialTransition<AAA, ActionSpy<AAA, InitialStateFake, RecorderType>>;
+      using SmAA = Statemachine<TransitionsAA, InitAA>;
 
-      using ToBfromA = Transition<Trigger::B_A, B, A, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, A, RecorderType>>;
-      using ToFinalFromA = FinalTransition<A, StateTypeCreationPolicyType>;
-      using ToFinalFromB = FinalTransition<B, StateTypeCreationPolicyType>;
-      using DeclToAABfromAAA = Declaration<Trigger::AAB_AAA, A, StateTypeCreationPolicyType>;
-      using DeclToBfromAA = ExitDeclaration<Trigger::B_AA, B, A, StateTypeCreationPolicyType>;
-      using DeclToBfromAAB = ExitDeclaration<Trigger::B_AAB, B, A, StateTypeCreationPolicyType>;
+      struct AA : Composite<AA, SmAA> {
+        static const char* name;
+        template<class Event> void entry(const Event&) { RecorderType::add("AA::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("AA::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("AA::Do"); }
+      };
+      const char* AA::name = "AA";
+
+      using ToBfromAA = ExitTransition<Trigger::B_AA, B, AA, NoGuard, ActionSpy<B, AA, RecorderType>>;
+      using ToFinalFromAA = FinalTransition<AA>;
+      using DeclToAABfromAAA1 = Declaration<Trigger::AAB_AAA, AA>;
+      using DeclToBfromAAB1 = Declaration<Trigger::B_AAB, AA>;
+      using TransitionsA =
+        Typelist<ToBfromAA,
+        Typelist<ToFinalFromAA,
+        Typelist<DeclToAABfromAAA1,
+        Typelist<DeclToBfromAAB1,
+        NullType>>>>;
+      using InitA = InitialTransition<AA, ActionSpy<AA, InitialStateFake, RecorderType>>;
+      using SmA = Statemachine<TransitionsA, InitA>;
+
+      struct A : Composite<A, SmA> {
+        static const char* name;
+        template<class Event> void entry(const Event&) { RecorderType::add("A::Entry"); }
+        template<class Event> void exit(const Event&) { RecorderType::add("A::Exit"); }
+        template<class Event> void doit(const Event&) { RecorderType::add("A::Do"); }
+      };
+      const char* A::name = "A";
+
+      using ToBfromA = Transition<Trigger::B_A, B, A, NoGuard, ActionSpy<B, A, RecorderType>>;
+      using ToFinalFromA = FinalTransition<A>;
+      using ToFinalFromB = FinalTransition<B>;
+      using DeclToAABfromAAA = Declaration<Trigger::AAB_AAA, A>;
+      using DeclToBfromAA = ExitDeclaration<Trigger::B_AA, B, A>;
+      using DeclToBfromAAB = ExitDeclaration<Trigger::B_AAB, B, A>;
       using Transitions =
         Typelist<ToBfromA,
         Typelist<ToFinalFromA,
@@ -151,7 +142,7 @@ namespace UT {
         Typelist<DeclToBfromAA,
         Typelist<DeclToBfromAAB,
         NullType>>>>>>;
-      using InitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake, RecorderType>>;
+      using InitTransition = InitialTransition<A, ActionSpy<A, InitialStateFake, RecorderType>>;
       using Sm = Statemachine<Transitions, InitTransition>;
     }
 

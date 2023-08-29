@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -29,12 +26,11 @@ namespace UT {
 
     namespace SubstatemachineTriggerTestImpl {
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
 
-      using ToOffFromInitialActionSpy = ActionStub<struct OffState, struct EmptyState<StateType>>;
-      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StateType>, struct OffState>;
-      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StateType>, struct OnState>;
+      using ToOffFromInitialActionSpy = ActionStub<struct OffState, struct EmptyState<StatePolicy>>;
+      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StatePolicy>, struct OffState>;
+      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StatePolicy>, struct OnState>;
 
       namespace Trigger {
         struct On { int id = 100; };
@@ -43,7 +39,7 @@ namespace UT {
         struct Start { int id = 400; };
       }
 
-      struct Idle : BasicState<Idle, StateType>, FactoryCreator<Idle> {
+      struct Idle : BasicState<Idle, StatePolicy, true, true, true>, FactoryCreator<Idle> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -51,7 +47,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<Idle, StateType>;
+        friend class BasicState<Idle, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -60,7 +56,7 @@ namespace UT {
       int Idle::exitCalls = 0;
       int Idle::doitCalls = 0;
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -80,7 +76,7 @@ namespace UT {
         }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event& ev) { entryCalls++; lastEntryEvent = ev.id; }
         template<> void entry(const NullType& ev) { entryCalls++; lastEntryEvent = 0; }
         template<class Event> void exit(const Event& ev) { exitCalls++; lastExitEvent = ev.id; }
@@ -95,7 +91,7 @@ namespace UT {
       int OnState::lastExitEvent = -1;
       int OnState::lastDoitEvent = -1;
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -115,7 +111,7 @@ namespace UT {
         }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event& ev) { entryCalls++; lastEntryEvent = ev.id; }
         template<> void entry(const NullType& ev) { entryCalls++; lastEntryEvent = 0; }
         template<class Event> void exit(const Event& ev) { exitCalls++; lastExitEvent = ev.id; }
@@ -130,11 +126,11 @@ namespace UT {
       int OffState::lastExitEvent = -1;
       int OffState::lastDoitEvent = -1;
 
-      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToIdleFromOnTransition = ExitTransition<Trigger::Stop, Idle, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToFinalFromOff = FinalTransition<OffState, StateTypeCreationPolicyType>;
-      using ToFinalFromOn = FinalTransition<OnState, StateTypeCreationPolicyType>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, NoGuard, NoAction>;
+      using ToIdleFromOnTransition = ExitTransition<Trigger::Stop, Idle, OnState, NoGuard, NoAction>;
+      using ToFinalFromOff = FinalTransition<OffState>;
+      using ToFinalFromOn = FinalTransition<OnState>;
 
       using ActivestateTransitionList =
         Typelist<ToOnFromOffTransition,
@@ -144,10 +140,10 @@ namespace UT {
         Typelist<ToFinalFromOn,
         NullType>>>>>;
 
-      using ActivestateInitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, NoAction>;
+      using ActivestateInitTransition = InitialTransition<OffState, NoAction>;
       using ActivestateStatemachine = Statemachine<ActivestateTransitionList, ActivestateInitTransition>;
 
-      struct Active : SubstatesHolderState<Active, StateType, ActivestateStatemachine>, FactoryCreator<Active> {
+      struct Active : SubstatesHolderState<Active, StatePolicy, ActivestateStatemachine, true, true>, FactoryCreator<Active> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -155,7 +151,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 3; }
 
       private:
-        friend class SubstatesHolderState<Active, StateType, ActivestateStatemachine>;
+        friend class SubstatesHolderState<Active, StatePolicy, ActivestateStatemachine, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -164,17 +160,17 @@ namespace UT {
       int Active::exitCalls = 0;
       int Active::doitCalls = 0;
 
-      using ToFinalSubstatesGuardDummy = GuardDummy<StateType, AnyState<StateType>, AnyState<StateType>>;
-      using ToFinalSubstatesActionSpy = ActionStub<AnyState<StateType>, AnyState<StateType>>;
+      using ToFinalSubstatesGuardDummy = GuardDummy<StatePolicy, AnyState<StatePolicy>, AnyState<StatePolicy>>;
+      using ToFinalSubstatesActionSpy = ActionStub<AnyState<StatePolicy>, AnyState<StatePolicy>>;
 
-      using ToOnFromOffSubDeclaration = Declaration<Trigger::On, Active, StateTypeCreationPolicyType>;
-      using ToOffFromOnSubDeclaration = Declaration<Trigger::Off, Active, StateTypeCreationPolicyType>;
-      using ToIdleFromOnDeclaration = ExitDeclaration<Trigger::Stop, Idle, Active, StateTypeCreationPolicyType>;
+      using ToOnFromOffSubDeclaration = Declaration<Trigger::On, Active>;
+      using ToOffFromOnSubDeclaration = Declaration<Trigger::Off, Active>;
+      using ToIdleFromOnDeclaration = ExitDeclaration<Trigger::Stop, Idle, Active>;
 
-      using ToActiveFromIdleTransition = Transition<Trigger::Start, Active, Idle, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToIdleFromActiveTransition = Transition<Trigger::Stop, Idle, Active, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToFinalFromActive = FinalTransition<Active, StateTypeCreationPolicyType>;
-      using ToFinalFromIdle = FinalTransition<Idle, StateTypeCreationPolicyType>;
+      using ToActiveFromIdleTransition = Transition<Trigger::Start, Active, Idle, NoGuard, NoAction>;
+      using ToIdleFromActiveTransition = Transition<Trigger::Stop, Idle, Active, NoGuard, NoAction>;
+      using ToFinalFromActive = FinalTransition<Active>;
+      using ToFinalFromIdle = FinalTransition<Idle>;
 
       using TransitionList =
         Typelist<ToOnFromOffSubDeclaration,
@@ -186,10 +182,10 @@ namespace UT {
         Typelist<ToFinalFromIdle,
         NullType>>>>>>>;
 
-      using InitTransitionToIdle = InitialTransition<Idle, StateTypeCreationPolicyType, NoAction>;
+      using InitTransitionToIdle = InitialTransition<Idle, NoAction>;
       using Sm = Statemachine<TransitionList, InitTransitionToIdle>;
 
-      using InitTransitionToActive = InitialTransition<Active, StateTypeCreationPolicyType, NoAction>;
+      using InitTransitionToActive = InitialTransition<Active, NoAction>;
       using SmBeginEnd = Statemachine<TransitionList, InitTransitionToActive>;
     }
 

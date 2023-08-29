@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -29,13 +26,13 @@ namespace UT {
 
     namespace InitFinishTransitionTestImpl {
 
-      using StateType = State<MemoryAddressComparator, true>;
-      using StateTypeCreationPolicyType = SingletonCreatorFake<StateType>;
+      using StatePolicy = State<MemoryAddressComparator, true>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
-      template<class Derived> struct Leaf : BasicState<Derived, StateType>, SingletonCreatorFake<Derived> {};
-      template<class Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StateType, Statemachine>, SingletonCreatorFake<Derived> {};
+      template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, SingletonCreatorFake<Derived> {};
+      template<class Derived, typename Statemachine> struct Composite : SubstatesHolderState<Derived, StatePolicy, Statemachine, true, true>, SingletonCreatorFake<Derived> {};
 
-      struct InitialStateFake : StateType {
+      struct InitialStateFake : StatePolicy {
+        using Policy = StatePolicy;
         static const char* name;
       };
       const char* InitialStateFake::name = "Initial";
@@ -100,11 +97,11 @@ namespace UT {
         }
       };
 
-      using ToBfromA = Transition<Trigger::Next, B, A, StateTypeCreationPolicyType, NoGuard, ActionSpy<B, A, RecorderType>>;
-      using ToCfromB = Transition<Trigger::Next, C, B, StateTypeCreationPolicyType, NoGuard, ActionSpy<C, B, RecorderType>>;
-      using ToCfromC = SelfTransition<Trigger::Count, C, StateTypeCreationPolicyType, NoGuard, ActionSpy<C, C, RecorderType>, false>;
-      using ToFinalFromB = FinalTransition<B, StateTypeCreationPolicyType>;
-      using ToFinalFromC = FinalTransitionExplicit<Trigger::Check, C, StateTypeCreationPolicyType, CheckTriggerGuardC, NoAction>;
+      using ToBfromA = Transition<Trigger::Next, B, A, NoGuard, ActionSpy<B, A, RecorderType>>;
+      using ToCfromB = Transition<Trigger::Next, C, B, NoGuard, ActionSpy<C, B, RecorderType>>;
+      using ToCfromC = SelfTransition<Trigger::Count, C, NoGuard, ActionSpy<C, C, RecorderType>, false>;
+      using ToFinalFromB = FinalTransition<B>;
+      using ToFinalFromC = FinalTransitionExplicit<Trigger::Check, C, CheckTriggerGuardC, NoAction>;
       using TransitionList =
         Typelist<ToBfromA,
         Typelist<ToCfromB,
@@ -112,7 +109,7 @@ namespace UT {
         Typelist<ToFinalFromB,
         Typelist<ToFinalFromC,
         NullType>>>>>;
-      using InitTransition = InitialTransition<A, StateTypeCreationPolicyType, ActionSpy<A, InitialStateFake, RecorderType>>;
+      using InitTransition = InitialTransition<A, ActionSpy<A, InitialStateFake, RecorderType>>;
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 

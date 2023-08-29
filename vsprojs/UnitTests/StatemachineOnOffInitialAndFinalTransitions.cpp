@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-#define IAMWORKSTATION 1
-
 #include "CppUnitTest.h"
-
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
@@ -32,8 +29,7 @@ namespace UT {
       using namespace tsmlib;
       using namespace UnitTests::Helpers;
 
-      using StateType = State<VirtualGetTypeIdStateComparator, false>;
-      using StateTypeCreationPolicyType = FactoryCreator<StateType, false>;
+      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
 
       namespace Trigger
       {
@@ -42,7 +38,7 @@ namespace UT {
         struct Goodbye {};
       }
 
-      struct OnState : BasicState<OnState, StateType>, FactoryCreator<OnState> {
+      struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -50,7 +46,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 1; }
 
       private:
-        friend class BasicState<OnState, StateType>;
+        friend class BasicState<OnState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -59,7 +55,7 @@ namespace UT {
       int OnState::exitCalls = 0;
       int OnState::doitCalls = 0;
 
-      struct OffState : BasicState<OffState, StateType>, FactoryCreator<OffState> {
+      struct OffState : BasicState<OffState, StatePolicy, true, true, true>, FactoryCreator<OffState> {
         static int entryCalls;
         static int exitCalls;
         static int doitCalls;
@@ -67,7 +63,7 @@ namespace UT {
         uint8_t getTypeId() const override { return 2; }
 
       private:
-        friend class BasicState<OffState, StateType>;
+        friend class BasicState<OffState, StatePolicy, true, true, true>;
         template<class Event> void entry(const Event&) { entryCalls++; }
         template<class Event> void exit(const Event&) { exitCalls++; }
         template<class Event> void doit(const Event&) { doitCalls++; }
@@ -76,15 +72,15 @@ namespace UT {
       int OffState::exitCalls = 0;
       int OffState::doitCalls = 0;
 
-      using ToFinalFromOffGuardDummy = GuardDummy<StateType, EmptyState<StateType>, OffState>;
-      using ToFinalFromOnGuardDummy = GuardDummy<StateType, EmptyState<StateType>, OnState>;
-      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StateType>, struct OffState>;
-      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StateType>, struct OnState>;
-      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, StateTypeCreationPolicyType, NoGuard, NoAction>;
-      using ToFinalFromOffTransition = FinalTransitionExplicit<Trigger::Goodbye, OffState, StateTypeCreationPolicyType, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy>;
-      using ToFinalFromOnTransition = FinalTransitionExplicit<Trigger::Goodbye, OnState, StateTypeCreationPolicyType, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy>;
-      using ToEndTransition = FinalTransition<OffState, StateTypeCreationPolicyType>;
+      using ToFinalFromOffGuardDummy = GuardDummy<StatePolicy, EmptyState<StatePolicy>, OffState>;
+      using ToFinalFromOnGuardDummy = GuardDummy<StatePolicy, EmptyState<StatePolicy>, OnState>;
+      using ToFinalFromOffActionSpy = ActionStub<EmptyState<StatePolicy>, struct OffState>;
+      using ToFinalFromOnActionSpy = ActionStub<EmptyState<StatePolicy>, struct OnState>;
+      using ToOnFromOffTransition = Transition<Trigger::On, OnState, OffState, NoGuard, NoAction>;
+      using ToOffFromOnTransition = Transition<Trigger::Off, OffState, OnState, NoGuard, NoAction>;
+      using ToFinalFromOffTransition = FinalTransitionExplicit<Trigger::Goodbye, OffState, ToFinalFromOffGuardDummy, ToFinalFromOffActionSpy>;
+      using ToFinalFromOnTransition = FinalTransitionExplicit<Trigger::Goodbye, OnState, ToFinalFromOnGuardDummy, ToFinalFromOnActionSpy>;
+      using ToEndTransition = FinalTransition<OffState>;
 
       using TransitionList =
         Typelist<ToOnFromOffTransition,
@@ -94,8 +90,8 @@ namespace UT {
         Typelist<ToEndTransition,
         NullType>>>>>;
 
-      using ToInitActionSpy = ActionStub<struct OffState, struct EmptyState<StateType>>;
-      using ToInitTransition = InitialTransition<OffState, StateTypeCreationPolicyType, ToInitActionSpy>;
+      using ToInitActionSpy = ActionStub<struct OffState, struct EmptyState<StatePolicy>>;
+      using ToInitTransition = InitialTransition<OffState, ToInitActionSpy>;
       using Sm = Statemachine<TransitionList, ToInitTransition>;
     }
 
@@ -113,7 +109,7 @@ namespace UT {
 
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -135,7 +131,7 @@ namespace UT {
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -187,7 +183,8 @@ namespace UT {
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
         reset();
-        sm.dispatch<Trigger::Goodbye>();
+        auto result = sm.dispatch<Trigger::Goodbye>();
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(0, OffState::entryCalls);
         Assert::AreEqual<int>(0, OffState::doitCalls);
@@ -207,7 +204,7 @@ namespace UT {
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -259,7 +256,7 @@ namespace UT {
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -297,7 +294,7 @@ namespace UT {
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -330,7 +327,7 @@ namespace UT {
         reset();
         result = sm.end();
         Assert::IsFalse(result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(0, OffState::entryCalls);
         Assert::AreEqual<int>(0, OffState::doitCalls);
@@ -350,7 +347,7 @@ namespace UT {
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
-        Assert::IsNotNull<StateType>(result.activeState);
+        Assert::IsNotNull<StatePolicy>(result.activeState);
         Assert::AreEqual<int>(0, OffState::exitCalls);
         Assert::AreEqual<int>(1, OffState::entryCalls);
         Assert::AreEqual<int>(1, OffState::doitCalls);
@@ -365,7 +362,9 @@ namespace UT {
         Assert::AreEqual<int>(0, ToFinalFromOffGuardDummy::calls);
         Assert::AreEqual<int>(0, ToFinalFromOnGuardDummy::calls);
 
-        sm.dispatch<Trigger::Off>();
+        result = sm.dispatch<Trigger::Off>();
+        Assert::IsTrue(result.activeState->typeOf<OffState>());
+
         reset();
 
         result = sm.end();

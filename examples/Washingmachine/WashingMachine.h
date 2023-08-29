@@ -17,18 +17,9 @@
 
 using namespace tsmlib;
 
-using StateType = State<MemoryAddressComparator, true>;
-using StateTypeCreationPolicyType = SingletonCreator<StateType>;
-
 namespace Trigger {
 struct Timeout {};
 }
-
-struct Loading;
-struct Running;
-struct Washing;
-struct Rinsing;
-struct Spinning;
 
 struct IsWashingAction {
   template<class StateType, class EventType>
@@ -79,24 +70,9 @@ struct IsSpinningDone {
   }
 };
 
-using ToRinsingFromWashing = ChoiceTransition<Trigger::Timeout, Rinsing, Washing, Washing, StateTypeCreationPolicyType, IsWashingDone, IsWashingAction>;
-using ToSpinningFromRinsing = ChoiceTransition<Trigger::Timeout, Spinning, Rinsing, Rinsing, StateTypeCreationPolicyType, IsRinsingDone, IsRinsingAction>;
-using ToLoadingFromSpinning = ChoiceExitTransition<Trigger::Timeout, Loading, Spinning, Spinning, StateTypeCreationPolicyType, IsSpinningDone, IsSpinningAction>;
-using RunningTransitionList = Typelist<ToRinsingFromWashing, Typelist<ToSpinningFromRinsing, Typelist<ToLoadingFromSpinning, NullType>>>;
-using RunningInitTransition = InitialTransition<Washing, StateTypeCreationPolicyType, NoAction>;
-using RunningSm = Statemachine<RunningTransitionList, RunningInitTransition>;
+using StatePolicy = State<MemoryAddressComparator, true>;
 
-using ToRunningFromLoading = Transition<Trigger::Timeout, Running, Loading, StateTypeCreationPolicyType, NoGuard, NoAction>;
-using TimeoutDeclaration = ExitDeclaration<Trigger::Timeout, Loading, Running, StateTypeCreationPolicyType>;
-using WashingmachineTransitionList =
-  Typelist<ToRunningFromLoading,
-           Typelist<TimeoutDeclaration,
-                    NullType>>;
-
-using InitTransition = InitialTransition<Loading, StateTypeCreationPolicyType, NoAction>;
-using WashingmachineSm = Statemachine<WashingmachineTransitionList, InitTransition>;
-
-struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<Loading> {
+struct Loading : BasicState<Loading, StatePolicy, true, true>, SingletonCreator<Loading> {
   template<class Event> void entry(const Event& ev) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
     BSP_Execute(Serial.println(F("Loading")));
@@ -105,52 +81,60 @@ struct Loading : public BasicState<Loading, StateType>, public SingletonCreator<
   template<class Event> void exit(const Event&) {
     BSP_Execute(Serial.println(F("  Door closed.")));
   }
-  template<class Event> void doit(const Event&) {}
 };
 
-struct Running : public SubstatesHolderState<Running, StateType, RunningSm>, public SingletonCreator<Running> {
-  template<class Event> void entry(const Event&) {
-    BSP_Execute(Serial.println(F("Running")));
-  }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
-};
-
-struct Washing : public BasicState<Washing, StateType>, public SingletonCreator<Washing> {
+struct Washing : BasicState<Washing, StatePolicy, true>, SingletonCreator<Washing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Washing")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t washingLength_ = 50;
 };
 
-struct Rinsing : public BasicState<Rinsing, StateType>, public SingletonCreator<Rinsing> {
+struct Rinsing : BasicState<Rinsing, StatePolicy, true>, SingletonCreator<Rinsing> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Rinsing")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t rinsingLength_ = 30;
 };
 
-struct Spinning : public BasicState<Spinning, StateType>, public SingletonCreator<Spinning> {
+struct Spinning : BasicState<Spinning, StatePolicy, true>, SingletonCreator<Spinning> {
   template<class Event> void entry(const Event&) {
     BSP_Execute(Serial.println(F("  Spinning")));
     counter_ = 0;
   }
-  template<class Event> void exit(const Event&) {}
-  template<class Event> void doit(const Event&) {}
 
   uint8_t counter_ = 0;
   const uint8_t spinningLength_ = 40;
 };
+
+using ToRinsingFromWashing = ChoiceTransition<Trigger::Timeout, Rinsing, Washing, Washing, IsWashingDone, IsWashingAction>;
+using ToSpinningFromRinsing = ChoiceTransition<Trigger::Timeout, Spinning, Rinsing, Rinsing, IsRinsingDone, IsRinsingAction>;
+using ToLoadingFromSpinning = ChoiceExitTransition<Trigger::Timeout, Loading, Spinning, Spinning, IsSpinningDone, IsSpinningAction>;
+using RunningTransitionList = Typelist<ToRinsingFromWashing, Typelist<ToSpinningFromRinsing, Typelist<ToLoadingFromSpinning, NullType>>>;
+using RunningInitTransition = InitialTransition<Washing, NoAction>;
+using RunningSm = Statemachine<RunningTransitionList, RunningInitTransition>;
+
+struct Running : SubstatesHolderState<Running, StatePolicy, RunningSm, true>, SingletonCreator<Running> {
+  template<class Event> void entry(const Event&) {
+    BSP_Execute(Serial.println(F("Running")));
+  }
+};
+
+using ToRunningFromLoading = Transition<Trigger::Timeout, Running, Loading, NoGuard, NoAction>;
+using TimeoutDeclaration = ExitDeclaration<Trigger::Timeout, Loading, Running>;
+using WashingmachineTransitionList =
+  Typelist<ToRunningFromLoading,
+           Typelist<TimeoutDeclaration,
+                    NullType>>;
+
+using InitTransition = InitialTransition<Loading, NoAction>;
+using WashingmachineSm = Statemachine<WashingmachineTransitionList, InitTransition>;
 
 WashingmachineSm statemachine;
 

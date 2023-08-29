@@ -130,6 +130,9 @@
     <ClCompile Include="TcpConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\eventdispatchers.h" />
+    <ClInclude Include="..\..\..\src\finaltransition.h" />
+    <ClInclude Include="..\..\..\src\initialtransition.h" />
     <ClInclude Include="..\..\..\src\state.h" />
     <ClInclude Include="..\..\..\src\transition.h" />
   </ItemGroup>

@@ -35,5 +35,8 @@
       <Filter>tsmlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\examples\LedOnOff\LedOnOff.h" />
+    <ClInclude Include="..\..\..\src\eventdispatchers.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

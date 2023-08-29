@@ -15,5 +15,14 @@
     <ClInclude Include="..\..\..\src\transition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\eventdispatchers.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\initialtransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\finaltransition.h">
+      <Filter>tsmlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
