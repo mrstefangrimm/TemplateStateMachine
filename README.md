@@ -50,7 +50,7 @@ You should only use it to experiment with it or for hobby projects at this time.
 
 [qpn](https://github.com/QuantumLeaps/qpn) has been around for years and does an excellent job.
 
-While thinking how I could use C++ templates to generate a state machine, SML](https://github.com/boost-ext/sml) got released. Too bad for tsm, they  did a great job. It is a pity that SML no longer works with C++14.
+While experimenting how I could use C++ templates to generate a state machine, [SML](https://github.com/boost-ext/sml) got released. Too bad for tsm, they  did a great job. It is a pity that SML no longer works with C++14.
 
 
 
@@ -68,9 +68,7 @@ You can define the life cycle model. According to UML, the state object is delet
 
 ## Features
 
-[![statemachine example](docs/sm_example.png)
-
-
+[![statemachine example](docs/sm_example.png)](https://wandbox.org/permlink/p7sckwCk2nVR2Moh)
 
 ### UML state machine
 
