@@ -31,7 +31,7 @@ namespace UT {
         struct Reenter {};
       }
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
 
       struct OnState : BasicState<OnState, StatePolicy, true, true, true>, FactoryCreator<OnState> {
         static int entryCalls;

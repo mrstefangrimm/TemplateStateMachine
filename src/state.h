@@ -21,7 +21,7 @@ namespace tsmlib {
 using namespace LokiLight;
 // Pre-defined comparators
 struct MemoryAddressComparator;
-struct VirtualGetTypeIdStateComparator;
+struct VirtualTypeIdComparator;
 struct RttiComparator;
 
 template<class Comparator, bool Singleton>
@@ -40,6 +40,8 @@ struct State {
 template<>
 struct State<MemoryAddressComparator, true> {
 
+  enum { Singleton = true };
+
   bool equals(const State<MemoryAddressComparator, true>& other) const {
     return this == &other;
   }
@@ -57,11 +59,13 @@ struct State<MemoryAddressComparator, true> {
 };
 
 template<>
-struct State<VirtualGetTypeIdStateComparator, false> {
+struct State<VirtualTypeIdComparator, false> {
+
+  enum { Singleton = false };
 
   virtual uint8_t getTypeId() const = 0;
 
-  bool equals(const State<VirtualGetTypeIdStateComparator, false>& other) const {
+  bool equals(const State<VirtualTypeIdComparator, false>& other) const {
     return this->getTypeId() == other.getTypeId();
   }
 
@@ -82,7 +86,9 @@ struct State<VirtualGetTypeIdStateComparator, false> {
 #if !defined(__AVR__)
 template<>
 struct State<RttiComparator, false> {
-public:
+
+  enum { Singleton = false };
+
   // Google: Why does C++ RTTI require a virtual method table?
   virtual ~State() {}
 
@@ -210,6 +216,11 @@ struct SingletonCreator {
   using CreatorType = SingletonCreator<T>;
   using ObjectType = T;
 
+  SingletonCreator() {
+    using Policy = typename ObjectType::Policy;
+    CompileTimeError< Policy::Singleton >();
+  }
+
   static T* create() {
     return &instance;
   }
@@ -223,27 +234,13 @@ template<class T> T SingletonCreator<T>::instance;
 /**
 * When leaving, the object is destroyed and the state's state is lost.
 */
-template<class T, bool implementsCreate = true>
+template<class T>
 struct FactoryCreator {
-  using CreatorType = FactoryCreator<T, true>;
+  using CreatorType = FactoryCreator<T>;
   using ObjectType = T;
 
   static T* create() {
     return new T;
-  }
-  static void destroy(T* state) {
-    delete state;
-  }
-};
-// Specialization
-template<class T>
-struct FactoryCreator<T, false> {
-  using CreatorType = FactoryCreator<T, false>;
-  using ObjectType = T;
-
-  static void* create() {
-    CompileTimeError<true>();
-    return nullptr;
   }
   static void destroy(T* state) {
     delete state;

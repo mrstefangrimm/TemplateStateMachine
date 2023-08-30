@@ -42,7 +42,7 @@ namespace Trigger {
   struct OutofSimulation {};
 }
 
-typedef State<VirtualGetTypeIdStateComparator, false> StateType;
+typedef State<VirtualTypeIdComparator, false> StateType;
 
 struct SimulationInit : BasicState<SimulationInit, StateType>, FactoryCreator<SimulationInit> {
   uint8_t getTypeId() const override { return 10; }
@@ -141,7 +141,7 @@ typedef Statemachine<
   SimulationTransitionList,
   SimulationSubstatesInitTransition> SimulationSubstatemachine;
 
-struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>, SingletonCreator<Simulation> {
+struct Simulation : SubstatesHolderState<Simulation, StateType, SimulationSubstatemachine>, FactoryCreator<Simulation> {
   uint8_t getTypeId() const override { return 1; }
 
 private:

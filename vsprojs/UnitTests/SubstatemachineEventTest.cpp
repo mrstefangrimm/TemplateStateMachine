@@ -26,7 +26,7 @@ namespace UT {
 
     namespace SubstatemachineEventTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
 
       using ToOffFromInitialActionSpy = ActionStub<struct OffState, struct EmptyState<StatePolicy>>;
       using ToFinalFromOffActionSpy = ActionStub<EmptyState<StatePolicy>, struct OffState>;

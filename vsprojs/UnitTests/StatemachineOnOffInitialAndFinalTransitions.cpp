@@ -29,7 +29,7 @@ namespace UT {
       using namespace tsmlib;
       using namespace UnitTests::Helpers;
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
 
       namespace Trigger
       {

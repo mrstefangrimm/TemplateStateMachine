@@ -26,7 +26,7 @@ namespace UT {
 
     namespace StatemachineOnOffEntryCallsExitTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
 
       namespace Trigger
       {

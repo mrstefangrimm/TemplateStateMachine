@@ -25,4 +25,5 @@ int main()
 {
   setup();
   loop();
+  loop();
 }

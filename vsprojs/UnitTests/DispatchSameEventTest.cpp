@@ -26,7 +26,7 @@ namespace UT {
 
     namespace DispatchSameEventTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
       template<class Derived> struct Leaf : BasicState<Derived, StatePolicy, true, true, true>, FactoryCreatorFake<Derived> {};
 
