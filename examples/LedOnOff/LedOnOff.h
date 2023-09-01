@@ -61,6 +61,4 @@ void setup() {
 void loop() {
   statemachine.dispatch<Trigger::Timeout>();
   BSP_Execute(delay(1000));
-  statemachine.dispatch<Trigger::Timeout>();
-  BSP_Execute(delay(1000));
 }

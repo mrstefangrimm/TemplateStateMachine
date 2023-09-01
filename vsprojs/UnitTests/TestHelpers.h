@@ -145,7 +145,6 @@ namespace UnitTests {
 
     template<class T>
     struct FactoryCreatorFake {
-      enum { Singleton = false };
       using CreatorType = FactoryCreatorFake<T>;
       using ObjectType = T;
 
