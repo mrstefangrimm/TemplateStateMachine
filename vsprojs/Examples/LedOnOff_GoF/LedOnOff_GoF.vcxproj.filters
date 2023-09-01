@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="LedOnOff_GoF.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\examples\LedOnOff_GoF\LedOnOff_GoF.h" />
+  </ItemGroup>
 </Project>
