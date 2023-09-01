@@ -52,8 +52,6 @@ namespace UT {
 
       struct TestComparator {
 
-        enum { Singleton = true };
-
         static bool isEqual;
 
         static bool areEqual(const State<TestComparator, false>&, const State<TestComparator, false>&) {

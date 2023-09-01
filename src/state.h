@@ -40,8 +40,6 @@ struct State {
 template<>
 struct State<MemoryAddressComparator, true> {
 
-  enum { Singleton = true };
-
   bool equals(const State<MemoryAddressComparator, true>& other) const {
     return this == &other;
   }
@@ -60,8 +58,6 @@ struct State<MemoryAddressComparator, true> {
 
 template<>
 struct State<VirtualTypeIdComparator, false> {
-
-  enum { Singleton = false };
 
   virtual uint8_t getTypeId() const = 0;
 
@@ -86,8 +82,6 @@ struct State<VirtualTypeIdComparator, false> {
 #if !defined(__AVR__)
 template<>
 struct State<RttiComparator, false> {
-
-  enum { Singleton = false };
 
   // Google: Why does C++ RTTI require a virtual method table?
   virtual ~State() {}
@@ -215,11 +209,6 @@ template<class T>
 struct SingletonCreator {
   using CreatorType = SingletonCreator<T>;
   using ObjectType = T;
-
-  SingletonCreator() {
-    using Policy = typename ObjectType::Policy;
-    CompileTimeError< Policy::Singleton >();
-  }
 
   static T* create() {
     return &instance;
