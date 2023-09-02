@@ -11,18 +11,18 @@ A C++ library to create UML<sup>1</sup> state machines in C++.
 
 
 
-Some comparisons with other implementations on an Arduino (Table 1). Using an `enum` and a state variable uses the least memory. The example with the GoF<sup>2</sup> design pattern uses more memory than tsm with more coding for less functionality, and it is not an UML state machine. The example with qpn<sup>3</sup> uses more memory, but that is because it also creates an active object and a message queue. 
+A comparison with other implementations on an Arduino (Table 1). Using an `enum` and a state variable uses the least memory. The example with the GoF<sup>2</sup> design pattern uses more memory than tsm with more coding for less functionality, and it is not an UML state machine. The example with qpn<sup>3</sup> uses more memory, but that is because it also creates an active object and a message queue. 
 
 | Example sketch            | enum [bytes] | tsm [bytes] | GoF<sup>2</sup> [bytes] | qpn<sup>3</sup> [bytes] |
 | ------------------------- | -----------  | ----------- | ----------------------- | ----------------------- |
 | LED On/Off (ROM/RAM)      | 2256/186  [![run](docs/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2464/199  [![run](docs/test_icon.png)](https://wokwi.com/projects/374516923308308481)  | 2962/212  [![run](docs/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 4324/289  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
 | Washing machine (ROM/RAM) |              | 3400/207  [![run](docs/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                         | 5204/295  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
 
-> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, Washing machine has five states and one state has sub-states. The example where compiled in an Arduino IDE 2.2.0 with the default (unchanged) compiler settings.
+> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, washing machine has five states, and one state has sub-states. I used the Arduino IDE 2.2.0 with the default (unchanged) compiler settings.
 
 
 
-The significance of the comparison in Table 1 can be questioned. Table 2 shows that tsm and qpn perform about equally well. However, the used techniques are different. TSM uses C++ templates to generate the code, while in qpn there is a switch statement for each state.
+You can question the significance of the comparison in Table 1. Table 2 shows that tsm and qpn perform about equally well. However, the used techniques are different. TSM uses C++ templates to generate the code, while in qpn there is a switch statement for each state.
 
 | Example | Program Space (ROM) [bytes] | Dynamic Memory (RAM) [bytes] | LOC (number of ";") |
 | ------- | --------------------------- | ---------------------------- | ------------------- |
@@ -33,16 +33,16 @@ The significance of the comparison in Table 1 can be questioned. Table 2 shows t
 
 
 
-TSM uses a modern, declarative way to program state machines. And it is a UML state machine where states can have an entry, exit and do method, and transitions can have an action and a guard.
+TSM uses a modern, declarative way to program state machines. And it is a UML state machine where states can have an entry, exit, and do method, and transitions can have an action and a guard.
 
 
 
 ---
-[1] UML: Unified Modelling Language. What is covered by tsm is descripted in the section Getting Started. 
+[1] UML: Unified Modeling Language. The section Getting Started describes what tsm covers. 
 
-[2] GOF: Gang of Four. The state machine is implemented using the design pattern.
+[2] GOF: Gang of Four. The example state machine is implements the design pattern.
 
-[3] QPN: [Quantum Platform Nano](https://github.com/QuantumLeaps/qpn) by Quantum Leaps. The examples where created with the [QM modeler](https://www.state-machine.com/qm/).
+[3] QPN: [Quantum Platform Nano](https://github.com/QuantumLeaps/qpn) by Quantum Leaps. I created the examples with the [QM modeler](https://www.state-machine.com/qm/).
 
 
 
@@ -52,23 +52,23 @@ TSM is compatible with the current Arduino tool chain that comes with the Arduin
 
 ### Installation
 
-To use tsm in an Arduino sketch, just copy it to Arduino/Libraries and include "tsm.h". Add the tsm/src folder to your includes to use it on other platforms.
+To use tsm in an Arduino sketch, just copy it to Arduino/Libraries and include "tsm.h". Add the tsm/src folder to the includes to use it on other platforms.
 
 
 
 ## When should you use state machines?
 
-To learn everything about state machines, I recommend the book "Practical UML State Charts in C/C++" by Miro Samek. Also worth watching is [Rise of the State Machines](https://www.youtube.com/watch?v=Zb6xcd2as6o) by Kris Jusiak. I'll leave it at that, otherwise I would just repeat the expert voices.
+To learn everything about state machines, I recommend the book "Practical UML State Charts in C/C++" by Miro Samek. Worth watching is also [Rise of the State Machines](https://www.youtube.com/watch?v=Zb6xcd2as6o) by Kris Jusiak. I will leave it at that, otherwise I would just repeat the expert voices.
 
 
 
 ## When should you use tsm?
 
-You should only use it to experiment with it or for hobby projects at this time. The runtime behavior has not yet been sufficiently tested.
+At this time, you should only use it to experiment with it or for hobby projects. The tsm runtime behavior has not yet been sufficiently tested.
 
 [qpn](https://github.com/QuantumLeaps/qpn) has been around for years and does an excellent job.
 
-While experimenting how I could use C++ templates to generate a state machine, [SML](https://github.com/boost-ext/sml) got released. Too bad for tsm, they  did a great job. It is a pity that SML no longer works with C++14.
+While experimenting how I could use C++ templates to generate a state machine, [SML](https://github.com/boost-ext/sml) got released. SML also uses C++ templates to declaratively program state machine. It is a pity that SML no longer works with C++14.
 
 
 
@@ -76,7 +76,7 @@ While experimenting how I could use C++ templates to generate a state machine, [
 
 With tsm, you write state classes with state and behavior. Sounds weird? Examples of the opposite of tsm is the [Stateless C# library](https://github.com/dotnet-state-machine/stateless) or [SML](https://github.com/boost-ext/sml). I am not saying state classes are not possible with these libraries, but state classes are not an inherent part of these libraries.
 
-With tsm you can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation and state objects are usually implemented as Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
+With tsm you can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation; this is one reason developers usually implemented as Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
 
 
 
@@ -88,13 +88,13 @@ With tsm you can define the life cycle model. According to UML, the state object
 
 ## Getting Started
 
-The example with the states A, AA, AAA, AAB and B is a good starting point. Once you scrolled down to `main` you will see that tsm is easy to use. I recommend to play with it for a while: What happens if you dispatch "B_AA" (to  be read: "to B from AA") when already in B? In what order are the exit methods called when in state AAA and "B_AA" is dispatched?
+The example with the states A, AA, AAA, AAB, and B is a good starting point. Once you scrolled down to `main` you will see that tsm is easy to use. I recommend playing with it for a while: What happens if you dispatch "B_AA" (read: "to B from AA") when already in B? In what order are the exit methods called when in state AAA and "B_AA" is dispatched?
 
 https://wandbox.org/permlink/0RRO72sSNMh2O1nQ
 
 [![statemachine example](docs/sm_example_uml.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)[![statemachine example](docs/sm_example_code.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)
 
-> Figure 1: Shows an state machine example with states, sub-states and sub-sub-states. It has transitions which go from a sub-state to a higher level state.
+> Figure 1: Shows a state machine example with states, sub-states, and sub-sub-states. It has transitions which go from a sub-state to a higher-level state.
 
 
 
@@ -102,18 +102,18 @@ https://wandbox.org/permlink/0RRO72sSNMh2O1nQ
 
 #### Step 1
 
-Specify whether you want your states to be singletons or to be created with  `new` and `delete`. TSM has these pre-defined options:
+Specify whether you want your states to be singletons or created with `new` and `delete`. TSM has these predefined options:
 
 | Comparator              | Factory          | Description                                                  |
 | ----------------------- | ---------------- | ------------------------------------------------------------ |
-| MemoryAddressComparator | SingletonCreator | An object is created on the stack for each state.            |
-| VirtualTypeIdComparator | FactoryCreator   | An object is created on the heap if a state is entered and destroyed if the stated is exited. The VirtualTypeIdComparator does not require RTTI. The states must implement a `getTypeId()` which return a unique id. |
-| RttiComparator          | FactoryCreator   | An object is created on the heap if a state is entered and destroyed if the stated is exited. |
+| MemoryAddressComparator | SingletonCreator | TSM creates an object on the stack for each state.           |
+| VirtualTypeIdComparator | FactoryCreator   | TSM creates an object on the heap if a transition enters a state and destroys it if a transition exits the state. The VirtualTypeIdComparator does not require RTTI. The states must implement a `getTypeId()` method which returns a unique id. |
+| RttiComparator          | FactoryCreator   | TSM creates an object on the heap if a transition enters a state and destroys it if a transition exits the state. |
 
   All states must have the same "state policy" and factory.
 
 ```C++
-// Define the policy, in this case Singlton states
+// Define the policy, in this case Singleton states
 using StatePolicy = State<MemoryAddressComparator, true>;
 
 // Derive your states from SingletonCreator
@@ -134,7 +134,7 @@ struct LedOff : public BasicState<LedOff, StatePolicy, true>, SingletonCreator<L
 
 #### Step 2
 
-Define the events and the transitions. Events can be empty classes or classes with attributes. Often events are just used to trigger a state change and do not have attributes.
+Define the events and the transitions. Events can be empty classes or classes with attributes. In this example, the timeout event is  just used to trigger a state change and does not have attributes.
 
 ```C++
 // Event
@@ -162,7 +162,7 @@ using Sm = Statemachine<Transitions, InitTransition>;
 
 #### Step 4
 
-State machines have a `begin()` and an `end()`. Begin triggers the initial transition and end the final transition. Final transitions are required as soon as you have sub-states.
+State machines have a `begin()` and an `end()`. Begin triggers the initial transition and end the final transition. States require a final transition as soon as they have sub-states.
 
 The `setup()` and `loop()` functions round up the step-by-step example:
 
@@ -174,7 +174,7 @@ void setup() {
 
 void loop() {
   statemachine.dispatch<Timeout>();
-  delay(1000);  
+  delay(1000);
 }
 ```
 
