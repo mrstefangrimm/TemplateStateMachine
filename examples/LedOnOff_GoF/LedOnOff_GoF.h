@@ -1,5 +1,4 @@
 #pragma once
-
 /*
   Copyright 2022-2023 Stefan Grimm
 
