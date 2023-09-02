@@ -32,23 +32,6 @@
 
 #include "Arduino.h"  // Main include file for the Arduino SDK
 
-enum Signals {
-  MANUAL_MOTION_MODE_SIG = Q_USER_SIG,
-  TRIG1_SIG,
-  REMOTE_MODE_SIG,
-  CALIBRATION_MODE_SIG,
-  PROGRAM_CHANGE_SIG,
-  MOTOR_STEP_FORWARD_SIG,
-  MOTOR_STEP_BACKWARD_SIG,
-  MOTOR_MOVE_RELATIVE_SIG,
-  MOTOR_MOVE_ASOLUTE_SIG,
-  DKBIN_DISPATCH_SIG,
-  GET_DEVICEDATA_SIG,
-  PUT_DEVICEDATA_SIG,
-  POSITIONSTREAM_SIG,
-  ENTER_TEXTMODE_SIG
-};
-
 //============================================================================
 // declare all AO classes...
 /*$declare${AOs::Washingmachine} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
