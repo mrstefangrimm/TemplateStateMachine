@@ -15,8 +15,8 @@ Some comparisons with other implementations on an Arduino (Table 1). Using an `e
 
 | Example sketch            | enum [bytes] | tsm [bytes] | GoF<sup>2</sup> [bytes] | qpn<sup>3</sup> [bytes] |
 | ------------------------- | -----------  | ----------- | ----------------------- | ----------------------- |
-| LED On/Off (ROM/RAM)      | 2256/186  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374746424486046721) | 2464/199  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374516923308308481)  | 2962/212  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 4324/289  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
-| Washing machine (ROM/RAM) |              | 3400/207  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                         | 5204/295  [![statemachine example](docs/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
+| LED On/Off (ROM/RAM)      | 2256/186  [![run](docs/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2464/199  [![run](docs/test_icon.png)](https://wokwi.com/projects/374516923308308481)  | 2962/212  [![run](docs/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 4324/289  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
+| Washing machine (ROM/RAM) |              | 3400/207  [![run](docs/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                         | 5204/295  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
 
 > Table 1: Compares different implementation for two different examples. LED On/Off has only two states, Washing machine has five states and one state has sub-states. The example where compiled in an Arduino IDE 2.2.0 with the default (unchanged) compiler settings.
 
