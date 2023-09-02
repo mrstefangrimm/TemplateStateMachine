@@ -68,7 +68,7 @@ At this time, you should only use it to experiment with it or for hobby projects
 
 [qpn](https://github.com/QuantumLeaps/qpn) has been around for years and does an excellent job.
 
-While experimenting how I could use C++ templates to generate a state machine, [SML](https://github.com/boost-ext/sml) got released. SML also uses C++ templates to declaratively program state machine. It is a pity that SML no longer works with C++14.
+While experimenting how I could use C++ templates to generate a state machine, [SML](https://github.com/boost-ext/sml) got released. SML also uses C++ templates to declaratively program state machines. It is a pity that SML no longer works with C++14.
 
 
 
@@ -120,14 +120,14 @@ using StatePolicy = State<MemoryAddressComparator, true>;
 struct LedOn : public BasicState<LedOn, StatePolicy, true>, SingletonCreator<LedOn> {
   template<class Event>
   void entry(const Event&) {
-    BSP_Execute(digitalWrite(LED_BUILTIN, HIGH));
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 };
 
 struct LedOff : public BasicState<LedOff, StatePolicy, true>, SingletonCreator<LedOff> {
   template<class Event>
   void entry(const Event& ev) {
-    BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
+    digitalWrite(LED_BUILTIN, LOW);
   }
 };
 ```
