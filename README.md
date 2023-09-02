@@ -7,7 +7,7 @@ A C++ library to create UML<sup>1</sup> state machines in C++.
 
 
 - TSM creates state machines with a smaller memory footprint than state machines using polymorphism (C++ virtual methods or C function pointers).
-- TSM uses C++ templates to generate the state machine. It is a modern, declarative way of programming.
+- TSM uses C++ templates to generate the state machine. It uses a modern, declarative way of programming.
 
 
 
