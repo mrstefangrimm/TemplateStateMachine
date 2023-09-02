@@ -24,7 +24,7 @@ namespace UT {
 
     namespace StatemachineTriggerTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
 
       namespace Trigger {
         struct On {};

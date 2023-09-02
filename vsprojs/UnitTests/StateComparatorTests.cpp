@@ -41,11 +41,13 @@ namespace UT {
       template<class T>
       struct TestStateSingletonA : T, SingletonCreator<TestStateSingletonA<T>> {
         using CreatorType = SingletonCreator<TestStateSingletonA<T>>;
+        using Policy = T;
       };
 
       template<class T>
       struct TestStateSingletonB : T, SingletonCreator<TestStateSingletonB<T>> {
         using CreatorType = SingletonCreator<TestStateSingletonB<T>>;
+        using Policy = T;
       };
 
       struct TestComparator {
@@ -67,11 +69,11 @@ namespace UT {
     TEST_CLASS(StateComparatorTests)
     {
     public:
-      TEST_METHOD(Equals_VirtualGetTypeIdStateComparator_ComparisonWorks)
+      TEST_METHOD(Equals_VirtualIdComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        using A = TestStateA<State<VirtualGetTypeIdStateComparator, false>>;
-        using B = TestStateB<State<VirtualGetTypeIdStateComparator, false>>;
+        using A = TestStateA<State<VirtualTypeIdComparator, false>>;
+        using B = TestStateB<State<VirtualTypeIdComparator, false>>;
 
         A a1;
         A a2;
@@ -87,11 +89,11 @@ namespace UT {
         Assert::IsTrue(b1.equals(b2));
       }
 
-      TEST_METHOD(GetTypeId_VirtualGetTypeIdStateComparator_ComparisonWorks)
+      TEST_METHOD(GetTypeId_VirtualIdComparator_ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
-        using A = TestStateA<State<VirtualGetTypeIdStateComparator, false>>;
-        using B = TestStateB<State<VirtualGetTypeIdStateComparator, false>>;
+        using A = TestStateA<State<VirtualTypeIdComparator, false>>;
+        using B = TestStateB<State<VirtualTypeIdComparator, false>>;
         A a;
         B b;
 

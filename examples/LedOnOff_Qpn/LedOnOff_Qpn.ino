@@ -32,8 +32,6 @@
 
 #include "Arduino.h"  // Main include file for the Arduino SDK
 
-#include "FreeMemory.h"
-
 //============================================================================
 // declare all AO classes...
 /*$declare${AOs::LedOnOff} vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv*/
@@ -154,7 +152,6 @@ static QState LedOnOff_Off(LedOnOff * const me) {
         /*${AOs::LedOnOff::SM::Off} */
         case Q_ENTRY_SIG: {
             digitalWrite(LED_L, LOW);
-            Serial.println(freeMemory());
             status_ = Q_HANDLED();
             break;
         }

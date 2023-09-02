@@ -19,8 +19,6 @@
 #include "tsm.h"
 #include "WashingMachine.h"
 
-int ledState = LOW;
-void blink() {
-  BSP_Execute(digitalWrite(LED_BUILTIN, ledState));
-  ledState = ledState == LOW ? HIGH : LOW;
+void blink(bool ledOn) {
+  BSP_Execute(digitalWrite(LED_BUILTIN, ledOn ? HIGH : LOW));
 }

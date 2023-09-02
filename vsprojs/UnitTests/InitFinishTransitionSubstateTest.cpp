@@ -35,28 +35,12 @@ namespace UT {
         using Policy = StatePolicy;
         static const char* name;
       };
-      const char* InitialStateFake::name = "Initial";
-
-      template<class T>
-      struct EmptyStateFake : T {
-        static const char* name;
-
-        using CreatorType = EmptyStateFake<T>;
-        using ObjectType = EmptyStateFake<T>;
-
-        static EmptyStateFake* create() { return nullptr; }
-        static void destroy(EmptyStateFake*) { }
-
-        template<class Event>
-        void _entry(const Event&) { }
-        template<class Event>
-        bool _doit(const Event&) { return false; }
-      };
-      template<class T> const char* EmptyStateFake<T>::name = "Final";
+      const char* InitialStateFake::name = "*";
 
       namespace Trigger
       {
         struct B_A {};
+        struct A_B {};
         struct B_AA {};
         struct B_AAB {};
         struct AAB_AAA {};
@@ -129,6 +113,7 @@ namespace UT {
       const char* A::name = "A";
 
       using ToBfromA = Transition<Trigger::B_A, B, A, NoGuard, ActionSpy<B, A, RecorderType>>;
+      using ToAfromB = Transition<Trigger::A_B, A, B, NoGuard, ActionSpy<A, B, RecorderType>>;
       using ToFinalFromA = FinalTransition<A>;
       using ToFinalFromB = FinalTransition<B>;
       using DeclToAABfromAAA = Declaration<Trigger::AAB_AAA, A>;
@@ -136,12 +121,13 @@ namespace UT {
       using DeclToBfromAAB = ExitDeclaration<Trigger::B_AAB, B, A>;
       using Transitions =
         Typelist<ToBfromA,
+        Typelist< ToAfromB,
         Typelist<ToFinalFromA,
         Typelist<ToFinalFromB,
         Typelist<DeclToAABfromAAA,
         Typelist<DeclToBfromAA,
         Typelist<DeclToBfromAAB,
-        NullType>>>>>>;
+        NullType>>>>>>>;
       using InitTransition = InitialTransition<A, ActionSpy<A, InitialStateFake, RecorderType>>;
       using Sm = Statemachine<Transitions, InitTransition>;
     }
@@ -167,11 +153,11 @@ namespace UT {
         Sm sm;
         sm.begin();
         RecorderType::check({
-          "A<-Initial",
+          "A<-*",
           "A::Entry",
-          "AA<-Initial",
+          "AA<-*",
           "AA::Entry",
-          "AAA<-Initial",
+          "AAA<-*",
           "AAA::Entry",
           "AAA::Do" });
 

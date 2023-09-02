@@ -26,7 +26,7 @@ namespace UT {
 
     namespace StatemachineOnOffCallSequenceTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
       using RecorderType = Recorder<sizeof(__FILE__) + __LINE__>;
 
       struct InitialStateFake : StatePolicy {

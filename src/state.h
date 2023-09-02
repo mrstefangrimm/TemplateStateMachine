@@ -21,7 +21,7 @@ namespace tsmlib {
 using namespace LokiLight;
 // Pre-defined comparators
 struct MemoryAddressComparator;
-struct VirtualGetTypeIdStateComparator;
+struct VirtualTypeIdComparator;
 struct RttiComparator;
 
 template<class Comparator, bool Singleton>
@@ -57,11 +57,11 @@ struct State<MemoryAddressComparator, true> {
 };
 
 template<>
-struct State<VirtualGetTypeIdStateComparator, false> {
+struct State<VirtualTypeIdComparator, false> {
 
   virtual uint8_t getTypeId() const = 0;
 
-  bool equals(const State<VirtualGetTypeIdStateComparator, false>& other) const {
+  bool equals(const State<VirtualTypeIdComparator, false>& other) const {
     return this->getTypeId() == other.getTypeId();
   }
 
@@ -82,7 +82,7 @@ struct State<VirtualGetTypeIdStateComparator, false> {
 #if !defined(__AVR__)
 template<>
 struct State<RttiComparator, false> {
-public:
+
   // Google: Why does C++ RTTI require a virtual method table?
   virtual ~State() {}
 
@@ -223,27 +223,13 @@ template<class T> T SingletonCreator<T>::instance;
 /**
 * When leaving, the object is destroyed and the state's state is lost.
 */
-template<class T, bool implementsCreate = true>
+template<class T>
 struct FactoryCreator {
-  using CreatorType = FactoryCreator<T, true>;
+  using CreatorType = FactoryCreator<T>;
   using ObjectType = T;
 
   static T* create() {
     return new T;
-  }
-  static void destroy(T* state) {
-    delete state;
-  }
-};
-// Specialization
-template<class T>
-struct FactoryCreator<T, false> {
-  using CreatorType = FactoryCreator<T, false>;
-  using ObjectType = T;
-
-  static void* create() {
-    CompileTimeError<true>();
-    return nullptr;
   }
   static void destroy(T* state) {
     delete state;

@@ -26,7 +26,7 @@ struct IsWashingAction {
   void perform(StateType& activeState, const EventType&) {
     activeState.counter_++;
     if (activeState.counter_ % 4 == 0) {
-      BSP_Execute(blink());
+      BSP_Execute(blink(activeState.counter_ % 8));
     }
   }
 };
@@ -43,7 +43,7 @@ struct IsRinsingAction {
   void perform(StateType& activeState, const EventType&) {
     activeState.counter_++;
     if (activeState.counter_ % 2 == 0) {
-      BSP_Execute(blink());
+      BSP_Execute(blink(activeState.counter_ % 4));
     }
   }
 };
@@ -59,7 +59,7 @@ struct IsSpinningAction {
   template<class StateType, class EventType>
   void perform(StateType& activeState, const EventType&) {
     activeState.counter_++;
-    BSP_Execute(blink());
+    BSP_Execute(blink(activeState.counter_ % 2));
   }
 };
 
@@ -90,7 +90,7 @@ struct Washing : BasicState<Washing, StatePolicy, true>, SingletonCreator<Washin
   }
 
   uint8_t counter_ = 0;
-  const uint8_t washingLength_ = 50;
+  static const uint8_t washingLength_ = 50; // if not static, it uses 1 byte
 };
 
 struct Rinsing : BasicState<Rinsing, StatePolicy, true>, SingletonCreator<Rinsing> {
@@ -100,7 +100,7 @@ struct Rinsing : BasicState<Rinsing, StatePolicy, true>, SingletonCreator<Rinsin
   }
 
   uint8_t counter_ = 0;
-  const uint8_t rinsingLength_ = 30;
+  static const uint8_t rinsingLength_ = 30; // if not static, it uses 1 byte
 };
 
 struct Spinning : BasicState<Spinning, StatePolicy, true>, SingletonCreator<Spinning> {
@@ -110,7 +110,7 @@ struct Spinning : BasicState<Spinning, StatePolicy, true>, SingletonCreator<Spin
   }
 
   uint8_t counter_ = 0;
-  const uint8_t spinningLength_ = 40;
+  static const uint8_t spinningLength_ = 40; // if not static, it uses 1 byte
 };
 
 using ToRinsingFromWashing = ChoiceTransition<Trigger::Timeout, Rinsing, Washing, Washing, IsWashingDone, IsWashingAction>;

@@ -13,8 +13,7 @@ pinMode(LED_BUILTIN, OUTPUT);</action>
      </initial_glyph>
     </initial>
     <state name="Off">
-     <entry brief="LED off">digitalWrite(LED_L, LOW);
-Serial.println(freeMemory());</entry>
+     <entry brief="LED off">digitalWrite(LED_L, LOW);</entry>
      <tran trig="Q_TIMEOUT" target="../../2">
       <tran_glyph conn="10,19,2,0,8">
        <action box="0,0,11,2"/>
@@ -44,8 +43,6 @@ Serial.println(freeMemory());</entry>
    <text>#include &quot;qpn.h&quot;     // QP-nano framework for Arduino
 
 #include &quot;Arduino.h&quot;  // Main include file for the Arduino SDK
-
-#include &quot;FreeMemory.h&quot;
 
 //============================================================================
 // declare all AO classes...
@@ -131,33 +128,6 @@ Q_NORETURN Q_onAssert(char const Q_ROM * const module, int location) {
 $define${AOs::LedOnOff}
 //...
 </text>
-  </file>
-  <file name="FreeMemory.h">
-   <text>// Copied from:
-// https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
-
-#ifndef __FREEMEMORY_H
-#define __FREEMEMORY_H
-
-#ifdef __arm__
-// should use uinstd.h to define sbrk but Due causes a conflict
-extern &quot;C&quot; char* sbrk(int incr);
-#else  // __ARM__
-extern char *__brkval;
-#endif  // __arm__
-
-int freeMemory() {
-  char top;
-#ifdef __arm__
-  return &amp;top - reinterpret_cast&lt;char*&gt;(sbrk(0));
-#elif defined(CORE_TEENSY) || (ARDUINO &gt; 103 &amp;&amp; ARDUINO != 151)
-  return 1 + (&amp;top - __brkval);
-#else  // __arm__
-  return 1 + (__brkval ? &amp;top - __brkval : &amp;top - __malloc_heap_start);
-#endif  // __arm__
-}
-
-#endif</text>
   </file>
  </directory>
 </model>

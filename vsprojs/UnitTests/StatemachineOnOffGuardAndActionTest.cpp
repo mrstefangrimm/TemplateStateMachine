@@ -26,7 +26,7 @@ namespace UT {
 
     namespace StatemachineOnOffGuardAndActionTestImpl {
 
-      using StatePolicy = State<VirtualGetTypeIdStateComparator, false>;
+      using StatePolicy = State<VirtualTypeIdComparator, false>;
       using FinalState = EmptyState<StatePolicy>;
 
       struct OnState;
