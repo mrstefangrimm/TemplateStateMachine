@@ -28,7 +28,7 @@
     <ClCompile Include="StatemachineOnOffEntryCallsExitTest.cpp">
       <Filter>StatemachineOnOff</Filter>
     </ClCompile>
-    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp">
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitionsTest.cpp">
       <Filter>StatemachineOnOff</Filter>
     </ClCompile>
     <ClCompile Include="StatemachineTriggerTest.cpp">

@@ -23,7 +23,7 @@
 namespace UT {
   namespace StatemachineOnOff {
 
-    namespace StatemachineOnOffInitialAndFinalTransitionsImpl {
+    namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl {
 
       using namespace Microsoft::VisualStudio::CppUnitTestFramework;
       using namespace tsmlib;
@@ -95,7 +95,7 @@ namespace UT {
       using Sm = Statemachine<TransitionList, ToInitTransition>;
     }
 
-    TEST_CLASS(StatemachineOnOffInitialAndFinalTransitions)
+    TEST_CLASS(StatemachineOnOffInitialAndFinalTransitionsTest)
     {
       TEST_METHOD_INITIALIZE(Initialize)
       {
@@ -104,7 +104,7 @@ namespace UT {
 
       TEST_METHOD(InitialTransition_ToOffState_ActionEntryDoAreCalledAndFinalizeIsIgnored)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
 
         auto result = sm.begin();
@@ -127,7 +127,7 @@ namespace UT {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOff_ExitAndActionAreCalled)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
@@ -165,7 +165,7 @@ namespace UT {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOffButGuardBlocks_ExitAndActionAreNotCalled)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         sm.begin();
         Assert::AreEqual<int>(0, OffState::exitCalls);
@@ -200,7 +200,7 @@ namespace UT {
 
       TEST_METHOD(ExplicitFinializeTransition_FromStateOn_ExitAndActionAreCalled)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
@@ -252,7 +252,7 @@ namespace UT {
 
       TEST_METHOD(End_FromStateOffAndEndTransitionDefined_StateOffExitIsCalled)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
@@ -290,7 +290,7 @@ namespace UT {
 
       TEST_METHOD(End_FromStateOnAndEndTransitionNotDefined_StateOnExitIsNotCalled)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
@@ -343,7 +343,7 @@ namespace UT {
 
       TEST_METHOD(End_FromStateOffAndEndTransitionDefinedAndGuardBlocks_ActiveStateRemainsActive)
       {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         Sm sm;
         auto result = sm.begin();
         Assert::AreEqual<bool>(true, result.consumed);
@@ -385,7 +385,7 @@ namespace UT {
 
     private:
       void reset() const {
-        using namespace StatemachineOnOffInitialAndFinalTransitionsImpl;
+        using namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl;
         OffState::exitCalls = 0;
         OffState::entryCalls = 0;
         OffState::doitCalls = 0;
