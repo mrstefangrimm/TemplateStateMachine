@@ -79,7 +79,7 @@ struct State<VirtualTypeIdComparator, false> {
   }
 };
 
-#if !defined(__AVR__)
+#if !defined(ARDUINO)
 template<>
 struct State<RttiComparator, false> {
 

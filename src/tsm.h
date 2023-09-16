@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#if defined(__AVR__)
+#if defined(ARDUINO)
 
 template<class T, class U>
 struct is_same {
