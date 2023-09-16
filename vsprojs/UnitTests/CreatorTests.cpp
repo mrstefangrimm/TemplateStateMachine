@@ -14,13 +14,13 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/state.h"
 #include "../../src/lokilight.h"
 
 namespace UT {
   namespace Classes {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
 
     namespace CreatorTestsImpl {
@@ -28,33 +28,39 @@ namespace UT {
     }
 
     // Tests singleton and factory creators
-    TEST_CLASS(CreatorTests)
-    {
-    public:
+    BEGIN(CreatorTests)
 
-      TEST_METHOD(Create_SingletonCreator_PointsToSameObject)
+      TEST(
+        SingletonCreator_is_used,
+        Create_is_called,
+        created_objects_point_to_the_same_object)
       {
         using namespace CreatorTestsImpl;
         TestObject* obj1 = SingletonCreator<TestObject>::create();
         TestObject* obj2 = SingletonCreator<TestObject>::create();
 
-        Assert::IsTrue(obj1 == obj2);
+        TRUE(obj1 == obj2);
 
         SingletonCreator<TestObject>::destroy(obj1);
         SingletonCreator<TestObject>::destroy(obj2);
       }
 
-      TEST_METHOD(Create_FactoryCreator_PointsToDifferentObjects)
+      TEST(
+        FactoryCreator_is_used,
+        Create_is_called,
+        created_objects_point_to_the_same_object)
       {
         using namespace CreatorTestsImpl;
         TestObject* obj1 = FactoryCreator<TestObject>::create();
         TestObject* obj2 = FactoryCreator<TestObject>::create();
 
-        Assert::IsFalse(obj1 == obj2);
+        FALSE(obj1 == obj2);
 
         FactoryCreator<TestObject>::destroy(obj1);
         FactoryCreator<TestObject>::destroy(obj2);
       }
-    };
+
+    END
+
   }
 }

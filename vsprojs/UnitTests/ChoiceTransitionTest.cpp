@@ -14,13 +14,13 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
   namespace Transitions {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
     using namespace UnitTests::Helpers;
 
@@ -112,19 +112,24 @@ namespace UT {
       using Sm = Statemachine<Transitions, ToplevelInitTransition>;
     }
 
-    // https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=ChoiceTransitionTest.drawio#R7Vtbc9o4FP41zGwfkvGVyyOQS7vtdjJDpm32JSNsYXsrW1QWAfLr9whksC1hA7VJHprMBJ2ji61zvnOTSMcex6t7hubhP9THpGMZ%2Fqpj33QsyzQMAz4EZ73ldAf9LSNgkS8H7RmT6BVnMyV3Efk4LQzklBIezYtMjyYJ9niBhxijy%2BKwGSXFp85RgBXGxENE5X6PfB5uuX3X2PM%2F4igIsyeb2YZjlA2WjDREPl3mWPZtxx4zSvm2Fa%2FGmAjhZXLZzrs70Lt7MYYTfswEvnx4xGTNb4eflqvk9vXh5bZ%2FJVd5QWQhN5zG8nX5OpMBvPlcNBcxuWMohuZoGUYcT%2BbIE%2FwlqB54IY8JUCY0GV0kPvYltdu5AYRH48iTbYKmmIyQ9zPYTBhTQhl0JTQRz0g5oz93UhcLzWjC71AcEQGmb5j5KEGSLZFjglhHiERBAoQHksGw4EgVVbZvzDhe5VhSdPeYxpizNQyRvbbU4rpILveYGGSYCHN4cB3JRBKHwW7lvaqgIbV1guYsRXNDRXFFNdToDDFPCtFyhFAjQjKFdCx7Bj%2BesdNKoccQVn62mo9UqqBzTzUM%2BVRF2UKnERjwUHZwOm8GApZTxEBfxcBuSB4DttEWBmwFA6M%2FGGgVA93%2BeRiwWsNAX9E49iGCSZIyHtKAJojc7rk59yyktx%2FzhQo5bZDwH%2BZ8LWWPFpwWcXJQkildMA9XvO5AxnDEAszr3ZvYS6VeGCaIRy%2FFaN24kAeKoalSJwRyElyUUxY5U9gvn3DEsWpVOxQftqpGwmnTNuZHDBKuiAomqF3AvwkLM7tFC3NUC7O1TrYl1ZuOovtxSCMPP4%2BexxXe9kzLAsGx9Q85f0M8CeLazcibVb7zZp1Rq4j%2FyNaAdm4WUPtJgsjmnG%2FFlmrFffLF%2Beasied44af5r7X7lU6PtmKp%2Byvj2oSfgv6zQuBoQ5erP9AIdrUfQmezFN61DIfdSxyFkKpNVjkHFtJ4ukjrA3ADBuT2igZkme7FLEgrH1eVjzviDAj3pgUDOsMQDhldr87qjrKgKtDUxkH7ZAtyGzUfua4zKILKHJTQst2wnJWvQksLuW7NQluJVCzUvkH3VI9fgdM%2FaXXzabVtXTKv1oKgr%2FNaM0TSdt3W3lU95XpOc1u1uUJtgdCoX6uysRP82qBrFz2H24hn6xoNebZunYt8B54tiwZqMjt8rjo6eKNk1ujkY7j11tlslpmeAFrD6XXbiMflsyjbcE9E7QXAph4uqxC7YGJsO6XU6IKlpV5Amsrh3WbG14ZpF61YyLrajAX1gFkE4hL5Q%2BvBJ0NcC1n1wDDbMeRytWafashZhl46N4FU%2B%2F2FH%2FXAuiqpwok%2FFFd4%2B4RWe8VUwqmbR6l5bKQppF3G7wca%2Ff6dpiNNznVpr5%2BaAaldxlbZJR4NUvNAnl8D0sYAqB7mKairq%2BXS%2BfaeeRatBPwaiUyu29E6gZx6TY16zQYiU4R7zHr69TSZfB%2B5rx8%2Fe%2FHnG8218FS87oTjGUqgcQ8%2BPe6Istj4a%2FwB%2FsKvvaUJZJNJCpKxDGGgTMA9xPB3LHpHT1eTIXw614aYG4nCMhGmIJgh5%2BJWfyje3brzGN5gFsrdmCbpNWUBcOXyKTSn66sUwedmrbsPiiJB%2BLx0HF8osLMiOVeNS1ZW%2BBI845qyN458fxOpdFAp%2BqVcqT1oCCtFC3I1N1Cuoa2UW8KKmsQ8sigIMNuqskuECKeAg24gWvl640Df5mBd6QO58svpeEo5p%2FFROm5AqaVs3nFVpZo6pZpNeICv3oisw8HT47%2FO35R6s9fghWg8gCL7t8zdrcHlcnetfFTU6wH6zmro3gVr6CpcvYcSunwS3W2uhFYzqFKEVx7WXOKjFbsm8Vay7aoLbEjFz7%2B%2BbummuOwTnN4b%2BwRNcumOPOEWNmkQRDIUC9e4iWfAsLVFT%2Fvf3vhtl3LCGfVRHqXKU9R6lNNr%2BaI7sdupkZxyaD62RipdhTj940qklup4rci1N7oaoG9SuM2AA1g%2Fo8A3z8TsCYde52O221oUVL4XcaW51m%2FxCKB8AWz1zjynsksLKSfXB%2FANQEHr3LC5GJC%2BlQV06%2BPpG5wjOMq3lHV1hIqRM6oIIPdfXd9Kdf8PAPbt%2Fw%3D%3D
-    TEST_CLASS(ChoiceTransitionTest)
-    {
-      TEST_METHOD_INITIALIZE(Initialize)
-      {
-        using namespace ChoiceTransitionTestImpl;
-        RecorderType::reset();
-        FactoryCreatorFake<A>::reset();
-        FactoryCreatorFake<B>::reset();
-        FactoryCreatorFake<C>::reset();
-      }
+    BEGIN(
+      ChoiceTransitionTest,
+      "https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=ChoiceTransitionTest.drawio#R7Vtbc9o4FP41zGwfkvGVyyOQS7vtdjJDpm32JSNsYXsrW1QWAfLr9whksC1hA7VJHprMBJ2ji61zvnOTSMcex6t7hubhP9THpGMZ%2Fqpj33QsyzQMAz4EZ73ldAf9LSNgkS8H7RmT6BVnMyV3Efk4LQzklBIezYtMjyYJ9niBhxijy%2BKwGSXFp85RgBXGxENE5X6PfB5uuX3X2PM%2F4igIsyeb2YZjlA2WjDREPl3mWPZtxx4zSvm2Fa%2FGmAjhZXLZzrs70Lt7MYYTfswEvnx4xGTNb4eflqvk9vXh5bZ%2FJVd5QWQhN5zG8nX5OpMBvPlcNBcxuWMohuZoGUYcT%2BbIE%2FwlqB54IY8JUCY0GV0kPvYltdu5AYRH48iTbYKmmIyQ9zPYTBhTQhl0JTQRz0g5oz93UhcLzWjC71AcEQGmb5j5KEGSLZFjglhHiERBAoQHksGw4EgVVbZvzDhe5VhSdPeYxpizNQyRvbbU4rpILveYGGSYCHN4cB3JRBKHwW7lvaqgIbV1guYsRXNDRXFFNdToDDFPCtFyhFAjQjKFdCx7Bj%2BesdNKoccQVn62mo9UqqBzTzUM%2BVRF2UKnERjwUHZwOm8GApZTxEBfxcBuSB4DttEWBmwFA6M%2FGGgVA93%2BeRiwWsNAX9E49iGCSZIyHtKAJojc7rk59yyktx%2FzhQo5bZDwH%2BZ8LWWPFpwWcXJQkildMA9XvO5AxnDEAszr3ZvYS6VeGCaIRy%2FFaN24kAeKoalSJwRyElyUUxY5U9gvn3DEsWpVOxQftqpGwmnTNuZHDBKuiAomqF3AvwkLM7tFC3NUC7O1TrYl1ZuOovtxSCMPP4%2BexxXe9kzLAsGx9Q85f0M8CeLazcibVb7zZp1Rq4j%2FyNaAdm4WUPtJgsjmnG%2FFlmrFffLF%2Beasied44af5r7X7lU6PtmKp%2Byvj2oSfgv6zQuBoQ5erP9AIdrUfQmezFN61DIfdSxyFkKpNVjkHFtJ4ukjrA3ADBuT2igZkme7FLEgrH1eVjzviDAj3pgUDOsMQDhldr87qjrKgKtDUxkH7ZAtyGzUfua4zKILKHJTQst2wnJWvQksLuW7NQluJVCzUvkH3VI9fgdM%2FaXXzabVtXTKv1oKgr%2FNaM0TSdt3W3lU95XpOc1u1uUJtgdCoX6uysRP82qBrFz2H24hn6xoNebZunYt8B54tiwZqMjt8rjo6eKNk1ujkY7j11tlslpmeAFrD6XXbiMflsyjbcE9E7QXAph4uqxC7YGJsO6XU6IKlpV5Amsrh3WbG14ZpF61YyLrajAX1gFkE4hL5Q%2BvBJ0NcC1n1wDDbMeRytWafashZhl46N4FU%2B%2F2FH%2FXAuiqpwok%2FFFd4%2B4RWe8VUwqmbR6l5bKQppF3G7wca%2Ff6dpiNNznVpr5%2BaAaldxlbZJR4NUvNAnl8D0sYAqB7mKairq%2BXS%2BfaeeRatBPwaiUyu29E6gZx6TY16zQYiU4R7zHr69TSZfB%2B5rx8%2Fe%2FHnG8218FS87oTjGUqgcQ8%2BPe6Istj4a%2FwB%2FsKvvaUJZJNJCpKxDGGgTMA9xPB3LHpHT1eTIXw614aYG4nCMhGmIJgh5%2BJWfyje3brzGN5gFsrdmCbpNWUBcOXyKTSn66sUwedmrbsPiiJB%2BLx0HF8osLMiOVeNS1ZW%2BBI845qyN458fxOpdFAp%2BqVcqT1oCCtFC3I1N1Cuoa2UW8KKmsQ8sigIMNuqskuECKeAg24gWvl640Df5mBd6QO58svpeEo5p%2FFROm5AqaVs3nFVpZo6pZpNeICv3oisw8HT47%2FO35R6s9fghWg8gCL7t8zdrcHlcnetfFTU6wH6zmro3gVr6CpcvYcSunwS3W2uhFYzqFKEVx7WXOKjFbsm8Vay7aoLbEjFz7%2B%2BbummuOwTnN4b%2BwRNcumOPOEWNmkQRDIUC9e4iWfAsLVFT%2Fvf3vhtl3LCGfVRHqXKU9R6lNNr%2BaI7sdupkZxyaD62RipdhTj940qklup4rci1N7oaoG9SuM2AA1g%2Fo8A3z8TsCYde52O221oUVL4XcaW51m%2FxCKB8AWz1zjynsksLKSfXB%2FANQEHr3LC5GJC%2BlQV06%2BPpG5wjOMq3lHV1hIqRM6oIIPdfXd9Kdf8PAPbt%2Fw%3D%3D")
 
-      TEST_METHOD(ChoiceAorB_WhenChoiceReturnsTrue_ThenActiveStateA)
+      INIT(
+        Initialize,
+        {
+          using namespace ChoiceTransitionTestImpl;
+          RecorderType::reset();
+          FactoryCreatorFake<A>::reset();
+          FactoryCreatorFake<B>::reset();
+          FactoryCreatorFake<C>::reset();
+        })
+
+      TEST(
+        ChoiceAorB,
+        WhenChoiceReturnsTrue,
+        ActiveStateA)
       {
         using namespace ChoiceTransitionTestImpl;
         Sm sm;
@@ -144,13 +149,16 @@ namespace UT {
           "B::Do" });
 
         // Active state is B
-        Assert::AreNotEqual<int>(0, FactoryCreatorFake<B>::createCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls + 1);
-        Assert::AreEqual<int>(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
+        NEQ(0, FactoryCreatorFake<B>::createCalls);
+        EQ(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
+        EQ(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls + 1);
+        EQ(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(ChoiceAorB_WhenChoiceReturnsFalse_ThenActiveStateA)
+      TEST(
+        ChoiceAorB,
+        ChoiceReturnsFalse,
+        ActiveStateA)
       {
         using namespace ChoiceTransitionTestImpl;
         Sm sm;
@@ -168,13 +176,16 @@ namespace UT {
           "A::Do" });
 
         // Active state is A
-        Assert::AreNotEqual<int>(0, FactoryCreatorFake<A>::createCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls + 1);
-        Assert::AreEqual<int>(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
+        NEQ(0, FactoryCreatorFake<A>::createCalls);
+        EQ(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls + 1);
+        EQ(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
+        EQ(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(ChoiceBorC_WhenChoiceReturnsTrue_ThenActiveStateB)
+      TEST(
+        ChoiceBorC,
+        ChoiceReturnsTrue,
+        ActiveStateB)
       {
         using namespace ChoiceTransitionTestImpl;
         Sm sm;
@@ -194,13 +205,16 @@ namespace UT {
           "B::Do" });
 
         // Active state is B
-        Assert::AreNotEqual<int>(0, FactoryCreatorFake<B>::createCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls + 1);
-        Assert::AreEqual<int>(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
+        NEQ(0, FactoryCreatorFake<B>::createCalls);
+        EQ(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
+        EQ(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls + 1);
+        EQ(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(ChoiceBorC_WhenChoiceReturnsFalse_ThenActiveStateC)
+      TEST(
+        ChoiceBorC,
+        ChoiceReturnsFalse,
+        ActiveStateC)
       {
         using namespace ChoiceTransitionTestImpl;
         Sm sm;
@@ -220,13 +234,16 @@ namespace UT {
           "C::Do" });
 
         // Active state is C
-        Assert::AreNotEqual<int>(0, FactoryCreatorFake<C>::createCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls + 1);
+        NEQ(0, FactoryCreatorFake<C>::createCalls);
+        EQ(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
+        EQ(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
+        EQ(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls + 1);
       }
 
-      TEST_METHOD(Count_WhenCounterOverThreshold_ThenFinalState)
+      TEST(
+        CounterOverThreshold,
+        Count,
+        ThenFinalState)
       {
         using namespace ChoiceTransitionTestImpl;
         Sm sm;
@@ -246,10 +263,12 @@ namespace UT {
           "A::Exit" });
 
         // States A, B and C are deactivated
-        Assert::AreEqual<int>(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
+        EQ(FactoryCreatorFake<A>::createCalls, FactoryCreatorFake<A>::deleteCalls);
+        EQ(FactoryCreatorFake<B>::createCalls, FactoryCreatorFake<B>::deleteCalls);
+        EQ(FactoryCreatorFake<C>::createCalls, FactoryCreatorFake<C>::deleteCalls);
       }
-    };
+
+    END
+
   }
 }

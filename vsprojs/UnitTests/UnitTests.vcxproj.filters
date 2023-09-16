@@ -82,6 +82,7 @@
     <ClInclude Include="..\..\src\eventdispatchers.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="NotquiteBDD.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">

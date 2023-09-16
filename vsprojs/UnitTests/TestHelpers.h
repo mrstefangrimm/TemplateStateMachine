@@ -21,7 +21,6 @@ namespace UnitTests {
 
     // Dummy, Fake and Stub as suggested by Martin Fowler's article on Test Doubles: https://martinfowler.com/bliki/TestDouble.html?ref=net-from-the-mountain
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
 
     template<class To, class From>
@@ -68,7 +67,7 @@ namespace UnitTests {
         for (int n = 0; n < expected.size(); n++) {
           string exp = expected[n];
           string act = Recorder::records_[checkedPosition_ + n];
-          Assert::AreEqual<string>(exp, act);
+          Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual<string>(exp, act);
         }
         checkedPosition_ += expected.size();
       }
@@ -78,7 +77,7 @@ namespace UnitTests {
       }
 
       static void checkUnchanged() {
-        Assert::AreEqual<size_t>(checkedPosition_, records_.size());
+        Microsoft::VisualStudio::CppUnitTestFramework::Assert::AreEqual<size_t>(checkedPosition_, records_.size());
       }
     };
     template<size_t TestId> int Recorder<TestId>::checkedPosition_;
@@ -115,7 +114,7 @@ namespace UnitTests {
       bool eval(const StateType& activeState, const EventType& ev) {
         if (!is_same < From, AnyState<StateType>>().value) {
           From* from = From::CreatorType::create();
-          Assert::IsTrue(activeState.equals(*from));
+          Microsoft::VisualStudio::CppUnitTestFramework::Assert::IsTrue(activeState.equals(*from));
           From::CreatorType::destroy(from);
         }
         calls++;

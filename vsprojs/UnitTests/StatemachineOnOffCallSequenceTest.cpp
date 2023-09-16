@@ -14,13 +14,13 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
   namespace StatemachineOnOff {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
     using namespace UnitTests::Helpers;
 
@@ -107,15 +107,19 @@ namespace UT {
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
-    TEST_CLASS(StatemachineOnOffCallSequenceTest)
-    {
-      TEST_METHOD_INITIALIZE(Initialize)
-      {
-        using namespace StatemachineOnOffCallSequenceTestImpl;
-        RecorderType::reset();
-      }
+    BEGIN(StatemachineOnOffCallSequenceTest)
+    
+      INIT(
+        Initialize,
+        {
+          using namespace StatemachineOnOffCallSequenceTestImpl;
+          RecorderType::reset();
+        })
 
-      TEST_METHOD(EntriesDoesExits_Roundtrip)
+      TEST(
+        Roundtrip,
+        EntriesDoesExits,
+        Successful)
       {
         using namespace StatemachineOnOffCallSequenceTestImpl;
         RecorderType::reset();
@@ -132,7 +136,7 @@ namespace UT {
 
         // Off <- Off, self transition
         auto result = sm.dispatch<Trigger::OffToOff>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        EQ(off.getTypeId(), result.activeState->getTypeId());
         RecorderType::check({
           "OffState<-OffState",
           "OffState::Do" });
@@ -142,7 +146,7 @@ namespace UT {
 
         // On <- Off
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        EQ(on.getTypeId(), result.activeState->getTypeId());
         RecorderType::check({
           "OnState<-OffState",
           "OffState::Exit",
@@ -151,18 +155,18 @@ namespace UT {
 
         // On <- On, self transition
         result = sm.dispatch<Trigger::OnToOn>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        EQ(on.getTypeId(), result.activeState->getTypeId());
         RecorderType::check({
          "OnState<-OnState",
          "OnState::Do" });
 
         // On <- On, unhandled trigger
         result = sm.dispatch<Trigger::On>();
-        Assert::AreEqual<int>(on.getTypeId(), result.activeState->getTypeId());
+        EQ(on.getTypeId(), result.activeState->getTypeId());
 
         // Off <- On, unhandled trigger
         result = sm.dispatch<Trigger::Off>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
+        EQ(off.getTypeId(), result.activeState->getTypeId());
         RecorderType::check({
          "OffState<-OnState",
          "OnState::Exit",
@@ -174,6 +178,8 @@ namespace UT {
          "Final<-OffState",
          "OffState::Exit" });
       }
-    };
+
+    END
+
   }
 }

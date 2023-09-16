@@ -195,6 +195,7 @@
     <ClInclude Include="..\..\src\lokilight.h" />
     <ClInclude Include="..\..\src\transition.h" />
     <ClInclude Include="..\..\src\tsm.h" />
+    <ClInclude Include="NotquiteBDD.h" />
     <ClInclude Include="TestHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
