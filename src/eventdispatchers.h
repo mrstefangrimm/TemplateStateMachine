@@ -50,7 +50,7 @@ struct EventDispatcher {
     using ToType = typename CurrentTransition::ToType::ObjectType;
 
     // TODO: Mustn't be a choice transition
-    //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+    //static_assert(is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value);
 
     bool hasSameFromState = entryState->template typeOf<ToType>();
 

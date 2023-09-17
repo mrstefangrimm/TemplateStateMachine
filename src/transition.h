@@ -97,7 +97,7 @@ struct TransitionBase {
   using StatePolicy = typename From::Policy;
 
   TransitionBase() {
-    CompileTimeError< is_same<typename From::Policy, typename To::Policy>().value >();
+    static_assert(is_same<typename From::Policy, typename To::Policy>().value, "");
   }
 
   DispatchResult<StatePolicy> dispatch(StatePolicy* activeState, const Event& ev) {

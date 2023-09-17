@@ -41,13 +41,13 @@ struct ChoiceTransitionBase {
 
   ChoiceTransitionBase() {
     // Choice without guard does not make sense; the choice is either to go the state To_true or To_false.
-    CompileTimeError< !is_same<Guard, NoGuard>().value >();
+    static_assert(!is_same<Guard, NoGuard>().value, "");
     // Choice transition
-    CompileTimeError< !is_same<To_true, EmptyState<StatePolicy>>().value >();
-    CompileTimeError< !is_same<From, EmptyState<StatePolicy>>().value >();
+    static_assert(!is_same<To_true, EmptyState<StatePolicy>>().value, "");
+    static_assert(!is_same<From, EmptyState<StatePolicy>>().value, "");
 
-    CompileTimeError< is_same<typename From::Policy, typename To_true::Policy>().value >();
-    CompileTimeError< is_same<typename From::Policy, typename To_false::Policy>().value >();
+    static_assert(is_same<typename From::Policy, typename To_true::Policy>().value, "");
+    static_assert(is_same<typename From::Policy, typename To_false::Policy>().value, "");
   }
 
   DispatchResult<StatePolicy> dispatch(StatePolicy* activeState, const EventType& ev) {
