@@ -1,4 +1,4 @@
-[![MSBuild](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml)
+[![CI-Build](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml)
 
 # Template State Machine
 
@@ -180,8 +180,36 @@ void loop() {
 
 
 
+## Tests
+
+Unit tests are part of the Visual Studio solution and are using the VSCppUnit C++ Unit Testing Framework.
+
+
+
+## Software Toolchain
+
+| Tool                         | License           |
+| ---------------------------- | ----------------- |
+| Arduino IDE                  | GPL               |
+| avrdude                      | GPL               |
+| gcc                          | GPL               |
+| Visual Studio Community 2022 | Microsoft license |
+
+Libraries
+
+| Library   | Licence           |
+| :-------- | ----------------- |
+| ParcLib   | LGPL              |
+| Arduino.h | LGPL              |
+| VSCppUnit | Microsoft license |
+
+
 
 ## License
+
+This software is licensed under the Apache License, Version 2.0.
+
+
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
 
