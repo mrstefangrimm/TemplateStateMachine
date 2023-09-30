@@ -1,4 +1,5 @@
 [![CI-Build](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml)
+[![Compile Sketches](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml)
 
 # Template State Machine
 
