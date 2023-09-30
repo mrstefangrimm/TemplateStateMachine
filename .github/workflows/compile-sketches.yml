@@ -25,4 +25,5 @@ jobs:
             - examples/Washingmachine
             - examples/Washingmachine_Qpn
           libraries: |
+            - source-url: https://github.com/QuantumLeaps/qpn.git
             - source-path: src
