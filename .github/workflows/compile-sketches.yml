@@ -1,0 +1,28 @@
+name: Compile Sketches
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  compile-sketches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # See: https://github.com/arduino/compile-sketches#readme
+      - name: Compile sketches
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: arduino:avr:uno
+          sketch-paths: |
+            - examples/LedOnOff
+            - examples/LedOnOff_GoF
+            - examples/LedOnOff_Qpn
+            - examples/LedOnOff_switch
+            - examples/Washingmachine
+            - examples/Washingmachine_Qpn
+          libraries: |
+            - source-path: src
