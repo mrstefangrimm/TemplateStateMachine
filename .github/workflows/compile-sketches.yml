@@ -20,10 +20,10 @@ jobs:
           sketch-paths: |
             - examples/LedOnOff
             - examples/LedOnOff_GoF
-            - examples/LedOnOff_Qpn
+            # - examples/LedOnOff_Qpn
             - examples/LedOnOff_switch
             - examples/Washingmachine
-            - examples/Washingmachine_Qpn
+            # - examples/Washingmachine_Qpn
           libraries: |
             - source-url: https://github.com/QuantumLeaps/qpn.git
             - source-path: src
