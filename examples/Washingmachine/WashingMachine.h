@@ -73,7 +73,7 @@ struct IsSpinningDone {
 using StatePolicy = State<MemoryAddressComparator, true>;
 
 struct Loading : BasicState<Loading, StatePolicy, true, true>, SingletonCreator<Loading> {
-  template<class Event> void entry(const Event& ev) {
+  template<class Event> void entry(const Event&) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
     BSP_Execute(Serial.println(F("Loading")));
     BSP_Execute(Serial.println(F("  Door open.")));

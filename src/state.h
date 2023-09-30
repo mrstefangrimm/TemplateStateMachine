@@ -180,14 +180,14 @@ public:
 
 private:
   template<class Event>
-  void __entry(const Event& ev, const Int2Type<false>&) {
+  void __entry(const Event&, const Int2Type<false>&) {
   }
   template<class Event>
   void __entry(const Event& ev, const Int2Type<true>&) {
     static_cast<Derived*>(this)->template entry<Event>(ev);
   }
   template<class Event>
-  void __exit(const Event& ev, const Int2Type<false>&) {
+  void __exit(const Event&, const Int2Type<false>&) {
   }
   template<class Event>
   void __exit(const Event& ev, const Int2Type<true>&) {

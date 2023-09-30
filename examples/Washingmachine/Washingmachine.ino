@@ -16,9 +16,9 @@
 
 #define BSP_Execute(x) x
 
-#include "tsm.h"
-#include "WashingMachine.h"
-
 void blink(bool ledOn) {
   BSP_Execute(digitalWrite(LED_BUILTIN, ledOn ? HIGH : LOW));
 }
+
+#include "tsm.h"
+#include "WashingMachine.h"
