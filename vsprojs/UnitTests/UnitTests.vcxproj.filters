@@ -52,6 +52,9 @@
     <ClCompile Include="SubstatemachineEventTest.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="ChoiceTransitionMultiChoiceTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />

@@ -167,6 +167,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChoiceTransitionMultiChoiceTest.cpp" />
     <ClCompile Include="InitFinishTransitionSubstateTest.cpp" />
     <ClCompile Include="InitFinishTransitionTest.cpp" />
     <ClCompile Include="SelfTransitionTest.cpp" />

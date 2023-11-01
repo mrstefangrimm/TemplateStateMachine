@@ -92,6 +92,86 @@ private:
   }
 };
 
+template<
+  class Event,
+  class To1,
+  class To2,
+  class To_false,
+  class From,
+  class Guard1,
+  class Guard2,
+  class Action,
+  bool IsExitingTransition>
+struct Choice2TransitionBase {
+
+  enum { E = false };
+  enum { X = IsExitingTransition };
+
+  using EventType = Event;
+  using ToType = To_false;
+  using FromType = From;
+  using StatePolicy = typename From::Policy;
+
+  Choice2TransitionBase() {
+    // Choice without guards does not make sense; the choice is either to go the state To_true or To_false.
+    static_assert(!is_same<Guard1, NoGuard>().value, "");
+    static_assert(!is_same<Guard2, NoGuard>().value, "");
+    // Choice transition
+    static_assert(!is_same<To1, EmptyState<StatePolicy>>().value, "");
+    static_assert(!is_same<To2, EmptyState<StatePolicy>>().value, "");
+    static_assert(!is_same<From, EmptyState<StatePolicy>>().value, "");
+
+    static_assert(is_same<typename From::Policy, typename To1::Policy>().value, "");
+    static_assert(is_same<typename From::Policy, typename To2::Policy>().value, "");
+    static_assert(is_same<typename From::Policy, typename To_false::Policy>().value, "");
+  }
+
+  DispatchResult<StatePolicy> dispatch(StatePolicy* activeState, const EventType& ev) {
+
+    FromType* fromState = static_cast<FromType*>(activeState);
+    Action().template perform<FromType, EventType>(*fromState, ev);
+
+    if (Guard1().eval(*fromState, ev)) {
+      return execute< To1 >(activeState, ev);
+    }
+    else if (Guard2().eval(*fromState, ev)) {
+      return execute< To2 >(activeState, ev);
+    }
+    else {
+      return execute< To_false >(activeState, ev);
+    }
+  }
+
+private:
+  template<class To>
+  DispatchResult<StatePolicy> execute(StatePolicy* activeState, const EventType& ev) {
+
+    using ToFactory = typename To::CreatorType;
+    using FromFactory = typename From::CreatorType;
+
+    // Self transition
+    if (is_same<To, From>().value) {
+      static_cast<To*>(activeState)->_doit(ev);
+      return DispatchResult<StatePolicy>(true, activeState);
+    }
+
+    if (X) {
+      return DispatchResult<StatePolicy>(false, activeState);
+    }
+
+    static_cast<From*>(activeState)->template _exit<EventType>(ev);
+    FromFactory::destroy(static_cast<From*>(activeState));
+
+    To* toState = ToFactory::create();
+    toState->template _entry<EventType>(ev);
+
+    if (To::BasicDoit) {
+      toState->_doit(ev);
+    }
+    return DispatchResult<StatePolicy>(true, toState);
+  }
+};
+
 }
 
 template<class Event, class To_true, class To_false, class From, class Guard, class Action>
@@ -99,5 +179,11 @@ using ChoiceTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, Fr
 
 template<class Event, class To_true, class To_false, class From, class Guard, class Action>
 using ChoiceExitTransition = impl::ChoiceTransitionBase<Event, To_true, To_false, From, Guard, Action, true>;
+
+template<class Event, class To1, class To2, class To_false, class From, class Guard1, class Guard2, class Action>
+using Choice2Transition = impl::Choice2TransitionBase<Event, To1, To2, To_false, From, Guard1, Guard2, Action, false>;
+
+template<class Event, class To1, class To2, class To_false, class From, class Guard1, class Guard2, class Action>
+using Choice2ExitTransition = impl::Choice2TransitionBase<Event, To1, To2, To_false, From, Guard1, Guard2, Action, true>;
 
 }
