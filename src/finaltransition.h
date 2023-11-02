@@ -24,7 +24,7 @@ struct FinalTransition {
   enum { E = false };
   enum { X = true };
 
-  using EventType = NullType;
+  using EventType = LokiLight::NullType;
   using FromType = Me;
   using StatePolicy = typename Me::Policy;
 

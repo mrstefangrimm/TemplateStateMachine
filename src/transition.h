@@ -19,8 +19,6 @@
 
 namespace tsmlib {
 
-using namespace LokiLight;
-
 template<class T>
 struct DispatchResult {
   static DispatchResult null;

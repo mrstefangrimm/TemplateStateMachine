@@ -39,7 +39,7 @@ namespace UnitTests {
 
       template<class StateType, class EventType>
       void perform(StateType&, const EventType&) {
-        if (is_same<EventType, NullType>::value) {
+        if (is_same<EventType, LokiLight::NullType>::value) {
           callsWithNullType++;
         }
         else {

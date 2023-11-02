@@ -55,6 +55,9 @@
     <ClCompile Include="ChoiceTransitionMultiChoiceTest.cpp">
       <Filter>Transitions</Filter>
     </ClCompile>
+    <ClCompile Include="ChoiceTransitionSubstateTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHelpers.h" />

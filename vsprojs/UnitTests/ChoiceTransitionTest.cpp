@@ -22,6 +22,7 @@ namespace UT {
   namespace Transitions {
 
     using namespace tsmlib;
+    using namespace LokiLight;
     using namespace UnitTests::Helpers;
 
     namespace ChoiceTransitionTestImpl {
@@ -90,7 +91,7 @@ namespace UT {
           return ReturnValue;
         }
       };
-      bool ChoiceGuardStub::ReturnValue = true;
+      bool ChoiceGuardStub::ReturnValue = false;
 
       struct CountTriggerGuardA {
         template<class StateType, class EventType>
@@ -124,6 +125,7 @@ namespace UT {
           FactoryCreatorFake<A>::reset();
           FactoryCreatorFake<B>::reset();
           FactoryCreatorFake<C>::reset();
+          ChoiceGuardStub::ReturnValue = false;
         })
 
       TEST(

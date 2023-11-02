@@ -24,6 +24,7 @@ namespace UT {
     namespace StatemachineOnOffInitialAndFinalTransitionsTestImpl {
 
       using namespace tsmlib;
+      using namespace LokiLight;
       using namespace UnitTests::Helpers;
 
       using StatePolicy = State<VirtualTypeIdComparator, false>;

@@ -9,6 +9,7 @@
 #include "../../../src/tsm.h"
 
 using namespace tsmlib;
+using namespace LokiLight;
 
 // events
 struct ack {

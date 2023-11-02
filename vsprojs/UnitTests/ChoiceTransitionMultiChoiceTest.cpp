@@ -22,6 +22,8 @@ namespace UT {
   namespace Transitions {
 
     using namespace tsmlib;
+    using namespace LokiLight;
+
     using namespace UnitTests::Helpers;
 
     namespace ChoiceTransitionMultiChoiceTestImpl {
@@ -117,6 +119,8 @@ namespace UT {
           FactoryCreatorFake<A>::reset();
           FactoryCreatorFake<B>::reset();
           FactoryCreatorFake<C>::reset();
+          Choice1GuardStub::ReturnValue = false;
+          Choice2GuardStub::ReturnValue = false;
         })
 
       TEST(

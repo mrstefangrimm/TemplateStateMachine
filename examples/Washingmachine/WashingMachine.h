@@ -16,6 +16,7 @@
 */
 
 using namespace tsmlib;
+using namespace LokiLight;
 
 namespace Trigger {
 struct Timeout {};
