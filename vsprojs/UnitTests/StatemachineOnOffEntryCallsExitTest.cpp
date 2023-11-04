@@ -14,13 +14,13 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
   namespace StatemachineOnOff {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
     using namespace UnitTests::Helpers;
 
@@ -86,14 +86,18 @@ namespace UT {
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
-    TEST_CLASS(StatemachineOnOffEntryDoExitTest)
-    {
-      TEST_METHOD_INITIALIZE(Initialize)
-      {
-        reset();
-      }
+    BEGIN(StatemachineOnOffEntryDoExitTest)
 
-      TEST_METHOD(EntriesDoesExits_Roundtrip)
+      INIT(
+        Initialize,
+        {
+          reset();
+        })
+
+      TEST(
+        Roundtrip,
+        EntriesDoesExits,
+        Successful)
       {
         using namespace StatemachineOnOffEntryCallsExitTestImpl;
         OnState on;
@@ -101,85 +105,84 @@ namespace UT {
 
         Sm sm;
         sm.begin();
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(1, OffState::entryCalls);
-        Assert::AreEqual<int>(1, OffState::doitCalls);
+        EQ(0, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(0, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(1, OffState::entryCalls);
+        EQ(1, OffState::doitCalls);
 
         // Off <- Off, self transition
         reset();
         auto result = sm.dispatch<Trigger::OffToOff>();
-        Assert::AreEqual<int>(off.getTypeId(), result.activeState->getTypeId());
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(0, OffState::entryCalls);
-        Assert::AreEqual<int>(1, OffState::doitCalls);
+        EQ(off.getTypeId(), result.activeState->getTypeId());
+        EQ(0, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(0, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(0, OffState::entryCalls);
+        EQ(1, OffState::doitCalls);
 
         // Off <- Off, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::IsTrue(result.activeState->typeOf<OffState>());
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(0, OffState::entryCalls);
-        Assert::AreEqual<int>(0, OffState::doitCalls);
+        TRUE(result.activeState->typeOf<OffState>());
+        EQ(0, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(0, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(0, OffState::entryCalls);
+        EQ(0, OffState::doitCalls);
 
         // On <- Off
         reset();
         result = sm.dispatch<Trigger::On>();
-        Assert::IsTrue(result.activeState->typeOf<OnState>());
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(1, OnState::entryCalls);
-        Assert::AreEqual<int>(1, OnState::doitCalls);
-        Assert::AreEqual<int>(1, OffState::exitCalls);
-        Assert::AreEqual<int>(0, OffState::entryCalls);
-        Assert::AreEqual<int>(0, OffState::doitCalls);
+        TRUE(result.activeState->typeOf<OnState>());
+        EQ(0, OnState::exitCalls);
+        EQ(1, OnState::entryCalls);
+        EQ(1, OnState::doitCalls);
+        EQ(1, OffState::exitCalls);
+        EQ(0, OffState::entryCalls);
+        EQ(0, OffState::doitCalls);
 
         // On <- On, self transition
         reset();
         result = sm.dispatch<Trigger::OnToOn>();
-        Assert::IsTrue(result.activeState->typeOf<OnState>());
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(1, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(0, OffState::entryCalls);
-        Assert::AreEqual<int>(0, OffState::doitCalls);
+        TRUE(result.activeState->typeOf<OnState>());
+        EQ(0, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(1, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(0, OffState::entryCalls);
+        EQ(0, OffState::doitCalls);
 
         // On <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::On>();
-        Assert::IsTrue(result.activeState->typeOf<OnState>());
-        Assert::AreEqual<int>(0, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(0, OffState::entryCalls);
-        Assert::AreEqual<int>(0, OffState::doitCalls);
+        TRUE(result.activeState->typeOf<OnState>());
+        EQ(0, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(0, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(0, OffState::entryCalls);
+        EQ(0, OffState::doitCalls);
 
         // Off <- On, unhandled trigger
         reset();
         result = sm.dispatch<Trigger::Off>();
-        Assert::IsTrue(result.activeState->typeOf<OffState>());
-        Assert::AreEqual<int>(1, OnState::exitCalls);
-        Assert::AreEqual<int>(0, OnState::entryCalls);
-        Assert::AreEqual<int>(0, OnState::doitCalls);
-        Assert::AreEqual<int>(0, OffState::exitCalls);
-        Assert::AreEqual<int>(1, OffState::entryCalls);
-        Assert::AreEqual<int>(1, OffState::doitCalls);
+        TRUE(result.activeState->typeOf<OffState>());
+        EQ(1, OnState::exitCalls);
+        EQ(0, OnState::entryCalls);
+        EQ(0, OnState::doitCalls);
+        EQ(0, OffState::exitCalls);
+        EQ(1, OffState::entryCalls);
+        EQ(1, OffState::doitCalls);
 
         // Active state is Off
-        Assert::AreEqual<int>(FactoryCreatorFake<OffState>::createCalls, FactoryCreatorFake<OffState>::deleteCalls + 1);
-        Assert::AreEqual<int>(FactoryCreatorFake<OnState>::createCalls, FactoryCreatorFake<OnState>::deleteCalls);
+        EQ(FactoryCreatorFake<OffState>::createCalls, FactoryCreatorFake<OffState>::deleteCalls + 1);
+        EQ(FactoryCreatorFake<OnState>::createCalls, FactoryCreatorFake<OnState>::deleteCalls);
       }
 
-    private:
       void reset() const {
         using namespace StatemachineOnOffEntryCallsExitTestImpl;
         OnState::exitCalls = 0;

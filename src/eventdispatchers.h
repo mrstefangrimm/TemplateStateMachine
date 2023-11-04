@@ -24,11 +24,11 @@ namespace tsmlib {
 template<class Transitions, class Event, int Index>
 struct EventDispatcher {
 
-  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
+  using StatePolicy = typename LokiLight::TypeAt<Transitions, 0>::Result::StatePolicy;
 
   static DispatchResult<StatePolicy> execute(StatePolicy* activeState, const Event* ev) {
     // Finds last element in the list that meets the conditions.
-    using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+    using CurrentTransition = typename LokiLight::TypeAt<Transitions, Index>::Result;
     using FromType = typename CurrentTransition::FromType::ObjectType;
     using EventType = typename CurrentTransition::EventType;
 
@@ -46,11 +46,11 @@ struct EventDispatcher {
 
   static void entry(StatePolicy* entryState) {
     // Finds last element in the list that meets the conditions.
-    using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+    using CurrentTransition = typename LokiLight::TypeAt<Transitions, Index>::Result;
     using ToType = typename CurrentTransition::ToType::ObjectType;
 
     // TODO: Mustn't be a choice transition
-    //CompileTimeError < is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value >();
+    //static_assert(is_same<ToType, EmptyState<typename CreationPolicy::ObjectType>>().value);
 
     bool hasSameFromState = entryState->template typeOf<ToType>();
 
@@ -58,7 +58,7 @@ struct EventDispatcher {
     if (conditionMet) {
       ToType* state = static_cast<ToType*>(entryState);
       state->template _entry<Event>();
-      NullType nu;
+      LokiLight::NullType nu;
       state->_doit(nu);
       return;
     }
@@ -70,11 +70,11 @@ struct EventDispatcher {
 template<class Transitions, class Event>
 struct EventDispatcher<Transitions, Event, 0> {
 
-  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
+  using StatePolicy = typename LokiLight::TypeAt<Transitions, 0>::Result::StatePolicy;
 
   static DispatchResult<StatePolicy> execute(StatePolicy* activeState, const Event* ev) {
     // End of recursion.
-    using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+    using FirstTransition = typename LokiLight::TypeAt<Transitions, 0>::Result;
     using FromType = typename FirstTransition::FromType::ObjectType;
     using EventType = typename FirstTransition::EventType;
 
@@ -91,7 +91,7 @@ struct EventDispatcher<Transitions, Event, 0> {
 
   static void entry(StatePolicy* entryState) {
     // End of recursion.
-    using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+    using FirstTransition = typename LokiLight::TypeAt<Transitions, 0>::Result;
     using ToType = typename FirstTransition::ToType::ObjectType;
 
     const bool hasSameFromState = entryState->template typeOf<ToType>();
@@ -100,7 +100,7 @@ struct EventDispatcher<Transitions, Event, 0> {
     if (conditionMet) {
       ToType* state = static_cast<ToType*>(entryState);
       state->template _entry<Event>();
-      NullType nu;
+      LokiLight::NullType nu;
       state->_doit(nu);
     }
     return;
@@ -113,7 +113,7 @@ struct Initializer {
   using StatePolicy = typename Initialtransition::StatePolicy;
 
   static DispatchResult<StatePolicy> init() {
-    using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+    using CurrentTransition = typename LokiLight::TypeAt<Transitions, Index>::Result;
     using EventType = typename CurrentTransition::EventType;
 
     if (CurrentTransition::E && is_same<EventType, Event>().value) {
@@ -135,7 +135,7 @@ struct Initializer<Transitions, Initialtransition, Event, 0> {
 
   static DispatchResult<StatePolicy> init() {
     // End of recursion.
-    using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+    using FirstTransition = typename LokiLight::TypeAt<Transitions, 0>::Result;
     using EventType = typename FirstTransition::EventType;
 
     if (FirstTransition::E && is_same<EventType, Event>().value) {
@@ -152,10 +152,10 @@ struct Initializer<Transitions, Initialtransition, Event, 0> {
 template<class Transitions, int Index>
 struct Finalizer {
 
-  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
+  using StatePolicy = typename LokiLight::TypeAt<Transitions, 0>::Result::StatePolicy;
 
   static DispatchResult<StatePolicy> end(StatePolicy* activeState) {
-    using CurrentTransition = typename TypeAt<Transitions, Index>::Result;
+    using CurrentTransition = typename LokiLight::TypeAt<Transitions, Index>::Result;
     using FromType = typename CurrentTransition::FromType::ObjectType;
 
     const bool hasSameFromState = activeState->template typeOf<FromType>();
@@ -177,11 +177,11 @@ struct Finalizer {
 template<class Transitions>
 struct Finalizer<Transitions, 0> {
 
-  using StatePolicy = typename TypeAt<Transitions, 0>::Result::StatePolicy;
+  using StatePolicy = typename LokiLight::TypeAt<Transitions, 0>::Result::StatePolicy;
 
   static DispatchResult<StatePolicy> end(StatePolicy* activeState) {
     // End of recursion.
-    using FirstTransition = typename TypeAt<Transitions, 0>::Result;
+    using FirstTransition = typename LokiLight::TypeAt<Transitions, 0>::Result;
     using FromType = typename FirstTransition::FromType::ObjectType;
 
     bool hasSameFromState = activeState->template typeOf<FromType>();

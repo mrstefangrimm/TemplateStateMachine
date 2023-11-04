@@ -14,13 +14,13 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/tsm.h"
 #include "TestHelpers.h"
 
 namespace UT {
   namespace Transitions {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
     using namespace UnitTests::Helpers;
 
@@ -113,20 +113,25 @@ namespace UT {
       using Sm = Statemachine<TransitionList, InitTransition>;
     }
 
-    // https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=InitFinishTransitionTest.drawio#R7ZpZc6M4EIB%2Fjat2HpziMD4ebWJnU5VMsnE210tKBhmYCMQIOT5%2B%2FbaMMKePccixVXGqYqmRGtT9qbsBN3TTX5wxFLqX1MakoSn2oqGfNjRNVRQFvoRkGUvavW4scJhny0GpYOytcDJTSmeejaPcQE4p4V6YF1o0CLDFczLEGJ3nh00pyZ81RA4uCcYWImXpvWdzN5Z2DSWV%2F409x03OrCYL9lEyWAoiF9l0nhHpw4ZuMkp53PIXJibCeIld4nmjLUc3F8ZwwA%2BZwOfXt5gs%2BbB%2FPl8Ew9X167DblFpeEZnJBUe%2BvFy%2BTGwAVx6K5swnI4Z8aA7mrsfxOESWkM%2FB9SBzuU%2Bgp0KT0VlgY1v2NitXoGNR37Nkm6AJJgNkvTjrCSYllMGhgAbiHBFn9GVjdaFoSgM%2BQr5HBEx3mNkoQFIsyVHBrANEPCeAjgWWwaBwUDZVsm7MOF5kRNJ0Z5j6mLMlDJFHdenFZb47T5lQlQQKNwOEkYxEEkRnozr1FTSku%2F7AdVrJdf2S5%2FJ%2B2OM0xCxpRa0lrOoRknikoelT%2BFjKxi25I4rY5kf7%2BUCvin7mrIoiz1rytnCqBzu4Lw9wGtbDgNrOQ6BqZQo0pQICXXsvCPQSBINvCN4Vglb3y0HQLbkc25DEZJcy7lKHBogMU2kmQgvzpWMuqDDUGoVfmPOlND6acZoHZaspIzpjFt5xuT2ZxhFzMN8f4MRadjqGYYK495pP2LUbuVfaaWWrEwJlCc7bKUmeEayXjzniuLytNhhv31a1ZNS6N5ntMai5PCqE4HaB%2F3vE2VZ5h%2BlVG6yG%2FaX%2FY0c%2FnfP%2BE79aXZw%2FT2%2BfHsyKImkirnbM8RQF0Dhjng9VEyhX%2FjJ%2FwH%2F40%2BM%2B8cBYEfhNU4T%2FmODexfDfFEcHj80xJG2ldaKIuZ4wayD2hBC6nIsaty%2BuXRtZDK8hB2f7NIhOKHNAKtVH0JwsmxGC77Wu0Y8SnGB7XiAzB1uCSIZMKUrcTvCUV0RW37Ntsq0mzIeZDGi9dynLjE4ZFaMqGNcRi5%2Bvns8jbeKuwpunc9dl%2FV9mu4KVW%2BY5DmaxK9tEmHACHLQd0fopvFKSmmA1%2FnEenFDOqX%2BQB%2BtIoIXNXbG71SqXqWod%2B7t3d3n3%2B9%2BH8FnpXF34K9yaLyt89mehHQf28YH9nWKo0TbyO0P5uCA6ftJUehle318Mb1oBv7tfdJzEyB9bpID92PJBzl93HkXnxEi6p4vswdNl0lt4%2FCEdCb3HRCO000mik8w5viDSywXRLk7rK4jk1GvqiXCzialqYYd2jLyKeEFyVvaJQ0FRq9vLKdKVAlzxikuK1nxt1nM8cuU75DjcfgKHkic1Q5Nyohk7gdoGr7aP3uNJ1A4szfUDSZQgNJUTpd3u5GBIIHsjrFqnAKtRYOxQWIuKjGK62QJrqigZSKfTCL8VaIy0Ph6MzroPK2vaHE2i67OgIlGZJZq%2F7%2FYbNd7td5XPvNuvhKAc1f7%2F1Uq3%2B3nVSqWRy8%2FVTBdbLyBqGMD5bM2dcHEb%2BQK1ddkOAr1hnH4XOnviVza97EJ8b3pJ3inVk0qMXk2ppK19%2FVTS%2Bq6N3l6l74L8C9RGeqGk0YocHlzI9%2FYo%2BligjYFq%2FWYLZnV71GyGN3yGUVVtVPkUBdJfX7wXTouRyveWuyA7OKjmiN4N9EFcVi68omaviUsVPjm%2FN1WjlJYrX3rWw2%2BvUHxpxwbkrqrtVrSFXwAFLTPDQjEg%2BizCDyj89pX7URj%2FRmLqLQTltZRuhYf1WqfMiFrByBFP86Cb%2Flwitmr6oxN9%2BB8%3D
-    TEST_CLASS(InitFinishTransitionTest)
-    {
-      TEST_METHOD_INITIALIZE(Initialize)
-      {
-        using namespace InitFinishTransitionTestImpl;
-        RecorderType::reset();
+    BEGIN(
+      InitFinishTransitionTest,
+      "https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=InitFinishTransitionTest.drawio#R7ZpZc6M4EIB%2Fjat2HpziMD4ebWJnU5VMsnE210tKBhmYCMQIOT5%2B%2FbaMMKePccixVXGqYqmRGtT9qbsBN3TTX5wxFLqX1MakoSn2oqGfNjRNVRQFvoRkGUvavW4scJhny0GpYOytcDJTSmeejaPcQE4p4V6YF1o0CLDFczLEGJ3nh00pyZ81RA4uCcYWImXpvWdzN5Z2DSWV%2F409x03OrCYL9lEyWAoiF9l0nhHpw4ZuMkp53PIXJibCeIld4nmjLUc3F8ZwwA%2BZwOfXt5gs%2BbB%2FPl8Ew9X167DblFpeEZnJBUe%2BvFy%2BTGwAVx6K5swnI4Z8aA7mrsfxOESWkM%2FB9SBzuU%2Bgp0KT0VlgY1v2NitXoGNR37Nkm6AJJgNkvTjrCSYllMGhgAbiHBFn9GVjdaFoSgM%2BQr5HBEx3mNkoQFIsyVHBrANEPCeAjgWWwaBwUDZVsm7MOF5kRNJ0Z5j6mLMlDJFHdenFZb47T5lQlQQKNwOEkYxEEkRnozr1FTSku%2F7AdVrJdf2S5%2FJ%2B2OM0xCxpRa0lrOoRknikoelT%2BFjKxi25I4rY5kf7%2BUCvin7mrIoiz1rytnCqBzu4Lw9wGtbDgNrOQ6BqZQo0pQICXXsvCPQSBINvCN4Vglb3y0HQLbkc25DEZJcy7lKHBogMU2kmQgvzpWMuqDDUGoVfmPOlND6acZoHZaspIzpjFt5xuT2ZxhFzMN8f4MRadjqGYYK495pP2LUbuVfaaWWrEwJlCc7bKUmeEayXjzniuLytNhhv31a1ZNS6N5ntMai5PCqE4HaB%2F3vE2VZ5h%2BlVG6yG%2FaX%2FY0c%2FnfP%2BE79aXZw%2FT2%2BfHsyKImkirnbM8RQF0Dhjng9VEyhX%2FjJ%2FwH%2F40%2BM%2B8cBYEfhNU4T%2FmODexfDfFEcHj80xJG2ldaKIuZ4wayD2hBC6nIsaty%2BuXRtZDK8hB2f7NIhOKHNAKtVH0JwsmxGC77Wu0Y8SnGB7XiAzB1uCSIZMKUrcTvCUV0RW37Ntsq0mzIeZDGi9dynLjE4ZFaMqGNcRi5%2Bvns8jbeKuwpunc9dl%2FV9mu4KVW%2BY5DmaxK9tEmHACHLQd0fopvFKSmmA1%2FnEenFDOqX%2BQB%2BtIoIXNXbG71SqXqWod%2B7t3d3n3%2B9%2BH8FnpXF34K9yaLyt89mehHQf28YH9nWKo0TbyO0P5uCA6ftJUehle318Mb1oBv7tfdJzEyB9bpID92PJBzl93HkXnxEi6p4vswdNl0lt4%2FCEdCb3HRCO000mik8w5viDSywXRLk7rK4jk1GvqiXCzialqYYd2jLyKeEFyVvaJQ0FRq9vLKdKVAlzxikuK1nxt1nM8cuU75DjcfgKHkic1Q5Nyohk7gdoGr7aP3uNJ1A4szfUDSZQgNJUTpd3u5GBIIHsjrFqnAKtRYOxQWIuKjGK62QJrqigZSKfTCL8VaIy0Ph6MzroPK2vaHE2i67OgIlGZJZq%2F7%2FYbNd7td5XPvNuvhKAc1f7%2F1Uq3%2B3nVSqWRy8%2FVTBdbLyBqGMD5bM2dcHEb%2BQK1ddkOAr1hnH4XOnviVza97EJ8b3pJ3inVk0qMXk2ppK19%2FVTS%2Bq6N3l6l74L8C9RGeqGk0YocHlzI9%2FYo%2BligjYFq%2FWYLZnV71GyGN3yGUVVtVPkUBdJfX7wXTouRyveWuyA7OKjmiN4N9EFcVi68omaviUsVPjm%2FN1WjlJYrX3rWw2%2BvUHxpxwbkrqrtVrSFXwAFLTPDQjEg%2BizCDyj89pX7URj%2FRmLqLQTltZRuhYf1WqfMiFrByBFP86Cb%2Flwitmr6oxN9%2BB8%3D")
 
-        SingletonCreatorFake<A>::reset();
-        SingletonCreatorFake<B>::reset();
-        SingletonCreatorFake<C>::reset();
-      }
+      INIT(
+        Initialize,
+        {
+          using namespace InitFinishTransitionTestImpl;
+          RecorderType::reset();
 
-      TEST_METHOD(Begin_WhenInitStateA_ThenActiveStateA)
+          SingletonCreatorFake<A>::reset();
+          SingletonCreatorFake<B>::reset();
+          SingletonCreatorFake<C>::reset();
+        })
+
+      TEST(
+        Begin,
+        InitStateA,
+        ActiveStateA)
       {
         using namespace InitFinishTransitionTestImpl;
         Sm sm;
@@ -137,13 +142,16 @@ namespace UT {
           "A::Do" });
 
         // Active state is A
-        Assert::AreNotEqual<int>(0, SingletonCreatorFake<A>::createCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
-        Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
+        NEQ(0, SingletonCreatorFake<A>::createCalls);
+        EQ(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
+        EQ(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
+        EQ(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(End_ActiveStateWithoutEndTransition_ThenExitNotCalled)
+      TEST(
+        End,
+        ActiveStateWithoutEndTransition,
+        ExitNotCalled)
       {
         using namespace InitFinishTransitionTestImpl;
         Sm sm;
@@ -157,13 +165,16 @@ namespace UT {
         RecorderType::checkUnchanged();
 
         // Active state is A
-        Assert::AreNotEqual<int>(0, SingletonCreatorFake<A>::createCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
-        Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
+        NEQ(0, SingletonCreatorFake<A>::createCalls);
+        EQ(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls + 1);
+        EQ(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
+        EQ(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(End_ActiveStateWithEndTransition_ThenExitCalled)
+      TEST(
+        End,
+        ActiveStateWithEndTransition,
+        ExitCalled)
       {
         using namespace InitFinishTransitionTestImpl;
         Sm sm;
@@ -187,12 +198,15 @@ namespace UT {
           "B::Exit" });
 
         // States A, B and C are deactivated
-        Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
+        EQ(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
+        EQ(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
+        EQ(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
       }
 
-      TEST_METHOD(Final_ActiveStateFinalConditionMet_ThenExitCalled)
+      TEST(
+        Final,
+        ActiveStateFinalConditionMet,
+        ExitCalled)
       {
         using namespace InitFinishTransitionTestImpl;
         Sm sm;
@@ -219,10 +233,12 @@ namespace UT {
           "C::Exit" });
 
         // States A, B and C are deactivated
-        Assert::AreEqual<int>(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
-        Assert::AreEqual<int>(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
+        EQ(SingletonCreatorFake<A>::createCalls, SingletonCreatorFake<A>::deleteCalls);
+        EQ(SingletonCreatorFake<B>::createCalls, SingletonCreatorFake<B>::deleteCalls);
+        EQ(SingletonCreatorFake<C>::createCalls, SingletonCreatorFake<C>::deleteCalls);
       }
-    };
+
+    END
+
   }
 }

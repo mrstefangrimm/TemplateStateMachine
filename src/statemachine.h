@@ -39,7 +39,7 @@ public:
 
     // Transitions can have initial transitions (for a higher-level state to a sub-state).
     // The default initial transition is added to the front and is therefore executed when no other was found.
-    const int size = Length<Transitions>::value;
+    const int size = LokiLight::Length<Transitions>::value;
     const auto result = Initializer< Transitions, Initialtransition, Event, size - 1 >::init();
     if (result.consumed) {
       activeState_ = result.activeState;
@@ -54,7 +54,7 @@ public:
 
     if (activeState_ == nullptr) return DispatchResult<StatePolicy>::null;
 
-    const int size = Length<Transitions>::value;
+    const int size = LokiLight::Length<Transitions>::value;
     auto result = Finalizer< Transitions, size - 1 >::end(activeState_);
     if (result.consumed) {
       activeState_ = 0;
@@ -64,7 +64,7 @@ public:
 
   template<class Event>
   DispatchResult<StatePolicy> _end() {
-    const int size = Length<Transitions>::value;
+    const int size = LokiLight::Length<Transitions>::value;
     const auto result = Finalizer< Transitions, size - 1 >::end(activeState_);
     if (result.consumed) {
       activeState_ = 0;
@@ -82,7 +82,7 @@ public:
 
     if (activeState_ == nullptr) return DispatchResult<StatePolicy>::null;
 
-    const int size = Length<Transitions>::value;
+    const int size = LokiLight::Length<Transitions>::value;
     auto result = EventDispatcher< Transitions, Event, size - 1 >::execute(activeState_, &ev);
 
     // Transition not found, active state is not changed

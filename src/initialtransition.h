@@ -26,7 +26,7 @@ struct InitialTransition {
   enum { X = false };
   enum { R = false };
 
-  using EventType = NullType;
+  using EventType = LokiLight::NullType;
   using ToType = To;
   using StatePolicy = typename To::Policy;
 

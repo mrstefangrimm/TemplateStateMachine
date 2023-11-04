@@ -1,4 +1,4 @@
-[![MSBuild](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml)
+[![CI-Build](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml)
 [![Compile Sketches](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml)
 
 # Template State Machine
@@ -14,12 +14,12 @@ A C++ library to create UML<sup>1</sup> state machines in C++.
 
 A comparison with other implementations on an Arduino (Table 1). Using an `enum` and a state variable uses the least memory. The example with the GoF<sup>2</sup> design pattern uses more memory than tsm with more coding for less functionality, and it is not an UML state machine. The example with qpn<sup>3</sup> uses more memory, but that is because it also creates an active object and a message queue. 
 
-| Example sketch            | enum [bytes] | tsm [bytes] | GoF<sup>2</sup> [bytes] | qpn<sup>3</sup> [bytes] |
-| ------------------------- | -----------  | ----------- | ----------------------- | ----------------------- |
-| LED On/Off (ROM/RAM)      | 2256/186  [![run](docs/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2464/199  [![run](docs/test_icon.png)](https://wokwi.com/projects/374516923308308481)  | 2962/212  [![run](docs/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 4324/289  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
-| Washing machine (ROM/RAM) |              | 3400/207  [![run](docs/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                         | 5204/295  [![run](docs/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
+| Example sketch            | enum [bytes]                                                 | tsm [bytes]                                                  | GoF<sup>2</sup> [bytes]                                      | qpn<sup>3</sup> [bytes]                                      |
+| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| LED On/Off (ROM/RAM)      | 1914/186  [![run](res/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2118/199  [![run](res/test_icon.png)](https://wokwi.com/projects/374516923308308481) | 2622/212  [![run](res/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 3976/289  [![run](res/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
+| Washing machine (ROM/RAM) |                                                              | 2606/207  [![run](res/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                                                              | 4404/295  [![run](res/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
 
-> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, washing machine has five states, and one state has sub-states. I used the Arduino IDE 2.2.0 with the default (unchanged) compiler settings.
+> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, washing machine has five states, and one state has sub-states. I used the Arduino IDE 2.2.1 with the default (unchanged) compiler settings.
 
 
 
@@ -53,7 +53,7 @@ TSM is compatible with the current Arduino tool chain that comes with the Arduin
 
 ### Installation
 
-To use tsm in an Arduino sketch, just copy it to Arduino/Libraries and include "tsm.h". Add the tsm/src folder to the includes to use it on other platforms.
+To use tsm in an Arduino sketch, download the [latest release](https://github.com/mrstefangrimm/TemplateStateMachine/releases) and follow the [instructions to import a .zip library](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries). Add the tsm/src folder to the includes to use it on other platforms.
 
 
 
@@ -77,7 +77,7 @@ While experimenting how I could use C++ templates to generate a state machine, [
 
 With tsm, you write state classes with state and behavior. Sounds weird? Examples of the opposite of tsm is the [Stateless C# library](https://github.com/dotnet-state-machine/stateless) or [SML](https://github.com/boost-ext/sml). I am not saying state classes are not possible with these libraries, but state classes are not an inherent part of these libraries.
 
-With tsm you can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation; this is one reason developers usually implemented as Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
+With tsm, you can define the life cycle model. According to UML, the state object is deleted on exit and created on entry. This can cause memory fragmentation; this is one reason developers usually implemented as Singletons<sup>4</sup>. With tsm you can choose and even write your own memory model.
 
 
 
@@ -93,7 +93,7 @@ The example with the states A, AA, AAA, AAB, and B is a good starting point. Onc
 
 https://wandbox.org/permlink/0RRO72sSNMh2O1nQ
 
-[![statemachine example](docs/sm_example_uml.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)[![statemachine example](docs/sm_example_code.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)
+[![statemachine example](res/sm_example_uml.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)[![statemachine example](res/sm_example_code.png)](https://wandbox.org/permlink/0RRO72sSNMh2O1nQ)
 
 > Figure 1: Shows a state machine example with states, sub-states, and sub-sub-states. It has transitions which go from a sub-state to a higher-level state.
 
@@ -181,8 +181,35 @@ void loop() {
 
 
 
+## Tests
+
+Unit tests are part of the Visual Studio solution and are using the VSCppUnit C++ Unit Testing Framework.
+
+
+
+## Software Toolchain
+
+| Tool                         | License           |
+| ---------------------------- | ----------------- |
+| Arduino IDE                  | GPL               |
+| avrdude                      | GPL               |
+| gcc                          | GPL               |
+| Visual Studio Community 2022 | Microsoft license |
+
+Libraries
+
+| Library   | Licence           |
+| :-------- | ----------------- |
+| Arduino.h | LGPL              |
+| VSCppUnit | Microsoft license |
+
+
 
 ## License
+
+This software is licensed under the Apache License, Version 2.0.
+
+
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
 

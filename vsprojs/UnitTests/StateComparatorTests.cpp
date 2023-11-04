@@ -14,15 +14,14 @@
    limitations under the License.
 */
 #include "CppUnitTest.h"
+#include "NotquiteBDD.h"
 #include "../../src/state.h"
 #include "../../src/lokilight.h"
 
 namespace UT {
   namespace Classes {
 
-    using namespace Microsoft::VisualStudio::CppUnitTestFramework;
     using namespace tsmlib;
-    using namespace LokiLight;
 
     namespace StateComparatorTestsImpl {
 
@@ -66,10 +65,12 @@ namespace UT {
       bool TestComparator::isEqual = false;
     }
 
-    TEST_CLASS(StateComparatorTests)
-    {
-    public:
-      TEST_METHOD(Equals_VirtualIdComparator_ComparisonWorks)
+    BEGIN(StateComparatorTests)
+
+      TEST(
+        VirtualIdComparator,
+        Equals,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         using A = TestStateA<State<VirtualTypeIdComparator, false>>;
@@ -80,16 +81,19 @@ namespace UT {
         B b1;
         B b2;
 
-        Assert::IsFalse(a1 == b1);
-        Assert::IsTrue(a1 == a2);
-        Assert::IsTrue(b1 == b1);
+        FALSE(a1 == b1);
+        TRUE(a1 == a2);
+        TRUE(b1 == b1);
 
-        Assert::IsFalse(a1.equals(b1));
-        Assert::IsTrue(a1.equals(a2));
-        Assert::IsTrue(b1.equals(b2));
+        FALSE(a1.equals(b1));
+        TRUE(a1.equals(a2));
+        TRUE(b1.equals(b2));
       }
 
-      TEST_METHOD(GetTypeId_VirtualIdComparator_ComparisonWorks)
+      TEST(
+        VirtualIdComparator,
+        GetTypeId,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         using A = TestStateA<State<VirtualTypeIdComparator, false>>;
@@ -97,26 +101,32 @@ namespace UT {
         A a;
         B b;
 
-        Assert::IsTrue(a.typeOf<A>());
-        Assert::IsTrue(b.typeOf<B>());
+        TRUE(a.typeOf<A>());
+        TRUE(b.typeOf<B>());
       }
 
-      TEST_METHOD(Equals_MemoryAddressComparatorComparesSingletons_ComparisonWorks)
+      TEST(
+        MemoryAddressComparatorComparesSingletons,
+        Equals,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         TestStateSingletonA<State<MemoryAddressComparator, true>> a;
         TestStateSingletonB<State<MemoryAddressComparator, true>> b;
 
-        Assert::IsFalse(a == b);
-        Assert::IsTrue(a == a);
-        Assert::IsTrue(b == b);
+        FALSE(a == b);
+        TRUE(a == a);
+        TRUE(b == b);
 
-        Assert::IsFalse(a.equals(b));
-        Assert::IsTrue(a.equals(a));
-        Assert::IsTrue(b.equals(b));
+        FALSE(a.equals(b));
+        TRUE(a.equals(a));
+        TRUE(b.equals(b));
       }
 
-      TEST_METHOD(GetTypeId_MemoryAddressComparator_ComparisonWorks)
+      TEST(
+        MemoryAddressComparator,
+        GetTypeId,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         using A = TestStateSingletonA<State<MemoryAddressComparator, true>>;
@@ -124,26 +134,32 @@ namespace UT {
         A* a = A::create();
         B* b = B::create();
 
-        Assert::IsTrue(a->typeOf<A>());
-        Assert::IsTrue(b->typeOf<B>());
+        TRUE(a->typeOf<A>());
+        TRUE(b->typeOf<B>());
       }
 
-      TEST_METHOD(Equals_RttiComparator_ComparisonWorks)
+      TEST(
+        RttiComparator,
+        Equals,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         TestStateA<State<RttiComparator, false>> a;
         TestStateB<State<RttiComparator, false>> b;
 
-        Assert::IsFalse(a == b);
-        Assert::IsTrue(a == a);
-        Assert::IsTrue(b == b);
+        FALSE(a == b);
+        TRUE(a == a);
+        TRUE(b == b);
 
-        Assert::IsFalse(a.equals(b));
-        Assert::IsTrue(a.equals(a));
-        Assert::IsTrue(b.equals(b));
+        FALSE(a.equals(b));
+        TRUE(a.equals(a));
+        TRUE(b.equals(b));
       }
 
-      TEST_METHOD(GetTypeId_RttiComparator_ComparisonWorks)
+      TEST(
+        RttiComparator,
+        GetTypeId,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         using A = TestStateA<State<RttiComparator, false>>;
@@ -151,36 +167,42 @@ namespace UT {
         A a;
         B b;
 
-        Assert::IsTrue(a.typeOf<A>());
-        Assert::IsTrue(b.typeOf<B>());
+        TRUE(a.typeOf<A>());
+        TRUE(b.typeOf<B>());
       }
 
-      TEST_METHOD(Equals_TestComparator_ComparisonWorks)
+      TEST(
+        TestComparator,
+        Equals,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         TestStateA<State<TestComparator, false>> a;
         TestStateB<State<TestComparator, false>> b;
 
         TestComparator::isEqual = true;
-        Assert::IsTrue(a == b); // IsTrue because of the global isEqual flag
-        Assert::IsTrue(a == a);
-        Assert::IsTrue(b == b);
+        TRUE(a == b); // IsTrue because of the global isEqual flag
+        TRUE(a == a);
+        TRUE(b == b);
 
-        Assert::IsTrue(a.equals(b)); // IsTrue because of the global isEqual flag
-        Assert::IsTrue(a.equals(a));
-        Assert::IsTrue(b.equals(b));
+        TRUE(a.equals(b)); // IsTrue because of the global isEqual flag
+        TRUE(a.equals(a));
+        TRUE(b.equals(b));
 
         TestComparator::isEqual = false;
-        Assert::IsFalse(a == b);
-        Assert::IsFalse(a == a); // IsTrue because of the global isEqual flag
-        Assert::IsFalse(b == b);
+        FALSE(a == b);
+        FALSE(a == a); // IsTrue because of the global isEqual flag
+        FALSE(b == b);
 
-        Assert::IsFalse(a.equals(b)); // IsTrue because of the global isEqual flag
-        Assert::IsFalse(a.equals(a));
-        Assert::IsFalse(b.equals(b));
+        FALSE(a.equals(b)); // IsTrue because of the global isEqual flag
+        FALSE(a.equals(a));
+        FALSE(b.equals(b));
       }
 
-      TEST_METHOD(GetTypeId_TestComparator_ComparisonWorks)
+      TEST(
+        TestComparator,
+        GetTypeId,
+        ComparisonWorks)
       {
         using namespace StateComparatorTestsImpl;
         using A = TestStateA<State<TestComparator, false>>;
@@ -189,13 +211,15 @@ namespace UT {
         B b;
 
         TestComparator::isEqual = true;
-        Assert::IsTrue(a.typeOf<A>());
-        Assert::IsTrue(b.typeOf<B>());
+        TRUE(a.typeOf<A>());
+        TRUE(b.typeOf<B>());
 
         TestComparator::isEqual = false;
-        Assert::IsFalse(a.typeOf<A>());
-        Assert::IsFalse(b.typeOf<B>());
+        FALSE(a.typeOf<A>());
+        FALSE(b.typeOf<B>());
       }
-    };
+
+    END
+
   }
 }

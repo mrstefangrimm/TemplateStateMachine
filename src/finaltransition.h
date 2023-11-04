@@ -24,7 +24,7 @@ struct FinalTransition {
   enum { E = false };
   enum { X = true };
 
-  using EventType = NullType;
+  using EventType = LokiLight::NullType;
   using FromType = Me;
   using StatePolicy = typename Me::Policy;
 
@@ -54,7 +54,7 @@ struct FinalTransitionExplicit : impl::TransitionBase<Event, EmptyState<typename
   FinalTransitionExplicit() {
     // TODO - Boost SML example is without guard.
     // To Make sure the user defines a guard for the final transition. This is not UML compliant.
-    //CompileTimeError< !is_same<Guard, NoGuard>().value >();
+    //static_assert(!is_same<Guard, NoGuard>().value);
   }
 };
 }

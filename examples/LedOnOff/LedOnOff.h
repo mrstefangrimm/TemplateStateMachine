@@ -34,7 +34,7 @@ class LedOn : public BasicState<LedOn, StatePolicy, true>, public SingletonCreat
 class LedOff : public BasicState<LedOff, StatePolicy, true>, public SingletonCreator<LedOff> {
   friend class BasicState<LedOff, StatePolicy, true>;
   template<class Event>
-  void entry(const Event& ev) {
+  void entry(const Event&) {
     BSP_Execute(digitalWrite(LED_BUILTIN, LOW));
   }
 };

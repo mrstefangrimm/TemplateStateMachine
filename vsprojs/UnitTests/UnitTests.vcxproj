@@ -167,6 +167,8 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChoiceTransitionMultiChoiceTest.cpp" />
+    <ClCompile Include="ChoiceTransitionSubstateTest.cpp" />
     <ClCompile Include="InitFinishTransitionSubstateTest.cpp" />
     <ClCompile Include="InitFinishTransitionTest.cpp" />
     <ClCompile Include="SelfTransitionTest.cpp" />
@@ -179,7 +181,7 @@
     <ClCompile Include="ChoiceTransitionTest.cpp" />
     <ClCompile Include="StatemachineOnOffCallSequenceTest.cpp" />
     <ClCompile Include="StatemachineOnOffGuardAndActionTest.cpp" />
-    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp" />
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitionsTest.cpp" />
     <ClCompile Include="DispatchSameEventSubstateTest.cpp" />
     <ClCompile Include="SubstatemachineEventTest.cpp" />
     <ClCompile Include="SubstatemachineTriggerTest.cpp" />
@@ -195,6 +197,7 @@
     <ClInclude Include="..\..\src\lokilight.h" />
     <ClInclude Include="..\..\src\transition.h" />
     <ClInclude Include="..\..\src\tsm.h" />
+    <ClInclude Include="NotquiteBDD.h" />
     <ClInclude Include="TestHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

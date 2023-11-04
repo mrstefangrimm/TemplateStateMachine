@@ -5,10 +5,6 @@
 namespace LokiLight {
 
 // From Modern C++
-template<bool> struct CompileTimeError;
-template<> struct CompileTimeError<true> {};
-
-// From Modern C++
 template<uint8_t V>
 struct Int2Type {
   enum { value = V };

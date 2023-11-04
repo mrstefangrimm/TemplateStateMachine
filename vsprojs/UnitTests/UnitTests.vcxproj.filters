@@ -28,7 +28,7 @@
     <ClCompile Include="StatemachineOnOffEntryCallsExitTest.cpp">
       <Filter>StatemachineOnOff</Filter>
     </ClCompile>
-    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitions.cpp">
+    <ClCompile Include="StatemachineOnOffInitialAndFinalTransitionsTest.cpp">
       <Filter>StatemachineOnOff</Filter>
     </ClCompile>
     <ClCompile Include="StatemachineTriggerTest.cpp">
@@ -51,6 +51,12 @@
     </ClCompile>
     <ClCompile Include="SubstatemachineEventTest.cpp">
       <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ChoiceTransitionMultiChoiceTest.cpp">
+      <Filter>Transitions</Filter>
+    </ClCompile>
+    <ClCompile Include="ChoiceTransitionSubstateTest.cpp">
+      <Filter>Transitions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +88,7 @@
     <ClInclude Include="..\..\src\eventdispatchers.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
+    <ClInclude Include="NotquiteBDD.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="tsmlib">
