@@ -16,10 +16,10 @@ A comparison with other implementations on an Arduino (Table 1). Using an `enum`
 
 | Example sketch            | enum [bytes]                                                 | tsm [bytes]                                                  | GoF<sup>2</sup> [bytes]                                      | qpn<sup>3</sup> [bytes]                                      |
 | ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| LED On/Off (ROM/RAM)      | 2256/186  [![run](res/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2464/199  [![run](res/test_icon.png)](https://wokwi.com/projects/374516923308308481) | 2962/212  [![run](res/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 4324/289  [![run](res/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
-| Washing machine (ROM/RAM) |                                                              | 3400/207  [![run](res/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                                                              | 5204/295  [![run](res/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
+| LED On/Off (ROM/RAM)      | 1914/186  [![run](res/test_icon.png)](https://wokwi.com/projects/374747201871025153) | 2118/199  [![run](res/test_icon.png)](https://wokwi.com/projects/374516923308308481) | 2622/212  [![run](res/test_icon.png)](https://wokwi.com/projects/374415929109364737) | 3976/289  [![run](res/test_icon.png)](https://wokwi.com/projects/374738713053150209) |
+| Washing machine (ROM/RAM) |                                                              | 2606/207  [![run](res/test_icon.png)](https://wokwi.com/projects/374746180590399489) |                                                              | 4404/295  [![run](res/test_icon.png)](https://wokwi.com/projects/374738815795777537) |
 
-> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, washing machine has five states, and one state has sub-states. I used the Arduino IDE 2.2.0 with the default (unchanged) compiler settings.
+> Table 1: Compares different implementation for two different examples. LED On/Off has only two states, washing machine has five states, and one state has sub-states. I used the Arduino IDE 2.2.1 with the default (unchanged) compiler settings.
 
 
 
@@ -53,7 +53,7 @@ TSM is compatible with the current Arduino tool chain that comes with the Arduin
 
 ### Installation
 
-To use tsm in an Arduino sketch, just copy it to Arduino/Libraries and include "tsm.h". Add the tsm/src folder to the includes to use it on other platforms.
+To use tsm in an Arduino sketch, download the [latest release](https://github.com/mrstefangrimm/TemplateStateMachine/releases) and follow the [instructions to import a .zip library](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries). Add the tsm/src folder to the includes to use it on other platforms.
 
 
 
