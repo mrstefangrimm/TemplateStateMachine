@@ -19,9 +19,6 @@
     <ClInclude Include="..\..\..\src\finaltransition.h">
       <Filter>tsmlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\initialtransition.h">
-      <Filter>tsmlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\lokilight.h">
       <Filter>tsmlib</Filter>
     </ClInclude>

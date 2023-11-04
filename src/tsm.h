@@ -62,3 +62,11 @@ using namespace std;
 #include "choicetransition.h"
 #include "initialtransition.h"
 #include "finaltransition.h"
+
+namespace tsmlib
+{
+  template<class T, class U>
+  using Typelist = LokiLight::Typelist<T, U>;
+
+  using NullType = LokiLight::NullType;
+}

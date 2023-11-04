@@ -22,7 +22,6 @@ namespace UT {
   namespace Transitions {
 
     using namespace tsmlib;
-    using namespace LokiLight;
     using namespace UnitTests::Helpers;
 
     namespace ChoiceTransitionSubstateTestImplImpl {

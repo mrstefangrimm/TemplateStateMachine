@@ -21,7 +21,6 @@ namespace UT {
   namespace Classes {
 
     using namespace tsmlib;
-    using namespace LokiLight;
 
     namespace EventDispatchersTestImpl {
 
@@ -113,7 +112,7 @@ namespace UT {
         OnState on;
         Trigger::Timeout t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::Timeout, size - 1>::execute(&on, &t);
         TRUE(result.consumed);
         EQ(on.getTypeId(), result.activeState->getTypeId());
@@ -132,7 +131,7 @@ namespace UT {
         OnState on;
         Trigger::On t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::On, size - 1>::execute(&on, &t);
         FALSE(result.consumed);
         N(result.activeState);
@@ -151,7 +150,7 @@ namespace UT {
         WrongState wrongState;
         Trigger::Timeout t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::Timeout, size - 1>().execute(&wrongState, &t);
         FALSE(result.consumed);
         N(result.activeState);
@@ -170,7 +169,7 @@ namespace UT {
         OnState on;
         Trigger::Wrong t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::Wrong, size - 1>().execute(&on, &t);
         FALSE(result.consumed);
         N(result.activeState);
@@ -189,7 +188,7 @@ namespace UT {
         OffState off;
         Trigger::Timeout t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::Timeout, size - 1>::execute(&off, &t);
         TRUE(result.consumed);
         EQ(off.getTypeId(), result.activeState->getTypeId());
@@ -208,7 +207,7 @@ namespace UT {
         OffState off;
         Trigger::Off t;
 
-        const int size = Length<TransitionList>::value;
+        const int size = LokiLight::Length<TransitionList>::value;
         auto result = EventDispatcher<TransitionList, Trigger::Off, size - 1>::execute(&off, &t);
         FALSE(result.consumed);
         N(result.activeState);

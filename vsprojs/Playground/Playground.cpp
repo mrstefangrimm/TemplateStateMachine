@@ -19,7 +19,6 @@
 #include <iostream>
 
 using namespace tsmlib;
-using namespace LokiLight;
 
 struct ToSimFromCalibAction {
   template<class T, class V>

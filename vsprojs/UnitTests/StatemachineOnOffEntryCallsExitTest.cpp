@@ -22,7 +22,6 @@ namespace UT {
   namespace StatemachineOnOff {
 
     using namespace tsmlib;
-    using namespace LokiLight;
     using namespace UnitTests::Helpers;
 
     namespace StatemachineOnOffEntryCallsExitTestImpl {

@@ -22,7 +22,6 @@ namespace UT {
   namespace Classes {
 
     using namespace tsmlib;
-    using namespace LokiLight;
     using namespace UnitTests::Helpers;
 
     namespace SubstatemachineEventTestImpl {

@@ -21,7 +21,6 @@ namespace UT {
   namespace Classes {
 
     using namespace tsmlib;
-    using namespace LokiLight;
 
     namespace StatemachineEventTestImpl {
 
