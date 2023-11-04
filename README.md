@@ -1,4 +1,4 @@
-[![CI-Build](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/ci-build.yml)
+[![MSBuild and MSTest](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/msbuild.yml)
 [![Compile Sketches](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml/badge.svg)](https://github.com/mrstefangrimm/TemplateStateMachine/actions/workflows/compile-sketches.yml)
 
 # Template State Machine
