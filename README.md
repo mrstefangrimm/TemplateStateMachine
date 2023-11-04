@@ -200,7 +200,6 @@ Libraries
 
 | Library   | Licence           |
 | :-------- | ----------------- |
-| ParcLib   | LGPL              |
 | Arduino.h | LGPL              |
 | VSCppUnit | Microsoft license |
 
